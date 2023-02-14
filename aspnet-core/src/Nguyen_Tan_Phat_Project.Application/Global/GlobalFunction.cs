@@ -45,8 +45,11 @@ namespace Nguyen_Tan_Phat_Project.Global
             string uploadFilePath = Path.Combine(folderPath + @"/" + uploadFileName);
             if (!Directory.Exists(folderPath))
             {
-
+                Directory.CreateDirectory(folderPath);
             }
+            File.WriteAllBytes(uploadFilePath, fileBytes);
+
+            return uploadFilePath;
         }
     }
 }
