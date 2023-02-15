@@ -73,6 +73,7 @@ namespace Nguyen_Tan_Phat_Project
         {
             IocManager.Resolve<ApplicationPartManager>()
                 .AddApplicationPartsIfNotAddedBefore(typeof(Nguyen_Tan_Phat_ProjectWebCoreModule).Assembly);
+            SetAppFolders();
         }
 
         private void SetAppFolders()

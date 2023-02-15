@@ -12,8 +12,9 @@ namespace Nguyen_Tan_Phat_Project.Authorization
             context.CreatePermission(PermissionNames.Pages_Users_Activation, L("UsersActivation"));
             context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);
 
-            var system = context.CreatePermission(PermissionNames.Pages_System, L("System"));
+            var system = context.CreatePermission(PermissionNames.Pages_System, L("System wide"));
             var test = system.CreateChildPermission(PermissionNames.Page_System_Test, L("Tests"));
+            var add = system.CreateChildPermission(PermissionNames.Page_System_Add, L("Add"));
         }
 
         private static ILocalizableString L(string name)

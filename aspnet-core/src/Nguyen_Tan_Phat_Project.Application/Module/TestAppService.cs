@@ -23,6 +23,12 @@ namespace Nguyen_Tan_Phat_Project.Module
         public async Task AddNewAsync(int id)
         {
 
+        }  
+        
+        [AbpAuthorize(PermissionNames.Page_System_Add)]
+        public async Task GetAsync(int id)
+        {
+
         }
     }
 }
