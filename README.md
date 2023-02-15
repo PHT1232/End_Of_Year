@@ -1,5 +1,7 @@
 # **Run Migrations**
 
 - Open Package Manager Console, select MultipleDbContextEfCoreDemo.EntityFrameworkCore as default project.
-- Run command to create first db: **Update-Database -Context MultipleDbContextEfCoreDemoDbContext**
-- Run command to create second db: **Update-Database -Context MultipleDbContextEfCoreDemoSecondDbContext**
+- **Add-Migration -Context HoChiMinhDbContext Initial_1**
+- **Add-Migration -Context Nguyen_Tan_Phat_ProjectDbContext Initial_2**
+- **Update-Database -Context HoChiMinhDbContext**
+- **Update-Database -Context Nguyen_Tan_Phat_ProjectDbContext**
