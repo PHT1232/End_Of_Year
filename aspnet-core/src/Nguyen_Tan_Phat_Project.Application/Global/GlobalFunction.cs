@@ -26,8 +26,6 @@ namespace Nguyen_Tan_Phat_Project.Global
             if (input != null)
             {
                 input = Regex.Replace(input, @"\s+", " ").Trim();
-                input = Regex.Replace(input, @"[", " ").Trim();
-                input = Regex.Replace(input, @"]", " ").Trim();
                 return input;
             }
             else

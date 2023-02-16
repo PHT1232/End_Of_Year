@@ -9,7 +9,7 @@
 
         public const string Pages_System = "Pages.System";
 
-        public const string Page_System_Test = "Pages.Test";
-        public const string Page_System_Add = "Pages.Add";
+        public const string Page_System_Test = "Pages.System.Test";
+        public const string Page_System_Test_Add = "Pages.System.Test.Add";
     }
 }

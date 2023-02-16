@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Entities
 {
-    public class Test : FullAuditedEntity, IMayHaveTenant
+    public class TestHoChiMinh : FullAuditedEntity, IMayHaveTenant
     {
         public int? TenantId { get; set; }
-
         public int TestVarible { get; set; }
     }
 }

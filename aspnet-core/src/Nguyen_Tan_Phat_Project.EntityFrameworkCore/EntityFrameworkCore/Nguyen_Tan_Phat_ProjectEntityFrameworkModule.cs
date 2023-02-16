@@ -31,6 +31,18 @@ namespace Nguyen_Tan_Phat_Project.EntityFrameworkCore
                         Nguyen_Tan_Phat_ProjectDbContextConfigurer.Configure(options.DbContextOptions, options.ConnectionString);
                     }
                 });
+                
+                Configuration.Modules.AbpEfCore().AddDbContext<HoChiMinhDbContext>(options =>
+                {
+                    if (options.ExistingConnection != null)
+                    {
+                        HoChiMinhDbContextConfigurer.Configure(options.DbContextOptions, options.ExistingConnection);
+                    }
+                    else
+                    {
+                        HoChiMinhDbContextConfigurer.Configure(options.DbContextOptions, options.ConnectionString);
+                    }
+                });
             }
         }
 
