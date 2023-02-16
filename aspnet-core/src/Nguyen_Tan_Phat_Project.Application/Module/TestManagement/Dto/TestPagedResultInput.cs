@@ -9,6 +9,7 @@ namespace Nguyen_Tan_Phat_Project.Module.TestManagement.Dto
 {
     public class TestPagedResultInput : PagedResultRequestDto
     {
+        public int DbContext { get; set; }
         public int testVarible { get; set; }
     }
 }

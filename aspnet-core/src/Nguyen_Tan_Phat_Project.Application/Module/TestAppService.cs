@@ -10,6 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Abp.UI;
+using Abp.Application.Services.Dto;
+using Microsoft.EntityFrameworkCore;
+using Abp.Linq.Extensions;
 
 namespace Nguyen_Tan_Phat_Project.Module
 {
@@ -84,9 +87,34 @@ namespace Nguyen_Tan_Phat_Project.Module
         }  
         
         [AbpAuthorize(PermissionNames.Page_System_Test_Add)]
-        public async Task GetAsync(TestPagedResultInput input)
+        public async Task<PagedResultDto<TestDto>> GetAllAsync(TestPagedResultInput input)
         {
+            if (input == null) throw new ArgumentNullException();
+            
+            if (input.DbContext == 1)
+            {
+                var test = await _testRepository.GetAll().Select(e => new TestDto
+                {
+                    testVarible = input.testVarible,
+                    username = _userRepository.FirstOrDefault(v => v.UserName.Equals("admin"))
+                }).PageBy(input).ToListAsync();
+                return new PagedResultDto<TestDto>
+                {
+                    Items = test,
+                    TotalCount = test.Count
+                };
+            }
 
+            var testHoChiMinh = await _testHoChiMinhRepository.GetAll().Select(e => new TestDto
+            {
+                testVarible = input.testVarible,
+                username = _userRepository.FirstOrDefault(v => v.UserName.Equals("admin"))
+            }).PageBy(input).ToListAsync();
+            return new PagedResultDto<TestDto>
+            {
+                Items = testHoChiMinh,
+                TotalCount = testHoChiMinh.Count
+            };
         }
     }
 }
