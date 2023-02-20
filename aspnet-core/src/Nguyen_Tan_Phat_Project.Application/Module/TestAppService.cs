@@ -13,9 +13,11 @@ using Abp.UI;
 using Abp.Application.Services.Dto;
 using Microsoft.EntityFrameworkCore;
 using Abp.Linq.Extensions;
+using Abp.Modules;
 
 namespace Nguyen_Tan_Phat_Project.Module
 {
+    [AbpAuthorize(PermissionNames.Page_System_Test)]
     public class TestAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
         private readonly IRepository<User, long> _userRepository;
@@ -27,7 +29,7 @@ namespace Nguyen_Tan_Phat_Project.Module
             _testRepository = testRepository;
         }
 
-        [AbpAuthorize(PermissionNames.Page_System_Test)]
+        [AbpAuthorize(PermissionNames.Page_System_Test_Add)]
         public async Task AddNewAsync(TestInput input)
         {
             try
@@ -43,7 +45,6 @@ namespace Nguyen_Tan_Phat_Project.Module
             }
         }
 
-        [AbpAuthorize(PermissionNames.Page_System_Test_Add)]
         public async Task<PagedResultDto<TestDto>> GetAllAsync(TestPagedResultInput input)
         {
             if (input == null) throw new ArgumentNullException();
