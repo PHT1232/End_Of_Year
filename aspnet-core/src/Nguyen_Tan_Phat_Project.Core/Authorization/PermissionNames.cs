@@ -11,5 +11,6 @@
 
         public const string Page_System_Test = "Pages.System.Test";
         public const string Page_System_Test_Add = "Pages.System.Test.Add";
+        public const string Page_System_Test_Delete = "Pages.System.Test.Delete";
     }
 }

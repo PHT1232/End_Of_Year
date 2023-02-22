@@ -15,6 +15,7 @@ namespace Nguyen_Tan_Phat_Project.Authorization
             var system = context.CreatePermission(PermissionNames.Pages_System, L("System"));
             var test = system.CreateChildPermission(PermissionNames.Page_System_Test, L("Tests"));
             test.CreateChildPermission(PermissionNames.Page_System_Test_Add, L("Add"));
+            test.CreateChildPermission(PermissionNames.Page_System_Test_Delete, L("Delete"));
         
         }
 

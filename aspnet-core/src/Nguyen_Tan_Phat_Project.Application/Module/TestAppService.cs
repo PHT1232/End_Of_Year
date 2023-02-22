@@ -34,12 +34,31 @@ namespace Nguyen_Tan_Phat_Project.Module
         {
             try
             {
+                var testDto = await _testRepository.FirstOrDefaultAsync(e => e.TestVarible == input.testVarible);
+
+                if (testDto != null)
+                {
+                    throw new UserFriendlyException("This test variable already exist!");
+                }
+
                 await _testRepository.InsertAsync(new Test
                 {
                     TestVarible = input.testVarible,
                 });
             }
             catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        [AbpAuthorize(PermissionNames.Page_System_Test_Delete)]
+        public async Task DeleteAsync(int id)
+        {
+            try
+            {
+                await _testRepository.DeleteAsync(e => e.TestVarible == id);
+            } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
             }
@@ -58,7 +77,7 @@ namespace Nguyen_Tan_Phat_Project.Module
                 return new PagedResultDto<TestDto>
                 {
                     Items = test,
-                    TotalCount = test.Count
+                    TotalCount = _testRepository.Count()
                 };
             } catch (Exception ex)
             {
