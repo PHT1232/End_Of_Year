@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nguyen_Tan_Phat_Project.Global;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             {
                 fileFolderPath = fileFolderPath.Replace(@"\", @"/");
             }
-            return await Upload
+            return await Upload(fileFolderPath);
         }
 
         private async Task<List<string>> Upload(string fileFolderPath)
@@ -42,8 +41,10 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             }
             foreach (var file in Request.Form.Files)
             {
-                files.Add(GlobalFunction.);
+                files.Add(GlobalFunction.SaveFile(fileFolderPath, file));
             }
+
+            return await Task.FromResult(files);
         }
     }
 }

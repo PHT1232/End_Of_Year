@@ -8,6 +8,8 @@ namespace Nguyen_Tan_Phat_Project
 
         public const string ConnectionStringName = "Default";
 
+        public const string externalClientConnection = "externalClientConnection";
+
         public const bool MultiTenancyEnabled = true;
 
 

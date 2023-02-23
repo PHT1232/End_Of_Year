@@ -25,11 +25,13 @@ namespace Nguyen_Tan_Phat_Project.Global
         {
             if (input != null)
             {
-                return Regex.Replace(input, @"\s+", " ").Trim();
+                input = Regex.Replace(input, @"\s+", " ").Trim();
+                return input;
             }
             else
                 return input;
         }
+
 
         public static string SaveFile(string folderPath, IFormFile importFile)
         {
@@ -45,8 +47,11 @@ namespace Nguyen_Tan_Phat_Project.Global
             string uploadFilePath = Path.Combine(folderPath + @"/" + uploadFileName);
             if (!Directory.Exists(folderPath))
             {
-
+                Directory.CreateDirectory(folderPath);
             }
+            File.WriteAllBytes(uploadFilePath, fileBytes);
+
+            return uploadFilePath;
         }
     }
 }

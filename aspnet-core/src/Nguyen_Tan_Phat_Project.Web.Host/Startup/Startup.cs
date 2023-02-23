@@ -103,7 +103,6 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 
             app.UseAbpRequestLocalization();
 
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<AbpCommonHub>("/signalr");
