@@ -17,7 +17,7 @@ using Abp.Modules;
 
 namespace Nguyen_Tan_Phat_Project.Module
 {
-    [AbpAuthorize(PermissionNames.Page_System_Test)]
+    [AbpAuthorize(PermissionNames.Page_System_Test_View)]
     public class TestAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
         private readonly IRepository<User, long> _userRepository;
