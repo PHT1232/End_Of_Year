@@ -11,6 +11,13 @@ namespace Nguyen_Tan_Phat_Project.EntityFrameworkCore
     {
         /* Define a DbSet for each entity of the application */
         public DbSet<Test> tests { get; set; }
+        public DbSet<Category> categories { get; set; }
+        public DbSet<ExportImport> exportImport { get; set; }
+        public DbSet<ExportImportProduct> exportImportProduct { get; set; }
+        public DbSet<Product> products { get; set; }
+        public DbSet<ProductStorage> productsStorage { get; set; }
+        public DbSet<Storage> storage { get; set; }
+        public DbSet<SubCategory> subCategories { get; set; }
 
         public Nguyen_Tan_Phat_ProjectDbContext(DbContextOptions<Nguyen_Tan_Phat_ProjectDbContext> options)
             : base(options)
