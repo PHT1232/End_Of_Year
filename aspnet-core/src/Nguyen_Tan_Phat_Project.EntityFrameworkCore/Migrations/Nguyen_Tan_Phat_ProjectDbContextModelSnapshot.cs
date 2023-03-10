@@ -1599,9 +1599,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.ToTable("categories");
@@ -1638,6 +1635,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<string>("OrderCreator")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("ReceiveAddress")
                         .HasColumnType("nvarchar(max)");
@@ -1743,11 +1743,14 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("ProductDescription")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProductDetail")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<int?>("SubCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Unit")
                         .HasColumnType("nvarchar(max)");
@@ -1755,6 +1758,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("SubCategoryId");
 
                     b.ToTable("products");
                 });
@@ -1844,15 +1849,54 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
                     b.Property<string>("StorageName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("storage");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.SubCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CategoryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SubCategoryName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("SubCategory");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Test", b =>
@@ -2207,7 +2251,13 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.SubCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId");
+
                     b.Navigation("Category");
+
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductStorage", b =>
@@ -2223,6 +2273,15 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.SubCategory", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.MultiTenancy.Tenant", b =>
