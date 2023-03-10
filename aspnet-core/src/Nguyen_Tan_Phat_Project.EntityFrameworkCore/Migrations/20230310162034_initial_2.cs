@@ -826,7 +826,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubCategory",
+                name: "subCategories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -843,9 +843,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubCategory", x => x.Id);
+                    table.PrimaryKey("PK_subCategories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SubCategory_categories_CategoryId",
+                        name: "FK_subCategories_categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "categories",
                         principalColumn: "Id");
@@ -1012,9 +1012,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         principalTable: "categories",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_products_SubCategory_SubCategoryId",
+                        name: "FK_products_subCategories_SubCategoryId",
                         column: x => x.SubCategoryId,
-                        principalTable: "SubCategory",
+                        principalTable: "subCategories",
                         principalColumn: "Id");
                 });
 
@@ -1475,8 +1475,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 column: "StorageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SubCategory_CategoryId",
-                table: "SubCategory",
+                name: "IX_subCategories_CategoryId",
+                table: "subCategories",
                 column: "CategoryId");
         }
 
@@ -1606,7 +1606,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "storage");
 
             migrationBuilder.DropTable(
-                name: "SubCategory");
+                name: "subCategories");
 
             migrationBuilder.DropTable(
                 name: "categories");

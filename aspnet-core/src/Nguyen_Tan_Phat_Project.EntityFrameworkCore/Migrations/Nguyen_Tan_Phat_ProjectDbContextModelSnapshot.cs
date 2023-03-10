@@ -1896,7 +1896,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategory");
+                    b.ToTable("subCategories");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Test", b =>
