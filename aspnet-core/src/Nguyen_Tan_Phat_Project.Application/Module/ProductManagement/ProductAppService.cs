@@ -27,6 +27,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<SubCategory> _subCategoryRepository;
 
         public ProductAppService(IRepository<Product, string> productRepository
             , IRepository<Category, string> categoryRepository
@@ -35,6 +36,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             , IRepository<ProductStorage> productStorageRepository
             , IRepository<ExportImport, string> exportImportRepository
             , IRepository<ExportImportProduct> exportImportProductRepository
+            , IRepository<SubCategory> subCategoryRepository
             )
         {
             _productRepository = productRepository;
@@ -44,6 +46,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             _productStorageRepository = productStorageRepository;
             _exportImportRepository = exportImportRepository;
             _exportImportProductRepository = exportImportProductRepository;
+            _subCategoryRepository = subCategoryRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Product_Add)]
@@ -202,6 +205,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
                     Price = e.Price,
                     Unit = e.Unit,
+                    CreationTime = e.CreationTime,
+                    LastDateModified = e.LastModificationTime,
+                    Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.CreatorUserId || l.Id == e.LastModifierUserId).Name
                 }).PageBy(input).ToListAsync();
 
                 return new PagedResultDto<ProductGetAllDto>
@@ -214,6 +220,31 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             {
                 throw new UserFriendlyException(ex.Message);
             }
+        }
+
+        public async Task<List<CategoryProduct>> GetCategoryProductAsync()
+        {
+            var categoryDto = await _categoryRepository.GetAll()
+                .Select(e => new CategoryProduct
+                {
+                    CategoryId = e.Id,
+                    CategoryName = e.CategoryName,
+                }).ToListAsync();
+
+            return categoryDto;
+        }
+
+        public async Task<List<SubcategoryProduct>> GetSubcategoryProductAsync(string categoryId)
+        {
+            var subCategoryDto = await _subCategoryRepository.GetAll()
+                .Where(e => e.CategoryId == categoryId)
+                .Select(e => new SubcategoryProduct
+                {
+                    SubcategoryId = e.Id,
+                    SubcategoryName = e.SubCategoryName
+                }).ToListAsync();
+
+            return subCategoryDto;
         }
 
         public async Task<ProductOutputDto> GetAsync(string id)

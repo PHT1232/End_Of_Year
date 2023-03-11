@@ -12,6 +12,6 @@ namespace Nguyen_Tan_Phat_Project.Module.CategoryManagement.Dto
         public string CategoryCode { get; set; }
         public string CategoryName { get; set; }
         public string Description { get; set; }
-        public List<string> SubCategorys { get; set; }
+        public List<string> subCategories { get; set; }
     }
 }
