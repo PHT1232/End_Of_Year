@@ -2,6 +2,7 @@
 using Abp.Authorization;
 using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
+using Nguyen_Tan_Phat_Project.Module.StorageManagement.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +57,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             try
             {
                 var productDto = await _productRepository.FirstOrDefaultAsync(e => e.Id == input.ProductCode || e.ProductName == input.ProductName);
-                if (productDto == null)
+                if (productDto != null)
                 {
                     throw new UserFriendlyException("Sản phẩm này đã tồn tại");
                 }
@@ -73,7 +75,19 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     SubCategoryId = input.SubCategoryId,
                     LastModificationTime = creationTime,
                 };
+                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                {
+                    ProductId = input.ProductCode,
+                    StorageId = e.StorageCode,
+                    ProductQuantity = e.ProductQuantity,
+                    ProductLocation = e.ProductLocation,
+                    Description = e.Description
+                }).ToList();
                 await _productRepository.InsertAsync(product);
+                foreach (var storage in listOfStorageProduct)
+                {
+                    _productStorageRepository.Insert(storage);
+                }
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -99,6 +113,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 }
 
                 await _productRepository.DeleteAsync(e => e.Id == id);
+                await _productStorageRepository.DeleteAsync(e => e.ProductId == id);
             } catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -137,83 +152,99 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                if (!string.IsNullOrEmpty(input.Keyword))
+                if (input.StorageCode == null)
                 {
-                    var storageProducts = await _productStorageRepository.GetAll()
+                    var storageRepo = await this._storageRepository.GetAll().OrderByDescending(e => e.CreationTime).ToArrayAsync();
+                    input.StorageCode = storageRepo[0].Id; 
+                }
+                var storageProducts = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageId.Contains(input.Keyword))
                         .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId.Contains(input.StorageCode))
                         .PageBy(input).ToListAsync();
 
-                    if (!storageProducts.IsNullOrEmpty())
+                //if (!string.IsNullOrEmpty(input.Keyword))
+                //{
+                //    var storageProducts = await _productStorageRepository.GetAll()
+                //        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageId.Contains(input.Keyword))
+                //        .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId.Contains(input.StorageCode))
+                //        .PageBy(input).ToListAsync();
+                //}
+                if (!storageProducts.IsNullOrEmpty())
+                {
+                    int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.Keyword)).Count();
+                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
+                    foreach (var storageProduct in storageProducts)
                     {
-                        int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.Keyword)).Count();
-                        List<ProductGetAllDto> result = new List<ProductGetAllDto>();
-                        foreach (var storageProduct in storageProducts)
+                        var product = await _productRepository.FirstOrDefaultAsync(e => e.Id == storageProduct.ProductId);
+                        var productDto = new ProductGetAllDto
                         {
-                            var product = await _productRepository.FirstOrDefaultAsync(e => e.Id == storageProduct.ProductId);
-                            var productDto = new ProductGetAllDto
-                            {
-                                ProductCode = product.Id,
-                                ProductName = product.ProductName,
-                                CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == product.CategoryId).CategoryName,
-                                Price = product.Price,
-                                Unit = product.Unit,
-                            };
-                            result.Add(productDto);
-                        }
-
-                        return new PagedResultDto<ProductGetAllDto> {
-                            Items = result,
-                            TotalCount = totalCount
+                            ProductCode = product.Id,
+                            ProductName = product.ProductName,
+                            CategoryName = product.CategoryId,
+                            Price = product.Price,
+                            Unit = product.Unit,
+                            CreationTime = product.CreationTime,
+                            LastDateModified = product.LastModificationTime,
+                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == product.CreatorUserId || l.Id == product.LastModifierUserId).Name
                         };
-                    } else
-                    {
-                        int totalCount = _productRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword))
-                        .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.CategoryId.Contains(input.CategoryCode))
-                        .Select(e => new ProductGetAllDto
-                        {
-                            ProductCode = e.Id,
-                            ProductName = e.ProductName,
-                            CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                            Price = e.Price,
-                            Unit = e.Unit,
-                        }).Count();
-
-                        var productDto = await _productRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword)).Select(e => new ProductGetAllDto
-                        {
-                            ProductCode = e.Id,
-                            ProductName = e.ProductName,
-                            CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                            Price = e.Price,
-                            Unit = e.Unit,
-                        }).PageBy(input).ToListAsync();
-
-                        return new PagedResultDto<ProductGetAllDto>
-                        {
-                            Items = productDto,
-                            TotalCount = totalCount
-                        };
+                        result.Add(productDto);
                     }
+
+                    List<ProductGetAllDto> resultList = new List<ProductGetAllDto>();
+                    resultList = result.Distinct().ToList();
+
+                    return new PagedResultDto<ProductGetAllDto>
+                    {
+                        Items = resultList,
+                        TotalCount = totalCount
+                    };
                 }
 
-                var productGetAll = await _productRepository.GetAll().Select(e => new ProductGetAllDto
-                {
-                    ProductCode = e.Id,
-                    ProductName = e.ProductName,
-                    CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                    Price = e.Price,
-                    Unit = e.Unit,
-                    CreationTime = e.CreationTime,
-                    LastDateModified = e.LastModificationTime,
-                    Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.CreatorUserId || l.Id == e.LastModifierUserId).Name
-                }).PageBy(input).ToListAsync();
+                var productDto1 = await _productRepository.GetAll()
+
+                //else
+                //{
+                //    int totalCount = _productRepository.GetAll()
+                //    .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword))
+                //    .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.CategoryId.Contains(input.CategoryCode))
+                //    .Count();
+
+                //    var productDto = await _productRepository.GetAll()
+                //    .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword)).Select(e => new ProductGetAllDto
+                //    {
+                //        ProductCode = e.Id,
+                //        ProductName = e.ProductName,
+                //        CategoryName = e.CategoryId,
+                //        Price = e.Price,
+                //        Unit = e.Unit,
+                //        CreationTime = e.CreationTime,
+                //        LastDateModified = e.LastModificationTime,
+                //        Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.CreatorUserId || l.Id == e.LastModifierUserId).Name
+                //    }).PageBy(input).Distinct().ToListAsync();
+
+                //    return new PagedResultDto<ProductGetAllDto>
+                //    {
+                //        Items = productDto,
+                //        TotalCount = totalCount
+                //    };
+                //}
+                //var  _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName;
+                //var productGetAll = await _productRepository.GetAll().Select(e => new ProductGetAllDto
+                //{
+                //    ProductCode = e.Id,
+                //    ProductName = e.ProductName,
+                //    CategoryName = e.CategoryId,
+                //    Price = e.Price,
+                //    Unit = e.Unit,
+                //    CreationTime = e.CreationTime,
+                //    LastDateModified = e.LastModificationTime,
+                //    Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.CreatorUserId || l.Id == e.LastModifierUserId).Name
+                //}).PageBy(input).ToListAsync();
 
                 return new PagedResultDto<ProductGetAllDto>
                 {
-                    Items = productGetAll,
-                    TotalCount = _productRepository.Count()
+                    Items = new List<ProductGetAllDto>(),
+                    TotalCount = 0
                 };
             }
             catch (Exception ex)
@@ -232,6 +263,18 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 }).ToListAsync();
 
             return categoryDto;
+        }
+
+        public async Task<List<StorageProductDetail>> GetStorageProductAsync()
+        {
+            var storageDto = await _storageRepository.GetAll()
+                .Select(e => new StorageProductDetail
+                {
+                    StorageCode = e.Id,
+                    StorageName = e.StorageName,
+                }).ToListAsync();
+
+            return storageDto;
         }
 
         public async Task<List<SubcategoryProduct>> GetSubcategoryProductAsync(string categoryId)

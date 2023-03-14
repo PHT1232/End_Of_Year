@@ -16,5 +16,6 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
         public string CategoryId { get; set; }
         public int? SubCategoryId { get; set; }
         public string Unit { get; set; }
+        public List<ProductStorageDto> storages { get; set; }
     }
 }

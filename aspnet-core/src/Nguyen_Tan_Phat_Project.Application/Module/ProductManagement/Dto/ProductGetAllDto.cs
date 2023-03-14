@@ -10,11 +10,11 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
     {
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
         public float Price { get; set; }
         public string Unit { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime? LastDateModified { get; set; }
-        public string Username { get; set; }
+        public string? Username { get; set; }
     }
 }
