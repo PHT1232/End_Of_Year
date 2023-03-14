@@ -155,7 +155,14 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 if (input.StorageCode == null)
                 {
                     var storageRepo = await this._storageRepository.GetAll().OrderByDescending(e => e.CreationTime).ToArrayAsync();
-                    input.StorageCode = storageRepo[0].Id; 
+                    if (storageRepo.IsNullOrEmpty())
+                    {
+                        input.StorageCode = null;
+                    }
+                    else
+                    {
+                        input.StorageCode = storageRepo[0].Id;
+                    }
                 }
                 var storageProducts = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageId.Contains(input.Keyword))
@@ -200,7 +207,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     };
                 }
 
-                var productDto1 = await _productRepository.GetAll()
+                //var productDto1 = await _productRepository.GetAll()
 
                 //else
                 //{
