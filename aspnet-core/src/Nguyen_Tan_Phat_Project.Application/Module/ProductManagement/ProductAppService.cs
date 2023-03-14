@@ -61,7 +61,6 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 {
                     throw new UserFriendlyException("Sản phẩm này đã tồn tại");
                 }
-
                 DateTime creationTime = DateTime.Now;
                 var product = new Product
                 {
@@ -79,9 +78,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 {
                     ProductId = input.ProductCode,
                     StorageId = e.StorageCode,
-                    ProductQuantity = e.ProductQuantity,
+                    ProductQuantity = e.Quantity,
                     ProductLocation = e.ProductLocation,
-                    Description = e.Description
+                    //Description = e.Description
                 }).ToList();
                 await _productRepository.InsertAsync(product);
                 foreach (var storage in listOfStorageProduct)
@@ -125,7 +124,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                var checkProductDto = await _productRepository.FirstOrDefaultAsync(e => e.ProductName == input.ProductName);
+                var checkProductDto = await _productRepository.FirstOrDefaultAsync(e => e.ProductName == input.ProductName && e.Id != input.ProductCode);
                 if (checkProductDto != null)
                     throw new UserFriendlyException("Đã tồn tại sản phẩm với tên này");
 
@@ -141,6 +140,23 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 productDto.SubCategoryId = input.SubCategoryId;
                 productDto.Unit = input.Unit;
 
+                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                {
+                    Id = e.StorageProductId,
+                    ProductId = input.ProductCode,
+                    StorageId = e.StorageCode,
+                    ProductQuantity = e.Quantity,
+                    ProductLocation = e.ProductLocation,
+                    //Description = e.Description
+                }).ToList();
+                foreach (var storage in listOfStorageProduct)
+                {
+                    var storageProduct = _productStorageRepository.FirstOrDefault(e => e.Id == storage.Id);
+                    storageProduct.ProductQuantity = storage.ProductQuantity;
+                    storageProduct.StorageId = storage.StorageId;
+                    storageProduct.ProductLocation = storage.ProductLocation;
+                    _productStorageRepository.Update(storageProduct);
+                }
                 await _productRepository.UpdateAsync(productDto);
             } catch (Exception ex)
             {
@@ -152,7 +168,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                if (input.StorageCode == null)
+                if (input.StorageCode == null || input.StorageCode.Equals("0"))
                 {
                     var storageRepo = await this._storageRepository.GetAll().OrderByDescending(e => e.CreationTime).ToArrayAsync();
                     if (storageRepo.IsNullOrEmpty())
@@ -310,8 +326,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     .Where(e => e.Id == storageProduct.StorageId)
                     .Select(e => new StorageProductDetail
                     {
+                        StorageProductId = storageProduct.Id,
                         StorageCode = e.Id,
                         StorageName = e.StorageName,
+                        ProductLocation = storageProduct.ProductLocation,
                         Quantity = storageProduct.ProductQuantity
                     })
                     .ToListAsync();

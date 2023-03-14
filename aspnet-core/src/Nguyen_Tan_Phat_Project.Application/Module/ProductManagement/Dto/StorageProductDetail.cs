@@ -8,6 +8,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
 {
     public class StorageProductDetail
     {
+        public int StorageProductId { get; set; }
         public string StorageCode { get; set; }
         public string StorageName { get; set; }
         public int Quantity { get; set; }
