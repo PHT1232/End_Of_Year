@@ -12,5 +12,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement.Dto
         public string ProductName { get; set; }
         public string Unit { get; set; }
         public int Quantity { get; set; }
+        public string Location { get; set; }
     }
 }
