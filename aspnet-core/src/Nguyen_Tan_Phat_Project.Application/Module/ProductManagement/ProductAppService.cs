@@ -152,10 +152,15 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 foreach (var storage in listOfStorageProduct)
                 {
                     var storageProduct = _productStorageRepository.FirstOrDefault(e => e.Id == storage.Id);
+                    if (storageProduct == null)
+                    {
+                        storageProduct = new ProductStorage();
+                        storageProduct.ProductId = storage.ProductId;
+                    }
                     storageProduct.ProductQuantity = storage.ProductQuantity;
                     storageProduct.StorageId = storage.StorageId;
                     storageProduct.ProductLocation = storage.ProductLocation;
-                    _productStorageRepository.Update(storageProduct);
+                    _productStorageRepository.InsertOrUpdate(storageProduct);
                 }
                 await _productRepository.UpdateAsync(productDto);
             } catch (Exception ex)
@@ -180,14 +185,29 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         input.StorageCode = storageRepo[storageRepo.Length - 1].Id;
                     }
                 }
-                var storageProducts = await _productStorageRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageId.Contains(input.Keyword))
+                var storageProducts = new List<ProductStorage>();
+                if (!input.Keyword.IsNullOrEmpty())
+                {
+                    var productKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.ProductId.Contains(input.Keyword) || e.Product.ProductName.Contains(input.Keyword));
+                    //var storageKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.StorageId.Contains(input.Keyword));
+                    //var categoryKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.Product.CategoryId.Contains(input.Keyword));
+
+                    storageProducts = await _productStorageRepository.GetAll()
+                        //.WhereIf(!productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.Keyword))
+                        //.WhereIf(!storageKeyword.IsNullOrDeleted(), e => e.ProductId.Contains(input.Keyword))
+                        //.WhereIf(!categoryKeyword.IsNullOrDeleted(), e => e.Product.ProductName.Contains(input.Keyword))
+                        .WhereIf(!string.IsNullOrEmpty(input.StorageCode) && !productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.StorageCode) && e.Product.ProductName.Contains(input.Keyword) || e.ProductId.Contains(input.Keyword))
+                        .PageBy(input).ToListAsync();
+                } else
+                {
+                    storageProducts = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId.Contains(input.StorageCode))
                         .PageBy(input).ToListAsync();
+                }
 
                 if (!storageProducts.IsNullOrEmpty())
                 {
-                    int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.Keyword)).Count();
+                    int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.StorageCode)).Count();
                     List<ProductGetAllDto> result = new List<ProductGetAllDto>();
                     foreach (var storageProduct in storageProducts)
                     {
@@ -206,6 +226,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                                 CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == product.CategoryId).CategoryName,
                                 Price = product.Price,
                                 Unit = product.Unit,
+                                Quantity = storageProduct.ProductQuantity,
                                 CreationTime = product.CreationTime,
                                 LastDateModified = product.LastModificationTime,
                                 Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == product.CreatorUserId || l.Id == product.LastModifierUserId).Name
