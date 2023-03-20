@@ -17,5 +17,6 @@ namespace Nguyen_Tan_Phat_Project.Entities
         [ForeignKey("Storage")]
         public string StorageId { get; set; }
         public Storage Storage { get; set; }
+        public string Description { get; set; }
     }
 }

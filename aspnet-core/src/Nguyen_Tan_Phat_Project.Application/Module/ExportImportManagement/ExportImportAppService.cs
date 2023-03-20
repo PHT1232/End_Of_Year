@@ -68,19 +68,29 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                 {
                     throw new UserFriendlyException("Đơn này đã tồn tại");
                 }
+                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.CustomerPhone == input.Customer.CustomerPhone);
+                if (customer == null)
+                {
+                    customer.CustomerName = input.Customer.CustomerName;
+                    customer.CustomerPhone = input.Customer.CustomerPhone;
+                    customer.CustomerAdress = input.Customer.CustomerAdress;
+                    await _customerRepository.InsertAsync(customer);
+                }
+
                 DateTime creationTime = DateTime.Now;
                 var exportImport = new ExportImport
                 {
                     Id = input.ExportImportCode,
                     StorageId = input.StorageId,
-                    NameOfReceiver = input.NameOfReceiver,
-                    ReceiveAddress = input.ReceiveAddress,
+                    NameOfReceiver = input.Customer.CustomerName,
+                    ReceiveAddress = input.Customer.CustomerAdress,
                     OrderCreator = input.OrderCreator,
                     OrderStatus = 1,
+                    Description = input.Description,
                     LastModificationTime = creationTime,
                 };
                 string id = await _exportImportRepository.InsertAndGetIdAsync(exportImportDto);
-                
+
                 foreach (var product in input.Products)
                 {
                     var exportImportProduct = new ExportImportProduct
@@ -120,7 +130,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Export_Import_Add)]
-        public async Task AddCustomer(CustomerDto customerDto)
+        public async Task AddCustomerAsync(CustomerDto customerDto)
         {
             try
             {
@@ -128,8 +138,28 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                 {
                     CustomerName = customerDto.CustomerName,
                     CustomerPhone = customerDto.CustomerPhone,
+                    CustomerAdress = customerDto.CustomerAdress,
                 };
                 await _customerRepository.InsertAsync(customer);
+            } catch (Exception ex) 
+            { 
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        public async Task<CustomerDto> GetCustomerAsync(string phoneNumber)
+        {
+            try
+            {
+                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.CustomerPhone == phoneNumber);
+                var customerDto = new CustomerDto
+                {
+                    CustomerPhone = customer.CustomerPhone,
+                    CustomerAdress = customer.CustomerAdress,
+                    CustomerCode = customer.Id,
+                    CustomerName = customer.CustomerName,
+                };
+                return customerDto;
             } catch (Exception ex) 
             { 
                 throw new UserFriendlyException(ex.Message);
