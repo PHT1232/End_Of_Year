@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230320090157_initial2")]
-    partial class initial2
+    [Migration("20230321123002_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1685,6 +1685,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderType")
                         .HasColumnType("int");
 
                     b.Property<string>("ReceiveAddress")

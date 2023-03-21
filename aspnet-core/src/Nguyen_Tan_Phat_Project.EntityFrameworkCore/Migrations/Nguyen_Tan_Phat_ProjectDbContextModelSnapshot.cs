@@ -1685,6 +1685,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
+                    b.Property<int>("OrderType")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReceiveAddress")
                         .HasColumnType("nvarchar(max)");
 
