@@ -58,9 +58,9 @@ namespace Nguyen_Tan_Phat_Project.Module.CategoryManagement
                     LastModificationTime = creationTime,
                 });
 
-                if (!input.SubCategorys.IsNullOrEmpty())
+                if (!input.subCategories.IsNullOrEmpty())
                 {
-                    foreach (var subcategorydto in input.SubCategorys)
+                    foreach (var subcategorydto in input.subCategories)
                     {
                         var subcategory = new SubCategory
                         {
@@ -99,7 +99,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CategoryManagement
         {
             try
             {
-                var categoryUpdateCheck = _categoryRepository.FirstOrDefaultAsync(x => x.CategoryName == input.CategoryName && x.Id != input.CategoryCode);
+                var categoryUpdateCheck = await _categoryRepository.FirstOrDefaultAsync(x => x.CategoryName == input.CategoryName && x.Id != input.CategoryCode);
                 if (categoryUpdateCheck != null)
                     throw new UserFriendlyException("Đã có danh mục với tên này");
 
@@ -109,12 +109,13 @@ namespace Nguyen_Tan_Phat_Project.Module.CategoryManagement
 
                 categoryDto.CategoryName = input.CategoryName;
                 categoryDto.Description = input.Description;
-                if (input.SubCategorys.IsNullOrEmpty())
+                if (input.subCategories.IsNullOrEmpty())
                 {
                     await _subCategoryRepository.DeleteAsync(e => e.CategoryId == input.CategoryCode);
                 } else
                 {
-                    foreach (var subcategorydto in input.SubCategorys)
+                    await _subCategoryRepository.DeleteAsync(e => e.CategoryId == input.CategoryCode);
+                    foreach (var subcategorydto in input.subCategories)
                     {
                         var subcategory = new SubCategory
                         {

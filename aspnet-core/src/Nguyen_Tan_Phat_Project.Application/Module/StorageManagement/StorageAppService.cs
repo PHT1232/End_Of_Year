@@ -76,7 +76,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
                 {
                     throw new UserFriendlyException("Không thể xóa kho đang có sản phẩm");
                 }
-                await _storageRepository.DeleteAsync(storageDto);
+                await _storageRepository.HardDeleteAsync(storageDto);
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -156,13 +156,14 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
             List<StorageProductDto> storageOutputDtos = new List<StorageProductDto>();
             foreach (var product in productList)
             {
-                var quantity = _productStorageRepository.FirstOrDefault(e => e.ProductId == product.Id).ProductQuantity;
+                var productStorage1 = _productStorageRepository.FirstOrDefault(e => e.ProductId == product.Id);
                 var storageProduct = new StorageProductDto
                 {
                     ProductCode = product.Id,
                     ProductName = product.ProductName,
-                    Quantity = quantity,
+                    Quantity = productStorage1.ProductQuantity,
                     Unit = product.Unit,
+                    Location = productStorage1.ProductLocation,
                 };
                 storageOutputDtos.Add(storageProduct);
             }

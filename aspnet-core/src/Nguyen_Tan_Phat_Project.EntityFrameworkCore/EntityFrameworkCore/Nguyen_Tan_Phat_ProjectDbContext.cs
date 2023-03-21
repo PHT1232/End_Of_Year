@@ -18,6 +18,7 @@ namespace Nguyen_Tan_Phat_Project.EntityFrameworkCore
         public DbSet<ProductStorage> productsStorage { get; set; }
         public DbSet<Storage> storage { get; set; }
         public DbSet<SubCategory> subCategories { get; set; }
+        public DbSet<Customer> customers { get; set; }
 
         public Nguyen_Tan_Phat_ProjectDbContext(DbContextOptions<Nguyen_Tan_Phat_ProjectDbContext> options)
             : base(options)

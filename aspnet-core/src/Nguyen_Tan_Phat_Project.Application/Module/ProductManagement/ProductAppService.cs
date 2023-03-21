@@ -1,17 +1,22 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
+using Nguyen_Tan_Phat_Project.Module.StorageManagement.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +32,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<SubCategory> _subCategoryRepository;
 
         public ProductAppService(IRepository<Product, string> productRepository
             , IRepository<Category, string> categoryRepository
@@ -35,6 +41,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             , IRepository<ProductStorage> productStorageRepository
             , IRepository<ExportImport, string> exportImportRepository
             , IRepository<ExportImportProduct> exportImportProductRepository
+            , IRepository<SubCategory> subCategoryRepository
             )
         {
             _productRepository = productRepository;
@@ -44,6 +51,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             _productStorageRepository = productStorageRepository;
             _exportImportRepository = exportImportRepository;
             _exportImportProductRepository = exportImportProductRepository;
+            _subCategoryRepository = subCategoryRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Product_Add)]
@@ -52,11 +60,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             try
             {
                 var productDto = await _productRepository.FirstOrDefaultAsync(e => e.Id == input.ProductCode || e.ProductName == input.ProductName);
-                if (productDto == null)
+                if (productDto != null)
                 {
                     throw new UserFriendlyException("Sản phẩm này đã tồn tại");
                 }
-
                 DateTime creationTime = DateTime.Now;
                 var product = new Product
                 {
@@ -70,7 +77,19 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     SubCategoryId = input.SubCategoryId,
                     LastModificationTime = creationTime,
                 };
+                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                {
+                    ProductId = input.ProductCode,
+                    StorageId = e.StorageCode,
+                    ProductQuantity = e.Quantity,
+                    ProductLocation = e.ProductLocation,
+                    //Description = e.Description
+                }).ToList();
                 await _productRepository.InsertAsync(product);
+                foreach (var storage in listOfStorageProduct)
+                {
+                    _productStorageRepository.Insert(storage);
+                }
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -88,14 +107,12 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
                     if (exportImport != null)
                     {
-                        if (exportImport.OrderStatus.Equals("Inprocess"))
-                        {
-                            throw new UserFriendlyException("Không thể xóa sản phẩm đang trong quá trình xuất/nhập kho");
-                        }
+                        throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
                     }
                 }
 
                 await _productRepository.DeleteAsync(e => e.Id == id);
+                await _productStorageRepository.DeleteAsync(e => e.ProductId == id);
             } catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -107,7 +124,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                var checkProductDto = await _productRepository.FirstOrDefaultAsync(e => e.ProductName == input.ProductName);
+                var checkProductDto = await _productRepository.FirstOrDefaultAsync(e => e.ProductName == input.ProductName && e.Id != input.ProductCode);
                 if (checkProductDto != null)
                     throw new UserFriendlyException("Đã tồn tại sản phẩm với tên này");
 
@@ -123,6 +140,28 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 productDto.SubCategoryId = input.SubCategoryId;
                 productDto.Unit = input.Unit;
 
+                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                {
+                    Id = e.StorageProductId,
+                    ProductId = input.ProductCode,
+                    StorageId = e.StorageCode,
+                    ProductQuantity = e.Quantity,
+                    ProductLocation = e.ProductLocation,
+                    //Description = e.Description
+                }).ToList();
+                foreach (var storage in listOfStorageProduct)
+                {
+                    var storageProduct = _productStorageRepository.FirstOrDefault(e => e.Id == storage.Id);
+                    if (storageProduct == null)
+                    {
+                        storageProduct = new ProductStorage();
+                        storageProduct.ProductId = storage.ProductId;
+                    }
+                    storageProduct.ProductQuantity = storage.ProductQuantity;
+                    storageProduct.StorageId = storage.StorageId;
+                    storageProduct.ProductLocation = storage.ProductLocation;
+                    _productStorageRepository.InsertOrUpdate(storageProduct);
+                }
                 await _productRepository.UpdateAsync(productDto);
             } catch (Exception ex)
             {
@@ -134,86 +173,121 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                if (!string.IsNullOrEmpty(input.Keyword))
+                if (input.StorageCode == null || input.StorageCode.Equals("0"))
                 {
-                    var storageProducts = await _productStorageRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageId.Contains(input.Keyword))
+                    var storageRepo = await this._storageRepository.GetAll().OrderByDescending(e => e.CreationTime).ToArrayAsync();
+                    if (storageRepo.IsNullOrEmpty())
+                    {
+                        input.StorageCode = null;
+                    }
+                    else
+                    {
+                        input.StorageCode = storageRepo[storageRepo.Length - 1].Id;
+                    }
+                }
+                var storageProducts = new List<ProductStorage>();
+                if (!input.Keyword.IsNullOrEmpty())
+                {
+                    var productKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.ProductId.Contains(input.Keyword) || e.Product.ProductName.Contains(input.Keyword));
+                    //var storageKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.StorageId.Contains(input.Keyword));
+                    //var categoryKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.Product.CategoryId.Contains(input.Keyword));
+
+                    storageProducts = await _productStorageRepository.GetAll()
+                        //.WhereIf(!productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.Keyword))
+                        //.WhereIf(!storageKeyword.IsNullOrDeleted(), e => e.ProductId.Contains(input.Keyword))
+                        //.WhereIf(!categoryKeyword.IsNullOrDeleted(), e => e.Product.ProductName.Contains(input.Keyword))
+                        .WhereIf(!string.IsNullOrEmpty(input.StorageCode) && !productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.StorageCode) && e.Product.ProductName.Contains(input.Keyword) || e.ProductId.Contains(input.Keyword))
+                        .PageBy(input).ToListAsync();
+                } else
+                {
+                    storageProducts = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId.Contains(input.StorageCode))
                         .PageBy(input).ToListAsync();
+                }
 
-                    if (!storageProducts.IsNullOrEmpty())
+                if (!storageProducts.IsNullOrEmpty())
+                {
+                    int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.StorageCode)).Count();
+                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
+                    foreach (var storageProduct in storageProducts)
                     {
-                        int totalCount = _productStorageRepository.GetAll().Where(e => e.StorageId.Contains(input.Keyword)).Count();
-                        List<ProductGetAllDto> result = new List<ProductGetAllDto>();
-                        foreach (var storageProduct in storageProducts)
+                        var product = _productRepository.GetAll()
+                        .WhereIf(input.CategoryCode != "0" && input.SubCategoryCode != 0, e => e.CategoryId == input.CategoryCode && e.SubCategoryId == input.SubCategoryCode)
+                        .WhereIf(input.CategoryCode != "0" && input.SubCategoryCode == 0, e => e.CategoryId == input.CategoryCode)
+                        .WhereIf(input.CategoryCode == "0" && input.SubCategoryCode == 0, e => e.Id == storageProduct.ProductId)
+                        .FirstOrDefault(x => storageProduct.ProductId.Equals(x.Id));
+
+                        if (product != null)
                         {
-                            var product = await _productRepository.FirstOrDefaultAsync(e => e.Id == storageProduct.ProductId);
                             var productDto = new ProductGetAllDto
                             {
                                 ProductCode = product.Id,
                                 ProductName = product.ProductName,
-                                CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == product.CategoryId).CategoryName,
+                                CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == product.CategoryId).CategoryName,
                                 Price = product.Price,
                                 Unit = product.Unit,
+                                Quantity = storageProduct.ProductQuantity,
+                                CreationTime = product.CreationTime,
+                                LastDateModified = product.LastModificationTime,
+                                Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == product.CreatorUserId || l.Id == product.LastModifierUserId).Name
                             };
                             result.Add(productDto);
                         }
-
-                        return new PagedResultDto<ProductGetAllDto> {
-                            Items = result,
-                            TotalCount = totalCount
-                        };
-                    } else
-                    {
-                        int totalCount = _productRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword))
-                        .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.CategoryId.Contains(input.CategoryCode))
-                        .Select(e => new ProductGetAllDto
-                        {
-                            ProductCode = e.Id,
-                            ProductName = e.ProductName,
-                            CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                            Price = e.Price,
-                            Unit = e.Unit,
-                        }).Count();
-
-                        var productDto = await _productRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.CategoryId.Contains(input.Keyword)).Select(e => new ProductGetAllDto
-                        {
-                            ProductCode = e.Id,
-                            ProductName = e.ProductName,
-                            CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                            Price = e.Price,
-                            Unit = e.Unit,
-                        }).PageBy(input).ToListAsync();
-
-                        return new PagedResultDto<ProductGetAllDto>
-                        {
-                            Items = productDto,
-                            TotalCount = totalCount
-                        };
                     }
+                    return new PagedResultDto<ProductGetAllDto>
+                    {
+                        Items = result,
+                        TotalCount = totalCount
+                    };
                 }
-
-                var productGetAll = await _productRepository.GetAll().Select(e => new ProductGetAllDto
-                {
-                    ProductCode = e.Id,
-                    ProductName = e.ProductName,
-                    CategoryName = _categoryRepository.FirstOrDefault(m => m.Id == e.CategoryId).CategoryName,
-                    Price = e.Price,
-                    Unit = e.Unit,
-                }).PageBy(input).ToListAsync();
 
                 return new PagedResultDto<ProductGetAllDto>
                 {
-                    Items = productGetAll,
-                    TotalCount = _productRepository.Count()
+                    Items = new List<ProductGetAllDto>(),
+                    TotalCount = 0
                 };
             }
             catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
             }
+        }
+
+        public async Task<List<CategoryProduct>> GetCategoryProductAsync()
+        {
+            var categoryDto = await _categoryRepository.GetAll()
+                .Select(e => new CategoryProduct
+                {
+                    CategoryId = e.Id,
+                    CategoryName = e.CategoryName,
+                }).ToListAsync();
+
+            return categoryDto;
+        }
+
+        public async Task<List<StorageProductDetail>> GetStorageProductAsync()
+        {
+            var storageDto = await _storageRepository.GetAll().OrderByDescending(e => e.CreationTime)
+                .Select(e => new StorageProductDetail
+                {
+                    StorageCode = e.Id,
+                    StorageName = e.StorageName,
+                }).ToListAsync();
+
+            return storageDto;
+        }
+
+        public async Task<List<SubcategoryProduct>> GetSubcategoryProductAsync(string categoryId)
+        {
+            var subCategoryDto = await _subCategoryRepository.GetAll()
+                .Where(e => e.CategoryId == categoryId)
+                .Select(e => new SubcategoryProduct
+                {
+                    SubcategoryId = e.Id,
+                    SubcategoryName = e.SubCategoryName
+                }).ToListAsync();
+
+            return subCategoryDto;
         }
 
         public async Task<ProductOutputDto> GetAsync(string id)
@@ -224,16 +298,20 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 if (product == null)
                     throw new UserFriendlyException($"Không thể tìm thấy sản phẩm mã {id}");
 
-                var storageProduct = await _productStorageRepository.FirstOrDefaultAsync(e => e.ProductId == id);
-                var StorageProductDetail = await _storageRepository.GetAll()
-                    .Where(e => e.Id == storageProduct.StorageId)
-                    .Select(e => new StorageProductDetail
-                    {
-                        StorageCode = e.Id,
-                        StorageName = e.StorageName,
-                        Quantity = storageProduct.ProductQuantity
-                    })
-                    .ToListAsync();
+                var storageProduct = await _productStorageRepository.GetAll().Where(e => e.ProductId == id).ToListAsync();
+                
+                List<StorageProductDetail> storageProductDetails = new List<StorageProductDetail>();
+                foreach ( var item in storageProduct)
+                {
+                    var storage = _storageRepository.FirstOrDefault(e => e.Id == item.StorageId);
+                    var storageProductDto = new StorageProductDetail();
+                    storageProductDto.StorageProductId = item.Id;
+                    storageProductDto.StorageCode = item.StorageId;
+                    storageProductDto.ProductLocation = item.ProductLocation;
+                    storageProductDto.StorageName = storage.StorageName;
+                    storageProductDto.Quantity = item.ProductQuantity;
+                    storageProductDetails.Add(storageProductDto);
+                }
 
                 var productDto = new ProductOutputDto
                 {
@@ -245,7 +323,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     ProductDetail = product.ProductDetail,
                     CategoryId = product.CategoryId,
                     SubCategoryId = product.SubCategoryId,
-                    storages = StorageProductDetail,
+                    storages = storageProductDetails,
                 };
 
                 return productDto;

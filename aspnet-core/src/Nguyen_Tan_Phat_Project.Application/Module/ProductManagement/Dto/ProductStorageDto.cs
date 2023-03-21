@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
 {
-    public class StorageProductDetail
+    public class ProductStorageDto
     {
-        public int StorageProductId { get; set; }
         public string StorageCode { get; set; }
-        public string StorageName { get; set; }
-        public int Quantity { get; set; }
+        public int ProductQuantity { get; set; }
         public string ProductLocation { get; set; }
+        public string Description { get; set; }
     }
 }
