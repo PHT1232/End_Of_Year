@@ -11,6 +11,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement.Dto
         public string ExportImportCode { get; set; }
         public string NameOfReceiver { get; set; }
         public int OrderStatus { get; set; }
+        public int OrderType { get; set; }
         public string ReceiveAddress { get; set; }
         public List<ExportImportProductDto> Products { get; set; }
         public string StorageId { get; set; }
