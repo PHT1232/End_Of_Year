@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Collections.Extensions;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
@@ -131,6 +132,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                         StorageId = input.StorageId,
                         NameOfReceiver = input.Customer.CustomerName,
                         ReceiveAddress = input.Customer.CustomerAdress,
+                        CustomerPhone = input.Customer.CustomerPhone,
                         OrderCreator = input.OrderCreator,
                         NameOfExport = input.NameOfExport,
                         OrderStatus = 1,
@@ -419,6 +421,54 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
             }
         }
 
+        public async Task<ExportImportOutput> GetAsync(string id)
+        {
+            try
+            {
+                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == id);
+                var customer = _customerRepository.FirstOrDefault(e => e.CustomerPhone == exportImport.CustomerPhone);
+                var product = await _exportImportProductRepository.GetAll().Include(e => e.Product)
+                    .Where(l => l.ExportImportCode == id)
+                    .Select(e => new ExportImportProductDto
+                    {
+                        ProductId = e.ProductId,
+                        ProductName = e.Product.ProductName,
+                        Quantity = e.Quantity,
+                        Price = e.Product.Price,
+                        Unit = e.Product.Unit,
+                        FinalPrice = (e.Product.Price * e.Quantity)
+                    }).ToListAsync();
 
+                var customerDto = new CustomerDto();
+
+                if (customer != null)
+                {
+                    customerDto.CustomerCode = customer.Id;
+                    customerDto.CustomerPhone = customer.CustomerPhone;
+                    customerDto.CustomerAdress = customer.CustomerAdress;
+                    customerDto.CustomerName = customer.CustomerName;
+                }
+                
+                ExportImportOutput output = new ExportImportOutput
+                {
+                    ExportImportCode = exportImport.Id,
+                    OrderCreator = exportImport.OrderCreator,
+                    OrderStatus = exportImport.OrderStatus,
+                    OrderType = exportImport.OrderType,
+                    ReceiveAddress = exportImport.ReceiveAddress,
+                    Customer = customerDto,
+                    Products = product,
+                    StorageId = exportImport.StorageId,
+                    StorageInputId = exportImport.StorageInputId,
+                    NameOfExport = exportImport.NameOfExport,
+                    TotalPrice = exportImport.TotalPrice,
+                };
+                return output;
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
     }
 }
