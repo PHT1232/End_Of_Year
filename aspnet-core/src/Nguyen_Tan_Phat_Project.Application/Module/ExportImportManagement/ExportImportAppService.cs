@@ -88,7 +88,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                     ReceiveAddress = input.Customer.CustomerAdress,
                     OrderCreator = input.OrderCreator,
                     OrderStatus = 1,
-                    OrderType = 1,
+                    OrderType = input.OrderType,
+                    StorageInputId = input.StorageInputId,
                     Description = input.Description,
                     LastModificationTime = creationTime,
                     TotalPrice = input.TotalPrice,
@@ -114,9 +115,64 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Export_Import_Update)]
-        public async Task UpdateAsync()
+        public async Task UpdateOrderAsync(ExportImportInput input)
         {
+            try
+            {
+                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == input.ExportImportCode);
+                if (exportImport.OrderType == 1 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
 
+                    foreach(var productExport in exportImportProduct)
+                    {
+                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        product.ProductQuantity -= productExport.Quantity;
+                        _productStorageRepository.Update(product);
+                    }
+                } else if (exportImport.OrderType == 2 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var productOutput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageInputId && e.ProductId == productExport.ProductId);
+                        productOutput.ProductQuantity -= productExport.Quantity;
+                        productInput.ProductQuantity += productExport.Quantity;
+                        _productStorageRepository.Update(productOutput);
+                        _productStorageRepository.Update(productInput);
+                    }
+                }
+                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 && input.OrderStatus == 3)
+                {
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        public async Task UpdateAsync(ExportImportInput input)
+        {
+            try
+            {
+
+            } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Export_Import_Delete)]
@@ -263,35 +319,6 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                     }).ToListAsync();
                 //}
                 int totalCount = await _exportImportRepository.CountAsync();
-                //List<ExportImportGetAllDto> list = exportImport.Select(e => new ExportImportGetAllDto
-                //{
-                //    ExportImportCode = e.Id,
-                //    NameOfReceiver = e.NameOfReceiver,
-                //    Address = e.ReceiveAddress,
-                //    StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
-                //    OrderStatus = e.OrderStatus,
-                //    OrderType = e.OrderType,
-                //    TotalPrice = e.TotalPrice,
-                //    CreationTime = e.CreationTime,
-                //    LastModifiedDate = e.LastModificationTime,
-                //    Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
-                //}).ToList();
-
-                //foreach (var item in exportImport)
-                //{
-                //    ExportImportGetAll exportImportGetAll = new ExportImportGetAll();
-                //    exportImportGetAll.ExportImportCode = item.Id;
-                //    exportImportGetAll.NameOfReceiver = item.NameOfReceiver;
-                //    //exportImportGetAll.Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == item.OrderCreator).FullName;
-                //    exportImportGetAll.OrderStatus = item.OrderStatus;
-                //    exportImportGetAll.OrderType = item.OrderType;
-                //    exportImportGetAll.Address = item.ReceiveAddress;
-                //    //exportImportGetAll.StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == item.StorageId).StorageName;
-                //    exportImportGetAll.CreationTime = item.CreationTime;
-                //    exportImportGetAll.LastModifiedDate = item.LastModificationTime;
-                //    exportImportGetAll.totalPrice = item.TotalPrice;
-                //    list.Add(exportImportGetAll);
-                //}
 
                 return new PagedResultDto<ExportImportGetAllDto>
                 {
@@ -304,6 +331,5 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                 throw new UserFriendlyException(ex.Message);
             }
         }
-
     }
 }
