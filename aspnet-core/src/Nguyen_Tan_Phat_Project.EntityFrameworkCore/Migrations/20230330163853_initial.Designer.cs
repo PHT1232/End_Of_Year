@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230326103108_intial_4")]
-    partial class intial_4
+    [Migration("20230330163853_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1678,6 +1678,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("NameOfExport")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NameOfReceiver")
                         .HasColumnType("nvarchar(max)");
 
@@ -1695,6 +1698,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<string>("StorageId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StorageInputId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("TotalPrice")
                         .HasColumnType("real");
@@ -1740,6 +1746,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");

@@ -17,6 +17,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement.Dto
         public float TotalPrice { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime? LastModifiedDate { get; set; }
+        public string NameOfExport { get; set; }
         public string? Username { get; set; }
     }
 }

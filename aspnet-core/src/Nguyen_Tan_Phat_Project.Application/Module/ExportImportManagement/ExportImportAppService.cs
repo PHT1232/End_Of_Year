@@ -70,30 +70,77 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                 {
                     throw new UserFriendlyException("Đơn này đã tồn tại");
                 }
-                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.CustomerPhone == input.Customer.CustomerPhone);
-                if (customer == null)
+
+                if (input.Customer != null)
                 {
-                    customer.CustomerName = input.Customer.CustomerName;
-                    customer.CustomerPhone = input.Customer.CustomerPhone;
-                    customer.CustomerAdress = input.Customer.CustomerAdress;
-                    await _customerRepository.InsertAsync(customer);
+                    var customer = await _customerRepository.FirstOrDefaultAsync(e => e.CustomerPhone == input.Customer.CustomerPhone);
+                    if (customer == null && input.OrderType == 1)
+                    {
+                        customer = new Customer();
+                        customer.CustomerName = input.Customer.CustomerName;
+                        customer.CustomerPhone = input.Customer.CustomerPhone;
+                        customer.CustomerAdress = input.Customer.CustomerAdress;
+                        await _customerRepository.InsertAsync(customer);
+                    }
                 }
 
                 DateTime creationTime = DateTime.Now;
-                var exportImport = new ExportImport
+                var exportImport = new ExportImport();
+                if (input.Customer == null)
                 {
-                    Id = input.ExportImportCode,
-                    StorageId = input.StorageId,
-                    NameOfReceiver = input.Customer.CustomerName,
-                    ReceiveAddress = input.Customer.CustomerAdress,
-                    OrderCreator = input.OrderCreator,
-                    OrderStatus = 1,
-                    OrderType = input.OrderType,
-                    StorageInputId = input.StorageInputId,
-                    Description = input.Description,
-                    LastModificationTime = creationTime,
-                    TotalPrice = input.TotalPrice,
-                };
+                    if (input.OrderType == 3) 
+                    {
+                        exportImport = new ExportImport
+                        {
+                            Id = input.ExportImportCode,
+                            StorageId = input.StorageInputId,
+                            NameOfReceiver = "Kho " + _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).StorageName,
+                            ReceiveAddress = _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).Address,
+                            OrderCreator = input.OrderCreator,
+                            NameOfExport = input.NameOfExport,
+                            OrderStatus = 1,
+                            OrderType = input.OrderType,
+                            StorageInputId = input.StorageInputId,
+                            Description = input.Description,
+                            LastModificationTime = creationTime,
+                            TotalPrice = input.TotalPrice,
+                        };
+                    } else
+                    {
+                        exportImport = new ExportImport
+                        {
+                            Id = input.ExportImportCode,
+                            StorageId = input.StorageId,
+                            NameOfReceiver = "Kho " + _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).StorageName,
+                            ReceiveAddress = _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).Address,
+                            OrderCreator = input.OrderCreator,
+                            OrderStatus = 1,
+                            OrderType = input.OrderType,
+                            NameOfExport = input.NameOfExport,
+                            StorageInputId = input.StorageInputId,
+                            Description = input.Description,
+                            LastModificationTime = creationTime,
+                            TotalPrice = input.TotalPrice,
+                        };
+                    }
+                } else
+                {
+                    exportImport = new ExportImport
+                    {
+                        Id = input.ExportImportCode,
+                        StorageId = input.StorageId,
+                        NameOfReceiver = input.Customer.CustomerName,
+                        ReceiveAddress = input.Customer.CustomerAdress,
+                        OrderCreator = input.OrderCreator,
+                        NameOfExport = input.NameOfExport,
+                        OrderStatus = 1,
+                        OrderType = input.OrderType,
+                        StorageInputId = input.StorageInputId,
+                        Description = input.Description,
+                        LastModificationTime = creationTime,
+                        TotalPrice = input.TotalPrice,
+                    };
+                }
                 string id = await _exportImportRepository.InsertAndGetIdAsync(exportImport);
 
                 foreach (var product in input.Products)
@@ -105,6 +152,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                         Quantity = product.Quantity,
                         Price = product.Price,
                         FinalPrice = product.FinalPrice,
+                        Location = product.Location,
                     };
                     _exportImportProductRepository.Insert(exportImportProduct);
                 }
@@ -142,17 +190,59 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
 
+
                     foreach (var productExport in exportImportProduct)
                     {
                         var productOutput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
                         var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageInputId && e.ProductId == productExport.ProductId);
+                        if (productInput == null)
+                        {
+                            productInput = new ProductStorage
+                            {
+                                StorageId = exportImport.StorageInputId,
+                                ProductId = productExport.ProductId,
+                                ProductLocation = productExport.Location,
+                                ProductQuantity = productExport.Quantity,
+                            };
+                            _productStorageRepository.Insert(productInput);
+                        } else
+                        {
+                            productInput.ProductQuantity += productExport.Quantity;
+                            _productStorageRepository.Update(productInput);
+                        }
                         productOutput.ProductQuantity -= productExport.Quantity;
-                        productInput.ProductQuantity += productExport.Quantity;
                         _productStorageRepository.Update(productOutput);
-                        _productStorageRepository.Update(productInput);
+                    }
+                } else if (exportImport.OrderType == 3 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageInputId && e.ProductId == productExport.ProductId);
+                        if (productInput == null)
+                        {
+                            productInput = new ProductStorage
+                            {
+                                StorageId = exportImport.StorageInputId,
+                                ProductId = productExport.ProductId,
+                                ProductLocation = productExport.Location,
+                                ProductQuantity = productExport.Quantity,
+                            };
+                            _productStorageRepository.Insert(productInput);
+                        } else
+                        {
+                            productInput.ProductQuantity += productExport.Quantity;
+                            _productStorageRepository.Update(productInput);
+                        }
                     }
                 }
-                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 && input.OrderStatus == 3)
+                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 || exportImport.OrderType == 3 && input.OrderStatus == 3)
                 {
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
@@ -249,7 +339,23 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
         {
             try
             {
-                var exportImport = await _productStorageRepository.GetAll().Include(e => e.Product)
+                var exportImport = new List<ExportImportProductDto>();
+                if (input.IsInsert)
+                {
+                    exportImport = await _productRepository.GetAll()
+                    .Select(e => new ExportImportProductDto
+                    {
+                        ProductId = e.Id,
+                        ProductName = e.ProductName,
+                        Quantity = 0,
+                        Price = e.Price,
+                        Unit = e.Unit,
+                        FinalPrice = 0,
+                    }).PageBy(input).ToListAsync();
+                }
+                else
+                {
+                    exportImport = await _productStorageRepository.GetAll().Include(e => e.Product)
                     .Where(l => l.StorageId == input.StorageId)
                     .Select(e => new ExportImportProductDto
                     {
@@ -260,7 +366,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                         Unit = e.Product.Unit,
                         FinalPrice = (e.Product.Price * e.ProductQuantity)
                     }).PageBy(input).ToListAsync();
-
+                }
+                
                 int totalCount = await _productStorageRepository.CountAsync();
 
                 return new PagedResultDto<ExportImportProductDto>
@@ -278,30 +385,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
         {
             try
             {
-                //var exportImport = new List<ExportImport>();
-                //if (input.Storage == null || input.DateTime.IsNullOrEmpty())
-                //{
-                //    exportImport = await _exportImportRepository.GetAll()
-                //         .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword || e.NameOfReceiver == input.Keyword)
-                //         .PageBy(input)
-                //         .ToListAsync();
-                //} else if (input.Storage != null) 
-                //{
-                //    exportImport = await _exportImportRepository.GetAll()
-                //        .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage)
-                //        .PageBy(input)
-                //        .ToListAsync();
-                //} else if (input.DateTime.Length > 0)
-                //{
-                //    exportImport = await _exportImportRepository.GetAll()
-                //        .Where(e => e.CreationTime >= input.DateTime[0] && e.LastModificationTime <= input.DateTime[1])
-                //        .PageBy(input)
-                //        .ToListAsync();
-                //} else if (input.OrderType != 0)
-                //{
                 var exportImport = await _exportImportRepository.GetAll()
                     .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword || e.NameOfReceiver == input.Keyword)
-                    .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage)
+                    .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage || e.StorageInputId == input.Storage)
                     .WhereIf(input.DateTime != null, e => e.CreationTime >= input.DateTime[0] && e.LastModificationTime <= input.DateTime[1])
                     .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                     .PageBy(input).Select(e => new ExportImportGetAllDto
@@ -315,9 +401,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                         TotalPrice = e.TotalPrice,
                         CreationTime = e.CreationTime,
                         LastModifiedDate = e.LastModificationTime,
+                        NameOfExport = e.NameOfExport,
                         Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
                     }).ToListAsync();
-                //}
+
                 int totalCount = await _exportImportRepository.CountAsync();
 
                 return new PagedResultDto<ExportImportGetAllDto>
@@ -331,5 +418,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                 throw new UserFriendlyException(ex.Message);
             }
         }
+
+
     }
 }
