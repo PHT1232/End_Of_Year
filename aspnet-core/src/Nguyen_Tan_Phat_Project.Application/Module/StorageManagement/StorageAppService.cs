@@ -76,7 +76,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
                 {
                     throw new UserFriendlyException("Không thể xóa kho đang có sản phẩm");
                 }
-                await _storageRepository.HardDeleteAsync(storageDto);
+                await _storageRepository.DeleteAsync(storageDto);
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);

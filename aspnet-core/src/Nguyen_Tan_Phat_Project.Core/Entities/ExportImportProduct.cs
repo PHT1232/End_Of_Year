@@ -19,6 +19,5 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public int Quantity { get; set; }
         public float Price { get; set; }
         public float FinalPrice { get; set; }
-        public float TotalPrice { get; set; }
     }
 }

@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement.Dto
 {
-    public class ExportImportGetAll
+    public class ExportImportGetAllDto
     {
         public string ExportImportCode { get; set; }
         public string NameOfReceiver { get; set; }
-        public float TotalPrice { get; set; }
+        public string Address { get; set; }
+        public string StorageName { get; set; }
         public int OrderStatus { get; set; }
         public int OrderType { get; set; }
+        public float TotalPrice { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime? LastModifiedDate { get; set; }
-        public string Username { get; set; }
+        public string? Username { get; set; }
     }
 }
