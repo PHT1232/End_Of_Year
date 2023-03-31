@@ -1658,6 +1658,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("DeleterUserId")
                         .HasColumnType("bigint");
 
@@ -1675,6 +1678,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("NameOfExport")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameOfReceiver")
                         .HasColumnType("nvarchar(max)");
@@ -1741,6 +1747,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");

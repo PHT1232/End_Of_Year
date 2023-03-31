@@ -156,7 +156,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
             List<StorageProductDto> storageOutputDtos = new List<StorageProductDto>();
             foreach (var product in productList)
             {
-                var productStorage1 = _productStorageRepository.FirstOrDefault(e => e.ProductId == product.Id);
+                var productStorage1 = _productStorageRepository.FirstOrDefault(e => e.ProductId == product.Id && e.StorageId == id);
                 var storageProduct = new StorageProductDto
                 {
                     ProductCode = product.Id,

@@ -77,19 +77,19 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     SubCategoryId = input.SubCategoryId,
                     LastModificationTime = creationTime,
                 };
-                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
-                {
-                    ProductId = input.ProductCode,
-                    StorageId = e.StorageCode,
-                    ProductQuantity = e.Quantity,
-                    ProductLocation = e.ProductLocation,
-                    //Description = e.Description
-                }).ToList();
+                //var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                //{
+                //    ProductId = input.ProductCode,
+                //    StorageId = e.StorageCode,
+                //    ProductQuantity = e.Quantity,
+                //    ProductLocation = e.ProductLocation,
+                //    //Description = e.Description
+                //}).ToList();
                 await _productRepository.InsertAsync(product);
-                foreach (var storage in listOfStorageProduct)
-                {
-                    _productStorageRepository.Insert(storage);
-                }
+                //foreach (var storage in listOfStorageProduct)
+                //{
+                //    _productStorageRepository.Insert(storage);
+                //}
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -140,28 +140,28 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 productDto.SubCategoryId = input.SubCategoryId;
                 productDto.Unit = input.Unit;
 
-                var listOfStorageProduct = input.storages.Select(e => new ProductStorage
-                {
-                    Id = e.StorageProductId,
-                    ProductId = input.ProductCode,
-                    StorageId = e.StorageCode,
-                    ProductQuantity = e.Quantity,
-                    ProductLocation = e.ProductLocation,
-                    //Description = e.Description
-                }).ToList();
-                foreach (var storage in listOfStorageProduct)
-                {
-                    var storageProduct = _productStorageRepository.FirstOrDefault(e => e.Id == storage.Id);
-                    if (storageProduct == null)
-                    {
-                        storageProduct = new ProductStorage();
-                        storageProduct.ProductId = storage.ProductId;
-                    }
-                    storageProduct.ProductQuantity = storage.ProductQuantity;
-                    storageProduct.StorageId = storage.StorageId;
-                    storageProduct.ProductLocation = storage.ProductLocation;
-                    _productStorageRepository.InsertOrUpdate(storageProduct);
-                }
+                //var listOfStorageProduct = input.storages.Select(e => new ProductStorage
+                //{
+                //    Id = e.StorageProductId,
+                //    ProductId = input.ProductCode,
+                //    StorageId = e.StorageCode,
+                //    ProductQuantity = e.Quantity,
+                //    ProductLocation = e.ProductLocation,
+                //    //Description = e.Description
+                //}).ToList();
+                //foreach (var storage in listOfStorageProduct)
+                //{
+                //    var storageProduct = _productStorageRepository.FirstOrDefault(e => e.Id == storage.Id);
+                //    if (storageProduct == null)
+                //    {
+                //        storageProduct = new ProductStorage();
+                //        storageProduct.ProductId = storage.ProductId;
+                //    }
+                //    storageProduct.ProductQuantity = storage.ProductQuantity;
+                //    storageProduct.StorageId = storage.StorageId;
+                //    storageProduct.ProductLocation = storage.ProductLocation;
+                //    _productStorageRepository.InsertOrUpdate(storageProduct);
+                //}
                 await _productRepository.UpdateAsync(productDto);
             } catch (Exception ex)
             {
@@ -173,7 +173,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                if (input.StorageCode == null || input.StorageCode.Equals("0"))
+                if (input.StorageCode == null)
                 {
                     var storageRepo = await this._storageRepository.GetAll().OrderByDescending(e => e.CreationTime).ToArrayAsync();
                     if (storageRepo.IsNullOrEmpty())
@@ -234,6 +234,34 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                             result.Add(productDto);
                         }
                     }
+                    return new PagedResultDto<ProductGetAllDto>
+                    {
+                        Items = result,
+                        TotalCount = totalCount
+                    };
+                } else if (input.StorageCode.Equals("0"))
+                {
+                    var product = await _productRepository
+                        .GetAll().PageBy(input).ToListAsync();
+
+                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
+                    foreach (var storageProduct in product)
+                    {
+                        var productDto = new ProductGetAllDto
+                        {
+                            ProductCode = storageProduct.Id,
+                            ProductName = storageProduct.ProductName,
+                            CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
+                            Price = storageProduct.Price,
+                            Unit = storageProduct.Unit,
+                            Quantity = 0,
+                            CreationTime = storageProduct.CreationTime,
+                            LastDateModified = storageProduct.LastModificationTime,
+                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
+                        };
+                        result.Add(productDto);
+                    }
+                    var totalCount = await _productRepository.CountAsync();
                     return new PagedResultDto<ProductGetAllDto>
                     {
                         Items = result,

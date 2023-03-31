@@ -13,7 +13,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement.Dto
         public int Quantity { get; set; }
         public float Price { get; set; }
         public string Unit { get; set; }
+        public string Location { get; set; }
         public float FinalPrice { get; set; }
-        public float TotalPrice { get; set; }
     }
 }

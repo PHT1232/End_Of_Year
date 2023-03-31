@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230321123002_initial")]
-    partial class initial
+    [Migration("20230330175514_initial_2")]
+    partial class initial_2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1660,6 +1660,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long?>("DeleterUserId")
                         .HasColumnType("bigint");
 
@@ -1678,11 +1681,14 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("NameOfExport")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NameOfReceiver")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrderCreator")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("OrderCreator")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
@@ -1695,6 +1701,12 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<string>("StorageId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StorageInputId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
@@ -1738,6 +1750,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
@@ -1746,9 +1761,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<float>("TotalPrice")
-                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
