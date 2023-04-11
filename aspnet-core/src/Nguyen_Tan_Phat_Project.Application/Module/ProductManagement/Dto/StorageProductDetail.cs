@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
 {
+    public class StorageProductDetailList
+    {
+        public List<StorageProductDetail> items { get; set; }
+    }
     public class StorageProductDetail
     {
         public int StorageProductId { get; set; }

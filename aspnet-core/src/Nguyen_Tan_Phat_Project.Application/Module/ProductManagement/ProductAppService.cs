@@ -111,8 +111,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     }
                 }
 
-                await _productRepository.DeleteAsync(e => e.Id == id);
-                await _productStorageRepository.DeleteAsync(e => e.ProductId == id);
+                await _productRepository.HardDeleteAsync(e => e.Id == id);
+                await _productStorageRepository.HardDeleteAsync(e => e.ProductId == id);
             } catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -281,33 +281,42 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             }
         }
 
-        public async Task<List<CategoryProduct>> GetCategoryProductAsync()
+        public async Task<CategoryProductList> GetCategoryProductAsync()
         {
-            var categoryDto = await _categoryRepository.GetAll()
+            List<CategoryProduct> items = new List<CategoryProduct>();
+            items = await _categoryRepository.GetAll()
                 .Select(e => new CategoryProduct
                 {
                     CategoryId = e.Id,
                     CategoryName = e.CategoryName,
                 }).ToListAsync();
 
-            return categoryDto;
+            return new CategoryProductList 
+            { 
+                items = items
+            };
         }
 
-        public async Task<List<StorageProductDetail>> GetStorageProductAsync()
+        public async Task<StorageProductDetailList> GetStorageProductAsync()
         {
-            var storageDto = await _storageRepository.GetAll().OrderByDescending(e => e.CreationTime)
+            List<StorageProductDetail> items = new List<StorageProductDetail>();
+            items = await _storageRepository.GetAll().OrderByDescending(e => e.CreationTime)
                 .Select(e => new StorageProductDetail
                 {
                     StorageCode = e.Id,
                     StorageName = e.StorageName,
                 }).ToListAsync();
 
-            return storageDto;
+            return new StorageProductDetailList
+            {
+                items = items
+            };
         }
 
-        public async Task<List<SubcategoryProduct>> GetSubcategoryProductAsync(string categoryId)
+        public async Task<SubcategoryProductList> GetSubcategoryProductAsync(string categoryId)
         {
-            var subCategoryDto = await _subCategoryRepository.GetAll()
+            List<SubcategoryProduct> items = new List<SubcategoryProduct>();
+            items = await _subCategoryRepository.GetAll()
                 .Where(e => e.CategoryId == categoryId)
                 .Select(e => new SubcategoryProduct
                 {
@@ -315,7 +324,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     SubcategoryName = e.SubCategoryName
                 }).ToListAsync();
 
-            return subCategoryDto;
+            return new SubcategoryProductList
+            {
+                items = items
+            };
         }
 
         public async Task<ProductOutputDto> GetAsync(string id)

@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
 {
+    public class SubcategoryProductList
+    {
+        public List<SubcategoryProduct> items { get; set; }
+    }
     public class SubcategoryProduct
     {
         public int SubcategoryId { get; set; }
