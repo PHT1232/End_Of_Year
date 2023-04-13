@@ -12,6 +12,7 @@ using Nguyen_Tan_Phat_Project.Global;
 using Nguyen_Tan_Phat_Project.Module.StorageManagement.Dto;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,13 +71,28 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
         {
             try
             {
-                var storageDto = await _storageRepository.FirstOrDefaultAsync(e => e.Id == id);
                 var checkIfStorageHaveProduct = await _productStorageRepository.FirstOrDefaultAsync(e => e.StorageId == id);
                 if (checkIfStorageHaveProduct != null)
                 {
                     throw new UserFriendlyException("Không thể xóa kho đang có sản phẩm");
                 }
-                await _storageRepository.DeleteAsync(storageDto);
+                await _storageRepository.HardDeleteAsync(e => e.Id == id);
+            } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        [AbpAuthorize(PermissionNames.Page_System_Storage_Delete)]
+        public async Task<string> DeleteMultipleAsync(string[] ids)
+        {
+            try
+            {
+                var storagesDontHaveProduct = ids.Where(e => _productStorageRepository.FirstOrDefault(x => e == x.StorageId) == null).ToArray();
+
+                await _storageRepository.HardDeleteAsync(e => storagesDontHaveProduct.Contains(e.Id));
+
+                return "Xóa thành công " + storagesDontHaveProduct.Count() + "/" + ids.Length + " kho";
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -146,40 +162,48 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageManagement
                 throw new UserFriendlyException($"Không thể tìm thấy kho với mã: {id}");
             }
 
-            var productStorage = await _productStorageRepository.GetAll()
-                .Where(x => x.StorageId == id)
-                .Select(e => e.ProductId).ToListAsync();
-
-            var productList = await _productRepository.GetAll()
-                .Where(e => productStorage.Contains(e.Id)).ToListAsync();
-
-            List<StorageProductDto> storageOutputDtos = new List<StorageProductDto>();
-            foreach (var product in productList)
-            {
-                var productStorage1 = _productStorageRepository.FirstOrDefault(e => e.ProductId == product.Id && e.StorageId == id);
-                var storageProduct = new StorageProductDto
-                {
-                    ProductCode = product.Id,
-                    ProductName = product.ProductName,
-                    Quantity = productStorage1.ProductQuantity,
-                    Unit = product.Unit,
-                    Location = productStorage1.ProductLocation,
-                };
-                storageOutputDtos.Add(storageProduct);
-            }
-
             var storageOutput = new StorageOutputDto()
             {
                 StorageCode = storage.Id,
                 StorageName = storage.StorageName,
                 Address = storage.Address,
                 Description = storage.Description,
-                products = storageOutputDtos,
             };
 
             return storageOutput;
         }
-        
+
+        public async Task<StorageOutputDto> GetProductAsync(string id) 
+        {
+            var productStorage = await _productStorageRepository.GetAll()
+                .Where(x => x.StorageId == id).ToListAsync();
+
+            var productStorageId = productStorage.Select(x => x.ProductId).ToList();
+
+            var productList = new List<StorageProductDto>();
+
+            foreach (var productId in productStorageId) 
+            {
+                var product = _productRepository.FirstOrDefault(e => e.Id == productId);
+                var productStorageDto = new StorageProductDto()
+                {
+                    ProductCode = product.Id,
+                    ProductName = product.ProductName,
+                    Quantity = productStorage.FirstOrDefault(x => x.ProductId == product.Id && x.StorageId == id).ProductQuantity,
+                    Unit = product.Unit,
+                    Location = productStorage.FirstOrDefault(x => x.ProductId == product.Id && x.StorageId == id).ProductLocation,
+                };
+                productList.Add(productStorageDto);
+            }
+
+            var storageOutput = new StorageOutputDto()
+            {
+                products = productList,
+            };
+
+            return storageOutput;
+        }
+
         public async Task<StorageForUpdate> GetUpdateAsync(string id)
         {
             var storage = await _storageRepository.FirstOrDefaultAsync(e => e.Id == id);

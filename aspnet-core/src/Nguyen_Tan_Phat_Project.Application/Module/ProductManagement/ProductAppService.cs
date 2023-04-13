@@ -119,6 +119,40 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             }
         }
 
+        public async Task<string> DeleteMultipleAsync(string[] ids)
+        {
+            try
+            {
+                int numOfDeleted = 0;
+                foreach (var id in ids)
+                {
+                    var productExportImport = await _exportImportProductRepository.FirstOrDefaultAsync(pd => pd.ProductId == id);
+                    if (productExportImport != null)
+                    {
+                        var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
+                        if (exportImport != null)
+                        {
+                            throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
+                        }
+                    }
+
+                    await _productRepository.HardDeleteAsync(e => e.Id == id);
+                    await _productStorageRepository.HardDeleteAsync(e => e.ProductId == id);
+                    numOfDeleted++;
+                }
+
+                if (numOfDeleted == 0)
+                {
+                    throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
+                }
+
+                return "Xóa thành công " + numOfDeleted + "/" + ids.Length + " sản phẩm thành công";
+            } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
         [AbpAuthorize(PermissionNames.Page_System_Product_Update)]
         public async Task UpdateAsync(ProductInputDto input)
         {

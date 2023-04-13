@@ -320,7 +320,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
             }
         }
 
-        public async Task<List<LookUpTable>> GetCreatorAsync()
+        public async Task<LookUpTableList> GetCreatorAsync()
         {
             try
             {
@@ -330,7 +330,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement
                     Name = e.FullName,
                 }).ToListAsync();
 
-                return creator;
+                return new LookUpTableList
+                {
+                    items = creator
+                };
             } catch (Exception ex) 
             {
                 throw new UserFriendlyException(ex.Message);

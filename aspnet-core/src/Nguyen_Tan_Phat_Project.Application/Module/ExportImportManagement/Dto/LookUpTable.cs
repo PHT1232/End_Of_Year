@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.ExportImportManagement.Dto
 {
+    public class LookUpTableList
+    {
+        public List<LookUpTable> items { get; set; }
+    }
+
     public class LookUpTable
     {
         public int Id { get; set; }
