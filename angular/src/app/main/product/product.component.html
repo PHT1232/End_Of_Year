@@ -1,0 +1,251 @@
+<div [@routerTransition]>
+  <section class="content px-2" style="padding-top: 20px">
+    <p-panel [style]="{ 'margin-left': '15px', 'margin-right': '15px' }">
+      <!-- <div class="card"> -->
+      <ng-template pTemplate="header">
+        <!-- <section class="content-header">
+              <div class="container-fluid">
+                <div class="row"> -->
+        <div class="col-6">
+          <h1>{{ "Sản phẩm" | localize }}</h1>
+        </div>
+        <div class="col-6 text-right">
+          <!-- <a href="javascript:;"
+                      class="btn bg-blue"
+                      routerLink="create"
+                      *ngIf="isGranted('Pages.System.Product.Add') == true">
+                      <i class="fa fa-plus-square"></i>
+                      {{ "Thêm" | localize }}
+                    </a> -->
+          <p-button
+            label="Thêm"
+            routerLink="create"
+            *ngIf="isGranted('Pages.System.Product.Add') == true"
+          >
+          </p-button>
+        </div>
+        <!-- </div>
+              </div>
+            </section> -->
+      </ng-template>
+      <div class="card-header">
+        <div class="row">
+          <div class="card-body">
+            <form class="form-horizontal">
+              <div class="row">
+                <div class="col-md-6">
+                  <!-- <div class="card mb-0 mt-2"> -->
+                    <div class="form-group row mb-0">
+                      <div class="col pt-2">
+                        <select
+                          class="form-control"
+                          [(ngModel)]="storageCode"
+                          (change)="getDataPage(1)"
+                          [ngModelOptions]="{ standalone: true }"
+                          aria-label="Default select example"
+                        >
+                          <option value="0" selected>Kho</option>
+                          <option
+                            *ngFor="
+                              let storage of getStorage.items;
+                              let i = index
+                            "
+                            value="{{ storage.storageCode }}"
+                          >
+                            {{ storage.storageName }}
+                          </option>
+                        </select>
+                        <!-- <p-cascadeSelect [ngModelOptions]="{standalone: true}" [(ngModel)]="storageCode" [options]="getStorage.items" optionLabel="cname" optionGroupLabel="name" [style]="{ minWidth: '14rem' }" placeholder="Kho"></p-cascadeSelect> -->
+                      </div>
+                      <div class="col pt-2">
+                        <select
+                          class="form-control"
+                          (change)="getSubcategory(); getDataPage(1)"
+                          [(ngModel)]="categoryCode"
+                          [ngModelOptions]="{ standalone: true }"
+                          aria-label="Default select example"
+                        >
+                          <option value="0" selected>Tất cả danh mục</option>
+                          <option
+                            *ngFor="
+                              let category of getCategory.items;
+                              let i = index
+                            "
+                            value="{{ category.CategoryId }}"
+                          >
+                            {{ category.CategoryName }}
+                          </option>
+                        </select>
+                        <!-- <p-cascadeSelect [ngModelOptions]="{standalone: true}" [(ngModel)]="categoryCode" [options]="getCategory.items" optionLabel="cname" optionGroupLabel="name" [style]="{ minWidth: '14rem' }" placeholder="Danh mục"></p-cascadeSelect> -->
+                      </div>
+                      <div class="col pt-2">
+                        <select
+                          class="form-control"
+                          (change)="getDataPage(1)"
+                          [(ngModel)]="subcategoryCode"
+                          [ngModelOptions]="{ standalone: true }"
+                          [disabled]="getSubcategorycode.items === undefined"
+                          aria-label="Default select example"
+                        >
+                          <option value="0" selected>
+                            Tất cả danh mục nhỏ
+                          </option>
+                          <option
+                            *ngFor="
+                              let subcategory of getSubcategorycode.items;
+                              let i = index
+                            "
+                            value="{{ subcategory.subcategoryId }}"
+                          >
+                            {{ subcategory.subcategoryName }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  <!-- </div> -->
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p-button 
+              label="Xóa"
+              [disabled]="selectedProducts.length === 0"
+              (onClick)="checkOnDelete()"
+              styleClass="p-button-danger"
+              icon="pi pi-trash"
+              *ngIf="isGranted('Pages.System.Storage.Delete') == true">
+  
+              </p-button>
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button
+                  type="button"
+                  class="btn bg-blue"
+                  (click)="getDataPage(1)"
+                >
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                name="keyword"
+                [placeholder]="'SearchWithThreeDot' | localize"
+                [(ngModel)]="keyword"
+                (keyup.enter)="getDataPage(1)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <p-scrollPanel [style]="{ width: '100%', height: '520px' }">
+            <p-table
+              [value]="productList"
+              [(selection)]="selectedProducts"
+              dataKey="productCode"
+              [tableStyle]="{ 'min-width': '50rem' }"
+              [busy]="isTableLoading"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 4rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                  </th>
+                  <th pSortableColumn="productCode">{{ "Mã sản phẩm" | localize }}<p-sortIcon field="productCode"></p-sortIcon></th>
+                  <th pSortableColumn="productName">{{ "Tên sản phẩm" | localize }}<p-sortIcon field="productName"></p-sortIcon></th>
+                  <th pSortableColumn="categoryName">{{ "Danh mục" | localize }}<p-sortIcon field="categoryName"></p-sortIcon></th>
+                  <th pSortableColumn="unit">{{ "Đơn vị tính" | localize }}<p-sortIcon field="unit"></p-sortIcon></th>
+                  <th pSortableColumn="quantity" *ngIf="storageCode != '0'">
+                    {{ "Số lượng" | localize }}<p-sortIcon field="quantity"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="price">{{ "Giá" | localize }}<p-sortIcon field="price"></p-sortIcon></th>
+                  <th pSortableColumn="creationTime">{{ "Ngày tạo" | localize }}<p-sortIcon field="creationTime"></p-sortIcon></th>
+                  <th pSortableColumn="lastDateModified">{{ "Ngày cập nhật" | localize }}<p-sortIcon field="lastDateModified"></p-sortIcon></th>
+                  <th pSortableColumn="username">{{ "Người cập nhật" | localize }}<p-sortIcon field="username"></p-sortIcon></th>
+                  <th style="width: 200px">{{ "Hành động" | localize }}</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-product>
+                <tr></tr>
+                <tr>
+                  <td>
+                    <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                  </td>
+                  <td>
+                    <a [routerLink]="['detail', product.productCode]">{{
+                      product.productCode
+                    }}</a>
+                  </td>
+                  <td>{{ product.productName }}</td>
+                  <td>{{ product.categoryName }}</td>
+                  <td>{{ product.unit }}</td>
+                  <td *ngIf="storageCode != '0'">{{ product.quantity }}</td>
+                  <td>
+                    {{ product.price | currency : "VND" }}
+                  </td>
+                  <td>
+                    {{ product.creationTime | date : "dd/MM/yyyy" }}
+                  </td>
+                  <td>
+                    {{ product.lastDateModified | date : "dd/MM/yyyy" }}
+                  </td>
+                  <td>{{ product.username }}</td>
+                  <td>
+                    <p-button
+                      styleClass="p-button-secondary"
+                      icon="pi pi-pencil"
+                      [style]="{ 'margin-right': '10px' }"
+                      *ngIf="isGranted('Pages.System.Product.Add') == true"
+                      [routerLink]="['edit', product.productCode]"
+                    >
+                    </p-button>
+                    <p-button
+                      styleClass="p-button-danger"
+                      icon="pi pi-trash"
+                      (click)="delete(product)"
+                      *ngIf="isGranted('Pages.System.Product.Delete') == true"
+                    >
+                    </p-button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-scrollPanel>
+        </div>
+      </div>
+      <div class="card-footer table-card-footer bg-light border-top">
+        <div class="row">
+          <div class="col-sm-3 col-12 text-sm-left text-center">
+            <button class="btn btn-secondary" (click)="refresh()">
+              <i class="fas fa-redo-alt"></i>
+            </button>
+          </div>
+          <!-- <div class="col-sm-4 col-12 text-center">
+                <p class="mb-0 my-2">
+                  {{ "TotalRecordsCount" | localize: totalItems }}
+                </p>
+              </div> -->
+          <div class="col-sm-5 col-12">
+            <div class="float-sm-right m-auto">
+              <p-paginator
+                (onPageChange)="getDataPage($event)"
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="totalItems"
+                [rowsPerPageOptions]="[6, 10, 15]"
+              ></p-paginator>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- </div> -->
+    </p-panel>
+  </section>
+</div>

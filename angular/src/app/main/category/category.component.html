@@ -1,0 +1,114 @@
+<div [@routerTransition]>
+
+    <section class="content px-2" style="padding-top: 20px;">
+      <p-panel [style]="{'margin-left':'15px','margin-right':'15px'}">
+        <ng-template pTemplate="header">
+                <div class="col-6">
+                  <h1>{{ "Danh mục" | localize }}</h1>
+                </div>
+                <div class="col-6 text-right">
+                  <a href="javascript:;"
+                    class="btn bg-blue"
+                    *ngIf="isGranted('Pages.System.Category.Add') == true"
+                    routerLink="create">
+                    <i class="fa fa-plus-square"></i>
+                    {{ "Thêm" | localize }}
+                  </a>
+                </div>
+        </ng-template>
+        <div class="card-header">
+          <div class="row">
+            <div class="col-md-6">&emsp;</div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <button type="button"
+                    class="btn bg-blue"
+                    (click)="getDataPage(1)">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+                <input type="text"
+                  class="form-control"
+                  name="keyword"
+                  [placeholder]="'SearchWithThreeDot' | localize"
+                  [(ngModel)]="keyword"
+                  (keydown)="getDataPage(1)" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <p-table [value]="categories" 
+              [busy]="isTableLoading">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>{{ "Mã danh mục" | localize }}</th>
+                  <th>{{ "Tên danh mục" | localize }}</th>
+                  <th>{{ "Ngày tạo" | localize }}</th>
+                  <th>{{ "Ngày cập nhật" | localize }}</th>
+                  <th>{{ "Người cập nhật" | localize }}</th>
+                  <th style="width: 200px;">{{ "Hành động" | localize }}</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-category>
+                <tr>
+                <td>
+                  <a [routerLink]="['detail', category.categoryCode]">{{ category.categoryCode }}</a>
+                </td>
+                <td>{{ category.categoryName }}</td>
+                <td>
+                  {{category.creationTime | date: 'dd/MM/yyyy'}}
+                </td>
+                <td>
+                  {{category.lastModifiedDate | date: 'dd/MM/yyyy'}}
+                </td>
+                <td>{{ category.username }}</td>
+                <td>
+                    <button type="button"
+                      *ngIf="isGranted('Pages.System.Category.Update') == true"
+                      class="btn btn-sm bg-secondary"
+                      [routerLink]="['edit', category.categoryCode]">
+                      <i class="fas fa-pencil-alt"></i>
+                      {{ "Sửa" | localize }}
+                    </button>
+                    <button type="button"
+                      class="btn btn-sm bg-danger mx-2"
+                      (click)="delete(category)"
+                      *ngIf="isGranted('Pages.System.Category.Delete') == true"
+                      >
+                      <i class="fas fa-trash"></i>
+                      {{ "Xóa" | localize }}
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        <div class="card-footer table-card-footer bg-light border-top">
+          <div class="row">
+            <div class="col-sm-4 col-12 text-sm-left text-center">
+              <button class="btn btn-secondary"
+                (click)="refresh()">
+                <i class="fas fa-redo-alt"></i>
+              </button>
+            </div>
+            <div class="col-sm-4 col-12 text-center">
+              <p class="mb-0 my-2">
+                {{ "TotalRecordsCount" | localize: totalItems }}
+              </p>
+            </div>
+            <div class="col-sm-4 col-12">
+              <div class="float-sm-right m-auto">
+                <abp-pagination-controls id="server"
+                  (pageChange)="getDataPage($event)">
+                </abp-pagination-controls>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </section>
+  </div>

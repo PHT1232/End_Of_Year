@@ -1,0 +1,16 @@
+/* for dropdowns only */
+.navbar-custom .navbar-nav .dropdown-menu {
+    background-color: #ddaa11;
+}
+
+/* dropdown item text color */
+.navbar-custom .navbar-nav .dropdown-item {
+    color: #000000;
+}
+
+/* dropdown item hover or focus */
+.navbar-custom .navbar-nav .dropdown-item:hover,
+.navbar-custom .navbar-nav .dropdown-item:focus {
+    color: #eeeeee;
+    background-color: red;
+}

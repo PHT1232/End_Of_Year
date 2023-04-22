@@ -1,0 +1,312 @@
+<div [@routerTransition]>
+  <div class="modal-body">
+    <div class="container-add">
+      <div class="container-row">
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <div class="row">
+              <div class="col required">
+                <label for="name">
+                  {{ "Mã sản phẩm" | localize }}
+                </label>
+                <span style="color: red; margin-left: 5px; font-size: 14pt"
+                  >*</span
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input
+                  type="text"
+                  disabled
+                  class="form-control"
+                  name="productCode"
+                  id="productCode"
+                  required
+                  maxlength="32"
+                  [(ngModel)]="products.productCode"
+                  #nameCode="ngModel"
+                  #nameCodeEl
+                />
+                <abp-validation-summary
+                  [control]="nameCode"
+                  [controlEl]="nameCodeEl"
+                ></abp-validation-summary>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Tên sản phẩm" | localize }}
+                </label>
+                <span style="color: red; margin-left: 5px; font-size: 14pt"
+                  >*</span
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input
+                  type="text"
+                  disabled
+                  class="form-control"
+                  name="productName"
+                  id="productName"
+                  required
+                  maxlength="50"
+                  [(ngModel)]="products.productName"
+                  #nameModel="ngModel"
+                  #nameEl
+                />
+                <abp-validation-summary
+                  [control]="nameModel"
+                  [controlEl]="nameEl"
+                ></abp-validation-summary>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <div class="row">
+              <div class="col required">
+                <label for="name">
+                  {{ "Danh mục sản phẩm" | localize }}
+                </label>
+                <span style="color: red; margin-left: 5px; font-size: 14pt"
+                  >*</span
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <select
+                  disabled
+                  required="categoryCode === '0'"
+                  #selectModel="ngModel"
+                  #selectEl
+                  class="form-control"
+                  [(ngModel)]="categoryCode"
+                  [ngModelOptions]="{ standalone: true }"
+                  aria-label="Default select example"
+                >
+                  <option value="0" selected>Danh mục</option>
+                  <option
+                    *ngFor="let category of getCategory.items; let i = index"
+                    value="{{ category.CategoryId }}"
+                  >
+                    {{ category.CategoryName }}
+                  </option>
+                </select>
+                <abp-validation-summary
+                  [control]="selectModel"
+                  [controlEl]="selectEl"
+                ></abp-validation-summary>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Danh mục nhỏ" | localize }}
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <select
+                  disabled
+                  #selectSubModel="ngModel"
+                  #selectSubEl
+                  class="form-control"
+                  [(ngModel)]="products.subCategoryId"
+                  [ngModelOptions]="{ standalone: true }"
+                  aria-label="Default select example"
+                >
+                  <option value="0" selected>Danh mục nhỏ</option>
+                  <option
+                    *ngFor="
+                      let subcategory of getSubcategorycode.items;
+                      let i = index
+                    "
+                    value="{{ subcategory.subcategoryId }}"
+                  >
+                    {{ subcategory.subcategoryName }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Giá" | localize }}
+                </label>
+                <span style="color: red; margin-left: 5px; font-size: 14pt"
+                  >*</span
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input
+                  disabled
+                  class="form-control"
+                  name="price"
+                  id="price"
+                  [(ngModel)]="this.products.price"
+                  type="number"
+                  #priceModel="ngModel"
+                  #priceEl
+                  required
+                />
+                <abp-validation-summary
+                  [control]="priceModel"
+                  [controlEl]="priceEl"
+                ></abp-validation-summary>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Đơn vị tính" | localize }}
+                </label>
+                <span style="color: red; margin-left: 5px; font-size: 14pt"
+                  >*</span
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input
+                  disabled
+                  class="form-control"
+                  name="unit"
+                  id="unit"
+                  [(ngModel)]="this.products.unit"
+                  type="text"
+                  #unitModel="ngModel"
+                  #unitEl
+                  required
+                />
+                <abp-validation-summary
+                  [control]="unitModel"
+                  [controlEl]="unitEl"
+                ></abp-validation-summary>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Chú thích" | localize }}
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <textarea
+                  disabled
+                  class="form-control"
+                  name="description"
+                  id="description"
+                  [(ngModel)]="products.productDescription"
+                  cols="20"
+                  rows="10"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <div class="row">
+              <div class="col">
+                <label for="name">
+                  {{ "Mô tả chi tiết sản phẩm" | localize }}
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <textarea
+                  disabled
+                  class="form-control"
+                  name="description"
+                  id="description"
+                  [(ngModel)]="products.productDetail"
+                  cols="20"
+                  rows="10"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="padding-bottom: 25px">
+          <div class="col">
+            <a id="arrow"
+              (click)="OpenStoragePanel()"
+              [attr.aria-expanded]="!isCollapsed"
+              style="cursor: pointer"
+              aria-controls="collapseBasic"
+            >
+              <span style="margin-bottom: 10px"> Sản phẩm trong kho </span>
+              <i [style]="arrow_i" class="pi pi-chevron-down"></i>
+            </a>
+
+            <hr />
+            <div
+              id="collapseBasic"
+              [collapse]="isCollapsed"
+              [isAnimated]="true"
+            >
+              <div class="well well-lg card card-block card-header">
+                <div class="table-responsive">
+                  <p-table [value]="products.storages">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th pSortableColumn="storageCode">{{ "Mã kho" | localize }}<p-sortIcon field="storageCode"></p-sortIcon></th>
+                        <th pSortableColumn="storageName">{{ "Tên kho" | localize }}<p-sortIcon field="storageName"></p-sortIcon></th>
+                        <th pSortableColumn="quantity">{{ "Số lượng" | localize }}<p-sortIcon field="quantity"></p-sortIcon></th>
+                        <th pSortableColumn="productLocation">{{ "Vị trí" | localize }}<p-sortIcon field="productLocation"></p-sortIcon></th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-storage>
+                      <tr>
+                        <td>{{ storage.storageCode }}</td>
+                        <td>{{ storage.storageName }}</td>
+                        <td>{{ storage.quantity }}</td>
+                        <td>{{ storage.productLocation }}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <p-button
+          type="button"
+          label="Hủy"
+          styleClass="p-button-outlined"
+          (click)="Cancel()"
+        >
+        </p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
