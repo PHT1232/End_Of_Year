@@ -8,6 +8,6 @@ namespace Nguyen_Tan_Phat_Project.Entities
 {
     public class Structure
     {
-        public string 
+        //public string 
     }
 }
