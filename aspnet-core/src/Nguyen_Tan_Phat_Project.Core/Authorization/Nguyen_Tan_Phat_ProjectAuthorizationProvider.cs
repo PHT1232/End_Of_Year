@@ -41,6 +41,24 @@ namespace Nguyen_Tan_Phat_Project.Authorization
             exportImport.CreateChildPermission(PermissionNames.Page_System_Export_Import_View, L("View"));
             exportImport.CreateChildPermission(PermissionNames.Page_System_Export_Import_Add, L("Add"));
             exportImport.CreateChildPermission(PermissionNames.Page_System_Export_Import_Delete, L("Delete"));
+
+            var structure = system.CreateChildPermission(PermissionNames.Page_System_Structure, L("Structure"));
+            structure.CreateChildPermission(PermissionNames.Page_System_Structure_Update, L("Update"));
+            structure.CreateChildPermission(PermissionNames.Page_System_Structure_View, L("View"));
+            structure.CreateChildPermission(PermissionNames.Page_System_Structure_Add, L("Add"));
+            structure.CreateChildPermission(PermissionNames.Page_System_Structure_Delete, L("Delete"));
+
+            var customer = system.CreateChildPermission(PermissionNames.Page_System_Customer, L("Customer"));
+            customer.CreateChildPermission(PermissionNames.Page_System_Customer_Update, L("Update"));
+            customer.CreateChildPermission(PermissionNames.Page_System_Customer_View, L("View"));
+            customer.CreateChildPermission(PermissionNames.Page_System_Customer_Add, L("Add"));
+            customer.CreateChildPermission(PermissionNames.Page_System_Customer_Delete, L("Delete"));
+
+            var summary = system.CreateChildPermission(PermissionNames.Page_System_Summary, L("Summary"));
+            summary.CreateChildPermission(PermissionNames.Page_System_Summary_Update, L("Update"));
+            summary.CreateChildPermission(PermissionNames.Page_System_Summary_View, L("View"));
+            summary.CreateChildPermission(PermissionNames.Page_System_Summary_Add, L("Add"));
+            summary.CreateChildPermission(PermissionNames.Page_System_Summary_Delete, L("Delete"));
         }
 
         private static ILocalizableString L(string name)
