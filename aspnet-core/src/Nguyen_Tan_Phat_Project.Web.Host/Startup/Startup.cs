@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
+using System.Net;
 
 namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 {
@@ -55,6 +56,11 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
             AuthConfigurer.Configure(services, _appConfiguration);
 
             services.AddSignalR();
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownProxies.Add(IPAddress.Parse("42.112.51.76"));
+            });
 
             // Configure CORS for angular2 UI
             services.AddCors(
@@ -122,6 +128,7 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
                     .GetManifestResourceStream("Nguyen_Tan_Phat_Project.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.  
             }); // URL: /swagger
+
         }
         
         private void ConfigureSwagger(IServiceCollection services)
