@@ -57,10 +57,10 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 
             services.AddSignalR();
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.KnownProxies.Add(IPAddress.Parse("42.112.51.76"));
-            });
+            //services.Configure<ForwardedHeadersOptions>(options =>
+            //{
+            //    options.KnownProxies.Add(IPAddress.Parse("42.112.51.76"));
+            //});
 
             // Configure CORS for angular2 UI
             services.AddCors(
