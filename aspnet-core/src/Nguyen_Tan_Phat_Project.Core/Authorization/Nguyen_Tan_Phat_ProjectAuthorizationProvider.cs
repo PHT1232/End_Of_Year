@@ -46,7 +46,13 @@ namespace Nguyen_Tan_Phat_Project.Authorization
             structure.CreateChildPermission(PermissionNames.Page_System_Structure_Update, L("Update"));
             structure.CreateChildPermission(PermissionNames.Page_System_Structure_View, L("View"));
             structure.CreateChildPermission(PermissionNames.Page_System_Structure_Add, L("Add"));
-            structure.CreateChildPermission(PermissionNames.Page_System_Structure_Delete, L("Delete"));
+            structure.CreateChildPermission(PermissionNames.Page_System_Structure_Delete, L("Delete"));          
+            
+            var employee = system.CreateChildPermission(PermissionNames.Page_System_Employee, L("Employee"));
+            employee.CreateChildPermission(PermissionNames.Page_System_Employee_Update, L("Update"));
+            employee.CreateChildPermission(PermissionNames.Page_System_Employee_View, L("View"));
+            employee.CreateChildPermission(PermissionNames.Page_System_Employee_Add, L("Add"));
+            employee.CreateChildPermission(PermissionNames.Page_System_Employee_Delete, L("Delete"));
 
             var customer = system.CreateChildPermission(PermissionNames.Page_System_Customer, L("Customer"));
             customer.CreateChildPermission(PermissionNames.Page_System_Customer_Update, L("Update"));

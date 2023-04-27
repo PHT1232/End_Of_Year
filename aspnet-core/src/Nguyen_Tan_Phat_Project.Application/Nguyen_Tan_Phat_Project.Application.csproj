@@ -14,7 +14,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Nguyen_Tan_Phat_Project.Core\Nguyen_Tan_Phat_Project.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Module\StructureAppService\StructureManagement\dtos\" />
-  </ItemGroup>
 </Project>

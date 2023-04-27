@@ -42,7 +42,13 @@
         public const string Page_System_Structure_Update = "Pages.System.Structure.Update";
         public const string Page_System_Structure_View = "Pages.System.Structure.View";
         public const string Page_System_Structure_Add = "Pages.System.Structure.Add";
-        public const string Page_System_Structure_Delete = "Pages.System.Structure.Delete";
+        public const string Page_System_Structure_Delete = "Pages.System.Structure.Delete";    
+        
+        public const string Page_System_Employee = "Pages.System.Employee";
+        public const string Page_System_Employee_Update = "Pages.System.Employee.Update";
+        public const string Page_System_Employee_View = "Pages.System.Employee.View";
+        public const string Page_System_Employee_Add = "Pages.System.Employee.Add";
+        public const string Page_System_Employee_Delete = "Pages.System.Employee.Delete";
 
         public const string Page_System_Customer = "Pages.System.Customer";
         public const string Page_System_Customer_Update = "Pages.System.Customer.Update";

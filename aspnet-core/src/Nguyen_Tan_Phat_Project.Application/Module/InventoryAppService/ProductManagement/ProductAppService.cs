@@ -120,6 +120,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             }
         }
 
+        [AbpAuthorize(PermissionNames.Page_System_Product_Delete)]
         public async Task<string> DeleteMultipleAsync(string[] ids)
         {
             try
@@ -220,25 +221,76 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         input.StorageCode = storageRepo[storageRepo.Length - 1].Id;
                     }
                 }
-                var storageProducts = new List<ProductStorage>();
-                if (!input.Keyword.IsNullOrEmpty())
-                {
-                    var productKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.ProductId.Contains(input.Keyword) || e.Product.ProductName.Contains(input.Keyword));
-                    //var storageKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.StorageId.Contains(input.Keyword));
-                    //var categoryKeyword = await _productStorageRepository.FirstOrDefaultAsync(e => e.Product.CategoryId.Contains(input.Keyword));
 
-                    storageProducts = await _productStorageRepository.GetAll()
-                        //.WhereIf(!productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.Keyword))
-                        //.WhereIf(!storageKeyword.IsNullOrDeleted(), e => e.ProductId.Contains(input.Keyword))
-                        //.WhereIf(!categoryKeyword.IsNullOrDeleted(), e => e.Product.ProductName.Contains(input.Keyword))
-                        .WhereIf(!string.IsNullOrEmpty(input.StorageCode) && !productKeyword.IsNullOrDeleted(), e => e.StorageId.Contains(input.StorageCode) && e.Product.ProductName.Contains(input.Keyword) || e.ProductId.Contains(input.Keyword))
-                        .PageBy(input).ToListAsync();
-                } else
+                if (!string.IsNullOrEmpty(input.Keyword))
                 {
+                    var product = await _productRepository
+                        .GetAll()
+                        .Where(e => e.Id.Contains(input.Keyword) || e.ProductName.Contains(input.Keyword))
+                        .PageBy(input).ToListAsync();
+
+                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
+                    foreach (var storageProduct in product)
+                    {
+                        var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+                        var productDto = new ProductGetAllDto
+                        {
+                            ProductCode = storageProduct.Id,
+                            ProductName = storageProduct.ProductName,
+                            CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
+                            Price = storageProduct.Price,
+                            Unit = storageProduct.Unit,
+                            Quantity = productFullQuantity,
+                            CreationTime = storageProduct.CreationTime,
+                            LastDateModified = storageProduct.LastModificationTime,
+                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
+                        };
+                        result.Add(productDto);
+                    }
+                    var totalCount = await _productRepository.CountAsync();
+                    return new PagedResultDto<ProductGetAllDto>
+                    {
+                        Items = result,
+                        TotalCount = totalCount
+                    };
+                }   
+                
+                if (input.StorageCode.Equals("0"))
+                {
+                    var product = await _productRepository
+                        .GetAll()
+                        .PageBy(input).ToListAsync();
+
+                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
+                    foreach (var storageProduct in product)
+                    {
+                        var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+                        var productDto = new ProductGetAllDto
+                        {
+                            ProductCode = storageProduct.Id,
+                            ProductName = storageProduct.ProductName,
+                            CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
+                            Price = storageProduct.Price,
+                            Unit = storageProduct.Unit,
+                            Quantity = productFullQuantity,
+                            CreationTime = storageProduct.CreationTime,
+                            LastDateModified = storageProduct.LastModificationTime,
+                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
+                        };
+                        result.Add(productDto);
+                    }
+                    var totalCount = await _productRepository.CountAsync();
+                    return new PagedResultDto<ProductGetAllDto>
+                    {
+                        Items = result,
+                        TotalCount = totalCount
+                    };
+                }
+
+                var storageProducts = new List<ProductStorage>();
                     storageProducts = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId.Contains(input.StorageCode))
                         .PageBy(input).ToListAsync();
-                }
 
                 if (!storageProducts.IsNullOrEmpty())
                 {
@@ -269,34 +321,6 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                             result.Add(productDto);
                         }
                     }
-                    return new PagedResultDto<ProductGetAllDto>
-                    {
-                        Items = result,
-                        TotalCount = totalCount
-                    };
-                } else if (input.StorageCode.Equals("0"))
-                {
-                    var product = await _productRepository
-                        .GetAll().PageBy(input).ToListAsync();
-
-                    List<ProductGetAllDto> result = new List<ProductGetAllDto>();
-                    foreach (var storageProduct in product)
-                    {
-                        var productDto = new ProductGetAllDto
-                        {
-                            ProductCode = storageProduct.Id,
-                            ProductName = storageProduct.ProductName,
-                            CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
-                            Price = storageProduct.Price,
-                            Unit = storageProduct.Unit,
-                            Quantity = 0,
-                            CreationTime = storageProduct.CreationTime,
-                            LastDateModified = storageProduct.LastModificationTime,
-                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
-                        };
-                        result.Add(productDto);
-                    }
-                    var totalCount = await _productRepository.CountAsync();
                     return new PagedResultDto<ProductGetAllDto>
                     {
                         Items = result,
