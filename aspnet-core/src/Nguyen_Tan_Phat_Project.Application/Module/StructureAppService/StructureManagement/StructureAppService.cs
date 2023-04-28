@@ -45,7 +45,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
                 {
                     throw new UserFriendlyException("Đơn vị này đã tồn tại");
                 }
-
                 DateTime creationTime = DateTime.Now;
                 var structure = new Structure
                 {
