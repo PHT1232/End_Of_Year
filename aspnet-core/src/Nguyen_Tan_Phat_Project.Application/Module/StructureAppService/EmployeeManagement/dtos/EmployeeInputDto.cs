@@ -15,11 +15,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.
         public DateTime EmployeeDateOfBirth { get; set; }
         public CMND EmployeeCMND { get; set; }
         public string JobTitle { get; set; }
-        public Structure WorkUnit { get; set; }
+        public string WorkUnit { get; set; }
         public string TaxIdentification { get; set; }
         public int EmployeeSalary { get; set; }
         public float SalaryFactor { get; set; }
         public string TypeOfContract { get; set; }
-        public BankAccount EmployeeBankAccount { get; set; }
+        public BankAccount employeeBankAccount { get; set; }
     }
 }

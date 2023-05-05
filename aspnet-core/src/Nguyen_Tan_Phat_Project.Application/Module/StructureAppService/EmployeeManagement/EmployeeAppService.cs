@@ -20,12 +20,18 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
     {
         private IRepository<Employee, string> _employeeRepository;
         private IRepository<Structure, string> _structureRepository;
+        private IRepository<BankAccount> _bankRepository;
+        private IRepository<CMND> _cmndRepository;
     
         public EmployeeAppService(IRepository<Employee, string> employeeRepository
-            , IRepository<Structure, string> structureRepository)
+            , IRepository<Structure, string> structureRepository
+            , IRepository<BankAccount> bankRepository
+            , IRepository<CMND> cmndRepository)
         {
             _employeeRepository = employeeRepository;
             _structureRepository = structureRepository;
+            _bankRepository = bankRepository;
+            _cmndRepository = cmndRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Employee_Add)]
@@ -39,24 +45,27 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     throw new UserFriendlyException("Nhân viên này đã tồn tại");
                 }
 
-                DateTime creationTime = DateTime.Now;
                 var employee = new Employee
                 {
                     Id = input.EmployeeCode,
                     EmployeeName = input.EmployeeName,
                     EmployeeGender = input.EmployeeGender,
                     EmployeeDateOfBirth = input.EmployeeDateOfBirth,
-                    EmployeeCMND =  input.EmployeeCMND,
                     JobTitle = input.JobTitle,
-                    WorkUnit = input.WorkUnit,
+                    WorkUnit = _structureRepository.Get(input.WorkUnit),
                     TaxIdentification = input.TaxIdentification,
                     EmployeeSalary = input.EmployeeSalary,
                     SalaryFactor = input.SalaryFactor,
                     TypeOfContract = input.TypeOfContract,
-                    EmployeeBankAccount = input.EmployeeBankAccount,
                 };
-
                 await _employeeRepository.InsertAsync(employee);
+
+                input.EmployeeCMND.Employee = employee;
+                await _cmndRepository.InsertAsync(input.EmployeeCMND);
+
+                input.employeeBankAccount.EmployeeId = employee.Id;
+                _bankRepository.Insert(input.employeeBankAccount);
+               
             }
             catch (Exception ex)
             {
@@ -69,6 +78,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
         {
             try
             {
+                await _cmndRepository.DeleteAsync(e => e.Employee.Id == id);
+                await _bankRepository.DeleteAsync(e => e.Employee.Id == id);
                 await _employeeRepository.HardDeleteAsync(e => e.Id == id);
             }
             catch (Exception ex)
@@ -129,14 +140,12 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 employeeDto.EmployeeName = input.EmployeeName;
                 employeeDto.EmployeeGender = input.EmployeeGender;
                 employeeDto.EmployeeDateOfBirth = input.EmployeeDateOfBirth;
-                employeeDto.EmployeeCMND = input.EmployeeCMND;
                 employeeDto.JobTitle = input.JobTitle;
-                employeeDto.WorkUnit = input.WorkUnit;
+                employeeDto.WorkUnit = _structureRepository.Get(input.WorkUnit);
                 employeeDto.TaxIdentification = input.TaxIdentification;
                 employeeDto.EmployeeSalary = input.EmployeeSalary;
                 employeeDto.SalaryFactor = input.SalaryFactor;
                 employeeDto.TypeOfContract = input.TypeOfContract;
-                employeeDto.EmployeeBankAccount = input.EmployeeBankAccount;
 
                 await _employeeRepository.UpdateAsync(employeeDto);
             }
@@ -158,12 +167,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     EmployeeCode = e.Id,
                     EmployeeName = e.EmployeeName,
                     JobTitle = e.JobTitle,
-                    WorkUnit = e.WorkUnit,
+                    WorkUnit = e.WorkUnit.UnitName,
                     TaxIdentification = e.TaxIdentification,
-                    EmployeeBankAccount = e.EmployeeBankAccount,
-                    CreationTime = e.CreationTime,
-                    LastDateModified = e.LastModificationTime
-                }).OrderByDescending(e => e.CreationTime).PageBy(input).ToListAsync();
+                    AccountId = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == e.Id).BankId,
+                    AccountName = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == e.Id).BankName,
+                }).PageBy(input).ToListAsync();
 
                 int totalCount = _employeeRepository.Count();
 
@@ -194,6 +202,21 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
             return result;
         }
 
+        public async Task<EmployeeSelectForAccountList> GetEmployeeSelect()
+        {
+            var query = await _employeeRepository.GetAll()
+                .Select(e => new EmployeeSelectForAccount
+                {
+                    Code = e.Id,
+                    Name = e.EmployeeName,
+                }).ToListAsync();
+
+            EmployeeSelectForAccountList result = new EmployeeSelectForAccountList();
+            result.items = query;
+
+            return result;
+        }
+
         public async Task<EmployeeOutputDto> GetAsync(string id)
         {
             var query = await _employeeRepository.GetAsync(id);
@@ -203,14 +226,14 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 EmployeeName = query.EmployeeName,
                 EmployeeGender = query.EmployeeGender,
                 EmployeeDateOfBirth = query.EmployeeDateOfBirth,
-                EmployeeCMND = query.EmployeeCMND,
                 JobTitle = query.JobTitle,
                 WorkUnit = query.WorkUnit,
                 TaxIdentification = query.TaxIdentification,
                 EmployeeSalary = query.EmployeeSalary,
                 SalaryFactor = query.SalaryFactor,
                 TypeOfContract = query.TypeOfContract,
-                EmployeeBankAccount = query.EmployeeBankAccount,
+                EmployeeBankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == query.Id),
+                EmployeeCMND = _cmndRepository.GetAll().FirstOrDefault(b => b.EmployeeId == query.Id)
             };
             return employeeDto;
         }
