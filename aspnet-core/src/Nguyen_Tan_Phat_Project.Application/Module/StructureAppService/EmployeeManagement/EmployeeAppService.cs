@@ -52,7 +52,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     EmployeeGender = input.EmployeeGender,
                     EmployeeDateOfBirth = input.EmployeeDateOfBirth,
                     JobTitle = input.JobTitle,
-                    WorkUnit = _structureRepository.Get(input.WorkUnit),
+                    WorkUnitId = input.WorkUnit,
                     TaxIdentification = input.TaxIdentification,
                     EmployeeSalary = input.EmployeeSalary,
                     SalaryFactor = input.SalaryFactor,
@@ -63,8 +63,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 input.EmployeeCMND.Employee = employee;
                 await _cmndRepository.InsertAsync(input.EmployeeCMND);
 
-                input.employeeBankAccount.EmployeeId = employee.Id;
-                _bankRepository.Insert(input.employeeBankAccount);
+                if (input.employeeBankAccount.BankId != null)
+                {
+                    input.employeeBankAccount.EmployeeId = employee.Id;
+                    _bankRepository.Insert(input.employeeBankAccount);
+                }
                
             }
             catch (Exception ex)
@@ -88,41 +91,22 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
             }
         }
 
-        //[AbpAuthorize(PermissionNames.Page_System_Structure_Delete)]
-        //public async Task<string> DeleteMultipleAsync(string[] ids)
-        //{
-        //    try
-        //    {
-        //        int numOfDeleted = 0;
-        //        foreach (var id in ids)
-        //        {
-        //            var isEmployeeInUnit = await _employeeRepository.FirstOrDefaultAsync(e => e.WorkUnit.Id == id);
-        //            if (isEmployeeInUnit != null)
-        //            {
-        //                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
-        //                if (exportImport != null)
-        //                {
-        //                    throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
-        //                }
-        //            }
+        [AbpAuthorize(PermissionNames.Page_System_Structure_Delete)]
+        public async Task<string> DeleteMultipleAsync(string[] ids)
+        {
+            try
+            {
+                await _cmndRepository.DeleteAsync(e => ids.Contains(e.Employee.Id));
+                await _bankRepository.DeleteAsync(e => ids.Contains(e.Employee.Id));
+                await _employeeRepository.HardDeleteAsync(e => ids.Contains(e.Id));
 
-        //            await _productRepository.HardDeleteAsync(e => e.Id == id);
-        //            await _productStorageRepository.HardDeleteAsync(e => e.ProductId == id);
-        //            numOfDeleted++;
-        //        }
-
-        //        if (numOfDeleted == 0)
-        //        {
-        //            throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
-        //        }
-
-        //        return "Xóa thành công " + numOfDeleted + "/" + ids.Length + " sản phẩm thành công";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new UserFriendlyException(ex.Message);
-        //    }
-        //}
+                return "Xóa thành công nhân viên";
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
 
         [AbpAuthorize(PermissionNames.Page_System_Employee_Update)]
         public async Task UpdateAsync(EmployeeInputDto input)

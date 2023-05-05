@@ -13,7 +13,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
 
     public class StructureSelectDto
     {
-        public string UnitCode { get; set; }
-        public string UnitName { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 }
