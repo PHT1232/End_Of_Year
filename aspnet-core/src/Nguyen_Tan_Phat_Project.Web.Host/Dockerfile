@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0.0-focal-arm32v7
+FROM mcr.microsoft.com/dotnet/sdk:7.0
 
-WORKDIR /app
-COPY . ./
+WORKDIR /src
+COPY . .
 
-ENTRYPOINT ["dotnet", "Nguyen_Tan_Phat_Project.Web.Host.dll"]
+ENTRYPOINT ["dotnet", "Nguyen_Tan_Phat_Project.Web.Host.csproj"]

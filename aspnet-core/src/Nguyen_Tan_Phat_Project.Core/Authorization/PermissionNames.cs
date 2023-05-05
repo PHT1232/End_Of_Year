@@ -37,5 +37,35 @@
         public const string Page_System_Export_Import_View = "Pages.System.ExportImport.View";
         public const string Page_System_Export_Import_Add = "Pages.System.ExportImport.Add";
         public const string Page_System_Export_Import_Delete = "Pages.System.ExportImport.Delete";
+
+        public const string Page_System_Structure = "Pages.System.Structure";
+        public const string Page_System_Structure_Update = "Pages.System.Structure.Update";
+        public const string Page_System_Structure_View = "Pages.System.Structure.View";
+        public const string Page_System_Structure_Add = "Pages.System.Structure.Add";
+        public const string Page_System_Structure_Delete = "Pages.System.Structure.Delete";    
+        
+        public const string Page_System_Employee = "Pages.System.Employee";
+        public const string Page_System_Employee_Update = "Pages.System.Employee.Update";
+        public const string Page_System_Employee_View = "Pages.System.Employee.View";
+        public const string Page_System_Employee_Add = "Pages.System.Employee.Add";
+        public const string Page_System_Employee_Delete = "Pages.System.Employee.Delete";
+
+        public const string Page_System_Customer = "Pages.System.Customer";
+        public const string Page_System_Customer_Update = "Pages.System.Customer.Update";
+        public const string Page_System_Customer_View = "Pages.System.Customer.View";
+        public const string Page_System_Customer_Add = "Pages.System.Customer.Add";
+        public const string Page_System_Customer_Delete = "Pages.System.Customer.Delete";
+
+        public const string Page_System_Revenue = "Pages.System.Revenue";
+        public const string Page_System_Revenue_Update = "Pages.System.Revenue.Update";
+        public const string Page_System_Revenue_View = "Pages.System.Revenue.View";
+        public const string Page_System_Revenue_Add = "Pages.System.Revenue.Add";
+        public const string Page_System_Revenue_Delete = "Pages.System.Revenue.Delete";
+
+        public const string Page_System_Summary = "Pages.System.Summary";
+        public const string Page_System_Summary_Update = "Pages.System.Summary.Update";
+        public const string Page_System_Summary_View = "Pages.System.Summary.View";
+        public const string Page_System_Summary_Add = "Pages.System.Summary.Add";
+        public const string Page_System_Summary_Delete = "Pages.System.Summary.Delete";
     }
 }
