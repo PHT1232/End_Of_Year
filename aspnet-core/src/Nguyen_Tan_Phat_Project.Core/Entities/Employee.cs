@@ -21,6 +21,9 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public int EmployeeSalary { get; set; }
         public float SalaryFactor { get; set; }
         public string TypeOfContract { get; set; }
+        [ForeignKey("BankAccount")]
+        public string BankId { get; set; }
+        public BankAccount BankAccount { get; set; }
     }
 }
     
