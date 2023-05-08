@@ -1,6 +1,7 @@
 ﻿using Abp.Domain.Entities.Auditing;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,9 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string OrgCustomerPhone { get; set; }
         public string OrgCustomerAddress { get; set; }
         public string OrgCustomerWebsite { get; set; }
-        //public string 
+        public string OrgCustomerDescription { get; set; }
+        [ForeignKey("BankAccount")]
+        public string BankId { get; set; }
+        public BankAccount BankAccount { get; set; }
     }
 }
