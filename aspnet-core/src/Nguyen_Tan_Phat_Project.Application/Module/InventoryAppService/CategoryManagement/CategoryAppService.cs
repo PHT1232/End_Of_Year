@@ -87,8 +87,8 @@ namespace Nguyen_Tan_Phat_Project.Module.InventoryManagement.CategoryManagement
                 {
                     throw new UserFriendlyException("Không thể xóa danh mục đang có sản phẩm");
                 }
-                await _categoryRepository.DeleteAsync(id);
-                await _subCategoryRepository.DeleteAsync(e => e.CategoryId == id);
+                await _categoryRepository.HardDeleteAsync(e => e.Id == id);
+                await _subCategoryRepository.HardDeleteAsync(e => e.CategoryId == id);
             }
             catch (Exception ex)
             {
