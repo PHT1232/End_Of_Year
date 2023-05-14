@@ -9,7 +9,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     public class CustomerDto
     {
         public int CustomerCode { get; set; }
-        public string CustomerName { get; set; }
         public string CustomerPhone { get; set; }
         public string CustomerAdress { get; set; }
     }

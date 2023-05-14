@@ -9,11 +9,11 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement.D
 {
     public class CustomerGetAllDto
     {
-        public string OrgCustomerCode { get; set; }
-        public string OrgCustomerName { get; set; }
-        public string OrgCustomerPhone { get; set; }
-        public string OrgCustomerAddress { get; set; }
-        public string OrgCustomerWebsite { get; set; }
-        public BankAccount OrgCustomerBankAccount { get; set; }
+        public string CustomerCode { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerPhone { get; set; }
+        public string CustomerAddress { get; set; }
+        public string CustomerWebsite { get; set; }
+        public BankAccount CustomerBankAccount { get; set; }
     }
 }

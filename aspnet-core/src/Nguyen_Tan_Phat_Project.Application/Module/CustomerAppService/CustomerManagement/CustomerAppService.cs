@@ -19,9 +19,9 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
 {
     public class CustomerAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
-        private IRepository<OrgCustomer, string> _customerRepository;
+        private IRepository<Customer, string> _customerRepository;
 
-        public CustomerAppService(IRepository<OrgCustomer, string> customerRepository)
+        public CustomerAppService(IRepository<Customer, string> customerRepository)
         {
             _customerRepository = customerRepository;
         }
@@ -31,23 +31,23 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
         {
             try
             {
-                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.OrgCustomerCode);
+                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.CustomerCode);
                 if (customer == null)
                 {
                     throw new UserFriendlyException("Đã tồn tại khách hàng này");
                 }
 
                 DateTime creationTime = DateTime.Now;
-                await _customerRepository.InsertAsync(new OrgCustomer
+                await _customerRepository.InsertAsync(new Customer
                 {
-                    Id = input.OrgCustomerCode,
+                    Id = input.CustomerCode,
                     TaxIdentification = input.TaxIdentification,
-                    OrgCustomerName = input.OrgCustomerName,
-                    OrgCustomerEmail = input.OrgCustomerEmail,
-                    OrgCustomerPhone = input.OrgCustomerPhone,
-                    OrgCustomerAddress = input.OrgCustomerAddress,
-                    OrgCustomerWebsite = input.OrgCustomerWebsite,
-                    OrgCustomerDescription = input.OrgCustomerDescription,
+                    CustomerName = input.CustomerName,
+                    CustomerEmail = input.CustomerEmail,
+                    CustomerPhone = input.CustomerPhone,
+                    CustomerAddress = input.CustomerAddress,
+                    CustomerWebsite = input.CustomerWebsite,
+                    CustomerDescription = input.CustomerDescription,
                     BankAccount = input.BankAccount,
                 });
             } catch (Exception ex)
@@ -73,21 +73,21 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
         {
             try
             {
-                var customerUpdateCheck = await _customerRepository.FirstOrDefaultAsync(x => x.OrgCustomerName == input.OrgCustomerName && x.Id != input.OrgCustomerCode);
+                var customerUpdateCheck = await _customerRepository.FirstOrDefaultAsync(x => x.CustomerName == input.CustomerName && x.Id != input.CustomerCode);
                 if (customerUpdateCheck != null)
                     throw new UserFriendlyException("Đã có khách hàng với tên này");
 
-                var customerDto = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.OrgCustomerCode);
+                var customerDto = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.CustomerCode);
                 if (customerDto != null)
                     throw new UserFriendlyException("Không thể tìm thấy khách hàng này");
 
-                customerDto.OrgCustomerName = input.OrgCustomerName;
+                customerDto.CustomerName = input.CustomerName;
                 customerDto.TaxIdentification = input.TaxIdentification;
-                customerDto.OrgCustomerEmail = input.OrgCustomerEmail;
-                customerDto.OrgCustomerPhone = input.OrgCustomerPhone;
-                customerDto.OrgCustomerAddress = input.OrgCustomerAddress;
-                customerDto.OrgCustomerWebsite = input.OrgCustomerWebsite;
-                customerDto.OrgCustomerDescription = input.OrgCustomerDescription;
+                customerDto.CustomerEmail = input.CustomerEmail;
+                customerDto.CustomerPhone = input.CustomerPhone;
+                customerDto.CustomerAddress = input.CustomerAddress;
+                customerDto.CustomerWebsite = input.CustomerWebsite;
+                customerDto.CustomerDescription = input.CustomerDescription;
                 customerDto.BankAccount = input.BankAccount;
 
                 await _customerRepository.UpdateAsync(customerDto);
@@ -102,15 +102,15 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
             try
             {
                 var query = await _customerRepository.GetAll()
-                    .WhereIf(!string.IsNullOrEmpty(input.KeyWord), e => e.OrgCustomerName == input.KeyWord || e.Id == input.KeyWord)
+                    .WhereIf(!string.IsNullOrEmpty(input.KeyWord), e => e.CustomerName == input.KeyWord || e.Id == input.KeyWord)
                     .Select(e => new CustomerGetAllDto
                     {
-                        OrgCustomerCode = e.Id,
-                        OrgCustomerName = e.OrgCustomerName,
-                        OrgCustomerAddress = e.OrgCustomerAddress,
-                        OrgCustomerWebsite = e.OrgCustomerWebsite,
-                        OrgCustomerPhone = e.OrgCustomerPhone,
-                        OrgCustomerBankAccount = e.BankAccount,
+                        CustomerCode = e.Id,
+                        CustomerName = e.CustomerName,
+                        CustomerAddress = e.CustomerAddress,
+                        CustomerWebsite = e.CustomerWebsite,
+                        CustomerPhone = e.CustomerPhone,
+                        CustomerBankAccount = e.BankAccount,
                     }).PageBy(input).ToListAsync();
 
                 int totalCount = _customerRepository.Count();
@@ -136,13 +136,13 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
 
             var customerOutput = new CustomerOutputDto
             {
-                OrgCustomerCode = query.Id,
-                OrgCustomerName = query.OrgCustomerName,
-                OrgCustomerAddress = query.OrgCustomerAddress,
-                OrgCustomerWebsite = query.OrgCustomerWebsite,
-                OrgCustomerPhone = query.OrgCustomerPhone,
-                OrgCustomerDescription = query.OrgCustomerDescription,
-                OrgCustomerEmail = query.OrgCustomerEmail,
+                CustomerCode = query.Id,
+                CustomerName = query.CustomerName,
+                CustomerAddress = query.CustomerAddress,
+                CustomerWebsite = query.CustomerWebsite,
+                CustomerPhone = query.CustomerPhone,
+                CustomerDescription = query.CustomerDescription,
+                CustomerEmail = query.CustomerEmail,
                 BankAccount = query.BankAccount,
                 TaxIdentification = query.TaxIdentification,
             };

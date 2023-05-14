@@ -31,7 +31,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
         private readonly IRepository<SubCategory> _subCategoryRepository;
-        private readonly IRepository<Customer> _customerRepository;
+        private readonly IRepository<Customer, string> _customerRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
             , IRepository<Category, string> categoryRepository
@@ -41,7 +41,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             , IRepository<ExportImport, string> exportImportRepository
             , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<SubCategory> subCategoryRepository
-            , IRepository<Customer> customerRepository
+            , IRepository<Customer, string> customerRepository
             )
         {
             _productRepository = productRepository;
@@ -72,79 +72,22 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     throw new UserFriendlyException("Đơn này đã tồn tại");
                 }
 
-                if (input.Customer != null)
-                {
-                    var customer = await _customerRepository.FirstOrDefaultAsync(e => e.CustomerPhone == input.Customer.CustomerPhone);
-                    if (customer == null && input.OrderType == 1)
-                    {
-                        customer = new Customer();
-                        customer.CustomerName = input.Customer.CustomerName;
-                        customer.CustomerPhone = input.Customer.CustomerPhone;
-                        customer.CustomerAdress = input.Customer.CustomerAdress;
-                        await _customerRepository.InsertAsync(customer);
-                    }
-                }
-
                 DateTime creationTime = DateTime.Now;
                 var exportImport = new ExportImport();
-                if (input.Customer == null)
+                exportImport = new ExportImport
                 {
-                    if (input.OrderType == 3)
-                    {
-                        exportImport = new ExportImport
-                        {
-                            Id = input.ExportImportCode,
-                            StorageId = input.StorageInputId,
-                            NameOfReceiver = "Kho " + _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).StorageName,
-                            ReceiveAddress = _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).Address,
-                            OrderCreator = input.OrderCreator,
-                            NameOfExport = input.NameOfExport,
-                            OrderStatus = 1,
-                            OrderType = input.OrderType,
-                            StorageInputId = input.StorageInputId,
-                            Description = input.Description,
-                            LastModificationTime = creationTime,
-                            TotalPrice = input.TotalPrice,
-                        };
-                    }
-                    else
-                    {
-                        exportImport = new ExportImport
-                        {
-                            Id = input.ExportImportCode,
-                            StorageId = input.StorageId,
-                            NameOfReceiver = "Kho " + _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).StorageName,
-                            ReceiveAddress = _storageRepository.GetAll().FirstOrDefault(p => p.Id == input.StorageInputId).Address,
-                            OrderCreator = input.OrderCreator,
-                            OrderStatus = 1,
-                            OrderType = input.OrderType,
-                            NameOfExport = input.NameOfExport,
-                            StorageInputId = input.StorageInputId,
-                            Description = input.Description,
-                            LastModificationTime = creationTime,
-                            TotalPrice = input.TotalPrice,
-                        };
-                    }
-                }
-                else
-                {
-                    exportImport = new ExportImport
-                    {
-                        Id = input.ExportImportCode,
-                        StorageId = input.StorageId,
-                        NameOfReceiver = input.Customer.CustomerName,
-                        ReceiveAddress = input.Customer.CustomerAdress,
-                        CustomerPhone = input.Customer.CustomerPhone,
-                        OrderCreator = input.OrderCreator,
-                        NameOfExport = input.NameOfExport,
-                        OrderStatus = 1,
-                        OrderType = input.OrderType,
-                        StorageInputId = input.StorageInputId,
-                        Description = input.Description,
-                        LastModificationTime = creationTime,
-                        TotalPrice = input.TotalPrice,
-                    };
-                }
+                    Id = input.ExportImportCode,
+                    StorageId = input.StorageId,
+                    NameOfReceiver = input.Customer.CustomerName,
+                    OrderCreator = input.OrderCreator,
+                    NameOfExport = input.NameOfExport,
+                    OrderStatus = 1,
+                    OrderType = input.OrderType,
+                    StorageInputId = input.StorageInputId,
+                    Description = input.Description,
+                    LastModificationTime = creationTime,
+                    TotalPrice = input.TotalPrice,
+                };
                 string id = await _exportImportRepository.InsertAndGetIdAsync(exportImport);
 
                 foreach (var product in input.Products)

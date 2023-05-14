@@ -9,14 +9,14 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement.D
 {
     public class CustomerOutputDto
     {
-        public string OrgCustomerCode { get; set; }
+        public string CustomerCode { get; set; }
         public string TaxIdentification { get; set; }
-        public string OrgCustomerName { get; set; }
-        public string OrgCustomerEmail { get; set; }
-        public string OrgCustomerPhone { get; set; }
-        public string OrgCustomerAddress { get; set; }
-        public string OrgCustomerWebsite { get; set; }
-        public string OrgCustomerDescription { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerEmail { get; set; }
+        public string CustomerPhone { get; set; }
+        public string CustomerAddress { get; set; }
+        public string CustomerWebsite { get; set; }
+        public string CustomerDescription { get; set; }
         public BankAccount BankAccount { get; set; }
     }
 }
