@@ -32,6 +32,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
         private readonly IRepository<SubCategory> _subCategoryRepository;
         private readonly IRepository<Customer, string> _customerRepository;
+        private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
+        private readonly IRepository<Employee, string> _employeeRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
             , IRepository<Category, string> categoryRepository
@@ -42,6 +44,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<SubCategory> subCategoryRepository
             , IRepository<Customer, string> customerRepository
+            , IRepository<ExportImportCustomer> exportImportCustomerRepository
+            , IRepository<Employee, string> employeeRepository
             )
         {
             _productRepository = productRepository;
@@ -53,10 +57,12 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             _exportImportProductRepository = exportImportProductRepository;
             _subCategoryRepository = subCategoryRepository;
             _customerRepository = customerRepository;
+            _exportImportCustomerRepository = exportImportCustomerRepository;
+            _employeeRepository = employeeRepository;
         }
 
 
-        public async Task<string> GetRandomCode()
+        public string GetRandomCode()
         {
             return Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
         }
@@ -131,6 +137,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         _productStorageRepository.Update(product);
                     }
                 }
+
                 else if (exportImport.OrderType == 2 && input.OrderStatus == 2)
                 {
                     var exportImportProduct = await _exportImportProductRepository.GetAll()
@@ -164,6 +171,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         _productStorageRepository.Update(productOutput);
                     }
                 }
+
                 else if (exportImport.OrderType == 3 && input.OrderStatus == 2)
                 {
                     var exportImportProduct = await _exportImportProductRepository.GetAll()
@@ -194,6 +202,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         }
                     }
                 }
+
                 else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 || exportImport.OrderType == 3 && input.OrderStatus == 3)
                 {
                     exportImport.OrderStatus = input.OrderStatus;
@@ -232,20 +241,21 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        [AbpAuthorize(PermissionNames.Page_System_Export_Import_Add)]
-        public async Task AddCustomerAsync(CustomerDto customerDto)
+        public async Task<ListOfCustomer> GetCustomerListAsync()
         {
             try
             {
-                var customer = new Customer
+                var customerList = await _customerRepository.GetAll().Select(e => new CustomerListDto
                 {
-                    CustomerName = customerDto.CustomerName,
-                    CustomerPhone = customerDto.CustomerPhone,
-                    CustomerAdress = customerDto.CustomerAdress,
+                    Code = e.Id,
+                    Name = e.CustomerName
+                }).ToListAsync();
+
+                return new ListOfCustomer
+                {
+                    items = customerList
                 };
-                await _customerRepository.InsertAsync(customer);
-            }
-            catch (Exception ex)
+            } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
             }
@@ -262,7 +272,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 var customerDto = new CustomerDto
                 {
                     CustomerPhone = customer.CustomerPhone,
-                    CustomerAdress = customer.CustomerAdress,
+                    CustomerAdress = customer.CustomerAddress,
                     CustomerCode = customer.Id,
                     CustomerName = customer.CustomerName,
                 };
@@ -278,10 +288,10 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         {
             try
             {
-                var creator = await _userRepository.GetAll().Where(l => l.Id != 1 && l.Id != 2).Select(e => new LookUpTable
+                var creator = await _employeeRepository.GetAll().Select(e => new LookUpTable
                 {
-                    Id = (int)e.Id,
-                    Name = e.FullName,
+                    Code = e.Id,
+                    Name = e.EmployeeName,
                 }).ToListAsync();
 
                 return new LookUpTableList
@@ -363,7 +373,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         {
                             ExportImportCode = e.Id,
                             NameOfReceiver = e.NameOfReceiver,
-                            Address = e.ReceiveAddress,
                             StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
                             OrderStatus = e.OrderStatus,
                             OrderType = e.OrderType,
@@ -385,7 +394,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                        {
                            ExportImportCode = e.Id,
                            NameOfReceiver = e.NameOfReceiver,
-                           Address = e.ReceiveAddress,
                            StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
                            OrderStatus = e.OrderStatus,
                            OrderType = e.OrderType,
@@ -416,8 +424,9 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         {
             try
             {
+                var exportImportCustomer = await _exportImportCustomerRepository.FirstOrDefaultAsync(e => e.ExportImportCode == id);
                 var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == id);
-                var customer = _customerRepository.FirstOrDefault(e => e.CustomerPhone == exportImport.CustomerPhone);
+                var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
                 var product = await _exportImportProductRepository.GetAll().Include(e => e.Product)
                     .Where(l => l.ExportImportCode == id)
                     .Select(e => new ExportImportProductDto
@@ -436,7 +445,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 {
                     customerDto.CustomerCode = customer.Id;
                     customerDto.CustomerPhone = customer.CustomerPhone;
-                    customerDto.CustomerAdress = customer.CustomerAdress;
+                    customerDto.CustomerAdress = customer.CustomerAddress;
                     customerDto.CustomerName = customer.CustomerName;
                 }
 
@@ -446,7 +455,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     OrderCreator = exportImport.OrderCreator,
                     OrderStatus = exportImport.OrderStatus,
                     OrderType = exportImport.OrderType,
-                    ReceiveAddress = exportImport.ReceiveAddress,
+                    ReceiveAddress = exportImportCustomer.ReciveAddress,
                     Customer = customerDto,
                     Products = product,
                     StorageId = exportImport.StorageId,

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto
 {
-    public class LookUpTableList
+    public class ListOfCustomer
     {
-        public List<LookUpTable> items { get; set; }
+        public List<CustomerListDto> items {  get; set; }
     }
 
-    public class LookUpTable
+    public class CustomerListDto
     {
         public string Code { get; set; }
         public string Name { get; set; }

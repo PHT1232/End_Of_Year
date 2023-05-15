@@ -19,18 +19,12 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
 {
     public class CustomerAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
-<<<<<<< Updated upstream
         private IRepository<Customer, string> _customerRepository;
-
-        public CustomerAppService(IRepository<Customer, string> customerRepository)
-=======
-        private IRepository<OrgCustomer, string> _customerRepository;
         private IRepository<BankAccount> _bankRepository;
 
-        public CustomerAppService(IRepository<OrgCustomer, string> customerRepository
+        public CustomerAppService(IRepository<Customer, string> customerRepository
             , IRepository<BankAccount> bankRepository
             )
->>>>>>> Stashed changes
         {
             _customerRepository = customerRepository;
             _bankRepository = bankRepository;
@@ -41,13 +35,8 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
         {
             try
             {
-<<<<<<< Updated upstream
                 var customer = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.CustomerCode);
-                if (customer == null)
-=======
-                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.OrgCustomerCode);
                 if (customer != null)
->>>>>>> Stashed changes
                 {
                     throw new UserFriendlyException("Đã tồn tại khách hàng này");
                 }
@@ -152,26 +141,15 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
 
             var customerOutput = new CustomerOutputDto
             {
-<<<<<<< Updated upstream
                 CustomerCode = query.Id,
                 CustomerName = query.CustomerName,
+                TaxIdentification = query.TaxIdentification,
                 CustomerAddress = query.CustomerAddress,
                 CustomerWebsite = query.CustomerWebsite,
                 CustomerPhone = query.CustomerPhone,
                 CustomerDescription = query.CustomerDescription,
                 CustomerEmail = query.CustomerEmail,
                 BankAccount = query.BankAccount,
-=======
-                OrgCustomerCode = query.Id,
-                OrgCustomerName = query.OrgCustomerName,
-                OrgCustomerAddress = query.OrgCustomerAddress,
-                OrgCustomerWebsite = query.OrgCustomerWebsite,
-                OrgCustomerPhone = query.OrgCustomerPhone,
-                OrgCustomerDescription = query.OrgCustomerDescription,
-                OrgCustomerEmail = query.OrgCustomerEmail,
-                BankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.BankId == query.BankId),
->>>>>>> Stashed changes
-                TaxIdentification = query.TaxIdentification,
             };
 
             return customerOutput;
