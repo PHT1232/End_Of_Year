@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement.D
         public string CustomerPhone { get; set; }
         public string CustomerAddress { get; set; }
         public string CustomerWebsite { get; set; }
-        public BankAccount CustomerBankAccount { get; set; }
+        public string CustomerBankId { get; set; }
+        public string CustomerBankName { get; set; }
     }
 }

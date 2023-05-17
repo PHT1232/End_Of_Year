@@ -23,7 +23,10 @@ namespace Nguyen_Tan_Phat_Project.EntityFrameworkCore
         public DbSet<Structure> structure { get; set; }
         public DbSet<BankAccount> bankAccounts { get; set; }
         public DbSet<CMND> chungMinhND { get; set; }
-
+        public DbSet<ExportImportCustomer> exportImportCustomer { get; set; }
+        public DbSet<Expenses> expenses { get; set; }
+        public DbSet<ProductExpenses> productExpenses { get; set; }
+        
         public Nguyen_Tan_Phat_ProjectDbContext(DbContextOptions<Nguyen_Tan_Phat_ProjectDbContext> options)
             : base(options)
         {

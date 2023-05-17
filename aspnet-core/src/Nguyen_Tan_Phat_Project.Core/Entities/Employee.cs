@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string EmployeeGender { get; set; }
         public DateTime EmployeeDateOfBirth { get; set; }
         public string JobTitle { get; set; }
+        public int phoneNumber { get; set; }
         [ForeignKey("Structure")]
         public string WorkUnitId { get; set; }
         public Structure WorkUnit { get; set; }

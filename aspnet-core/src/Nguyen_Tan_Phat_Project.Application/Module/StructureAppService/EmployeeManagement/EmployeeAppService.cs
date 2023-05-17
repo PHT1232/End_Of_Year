@@ -43,26 +43,47 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
         {
             try
             {
-                var employeeDto = await _employeeRepository.FirstOrDefaultAsync(e => e.Id == input.EmployeeCode || e.EmployeeName == input.EmployeeName);
-                if (employeeDto != null)
+                var employee = await _employeeRepository.FirstOrDefaultAsync(e => e.Id == input.EmployeeCode || e.EmployeeName == input.EmployeeName);
+                if (employee != null)
                 {
                     throw new UserFriendlyException("Nhân viên này đã tồn tại");
                 }
 
-                var employee = new Employee
+                if (input.employeeBankAccount.BankId == null)
                 {
-                    Id = input.EmployeeCode,
-                    EmployeeName = input.EmployeeName,
-                    EmployeeGender = input.EmployeeGender,
-                    EmployeeDateOfBirth = input.EmployeeDateOfBirth,
-                    JobTitle = input.JobTitle,
-                    WorkUnitId = input.WorkUnit,
-                    TaxIdentification = input.TaxIdentification,
-                    EmployeeSalary = input.EmployeeSalary,
-                    SalaryFactor = input.SalaryFactor,
-                    TypeOfContract = input.TypeOfContract,
-                    BankAccount = input.employeeBankAccount
-                };
+                    employee = new Employee
+                    {
+                        Id = input.EmployeeCode,
+                        EmployeeName = input.EmployeeName,
+                        EmployeeGender = input.EmployeeGender,
+                        EmployeeDateOfBirth = input.EmployeeDateOfBirth,
+                        JobTitle = input.JobTitle,
+                        WorkUnitId = input.WorkUnit,
+                        TaxIdentification = input.TaxIdentification,
+                        phoneNumber = input.PhoneNumber,
+                        EmployeeSalary = input.EmployeeSalary,
+                        SalaryFactor = input.SalaryFactor,
+                        TypeOfContract = input.TypeOfContract,
+                    };
+                } else
+                {
+                    employee = new Employee
+                    {
+                        Id = input.EmployeeCode,
+                        EmployeeName = input.EmployeeName,
+                        EmployeeGender = input.EmployeeGender,
+                        EmployeeDateOfBirth = input.EmployeeDateOfBirth,
+                        JobTitle = input.JobTitle,
+                        WorkUnitId = input.WorkUnit,
+                        TaxIdentification = input.TaxIdentification,
+                        phoneNumber = input.PhoneNumber,
+                        EmployeeSalary = input.EmployeeSalary,
+                        SalaryFactor = input.SalaryFactor,
+                        TypeOfContract = input.TypeOfContract,
+                        BankAccount = input.employeeBankAccount
+                    };
+                }
+
                 await _employeeRepository.InsertAsync(employee);
 
                 input.EmployeeCMND.Employee = employee;
@@ -145,12 +166,21 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 employeeDto.TaxIdentification = input.TaxIdentification;
                 employeeDto.EmployeeSalary = input.EmployeeSalary;
                 employeeDto.SalaryFactor = input.SalaryFactor;
+                employeeDto.phoneNumber = input.PhoneNumber;
                 employeeDto.TypeOfContract = input.TypeOfContract;
-                employeeDto.BankAccount = input.employeeBankAccount;
 
-                await _bankRepository.UpdateAsync(input.employeeBankAccount);
-                await _cmndRepository.UpdateAsync(input.EmployeeCMND);
+                var employeeBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.employeeBankAccount.BankId);
+                if (employeeBankAccount != null)
+                {
+                    await _bankRepository.UpdateAsync(input.employeeBankAccount);
+                } else
+                {
+                    await _bankRepository.InsertAsync(input.employeeBankAccount);
+                    employeeDto.BankId = input.employeeBankAccount.BankId;
+                }
+
                 await _employeeRepository.UpdateAsync(employeeDto);
+                //_cmndRepository.Update(input.EmployeeCMND);
             }
             catch (Exception ex)
             {
@@ -171,7 +201,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     EmployeeName = e.EmployeeName,
                     JobTitle = e.JobTitle,
                     WorkUnit = e.WorkUnit.UnitName,
-                    TaxIdentification = e.TaxIdentification,
+                    EmployeePhone = e.phoneNumber,
                     AccountId = e.BankAccount.BankId,
                     AccountName = e.BankAccount.BankName,
                 }).PageBy(input).ToListAsync();
@@ -232,10 +262,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 JobTitle = query.JobTitle,
                 WorkUnit = query.WorkUnit,
                 TaxIdentification = query.TaxIdentification,
+                EmployeePhone = query.phoneNumber,
                 EmployeeSalary = query.EmployeeSalary,
                 SalaryFactor = query.SalaryFactor,
                 TypeOfContract = query.TypeOfContract,
-                EmployeeBankAccount = query.BankAccount,
+                EmployeeBankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.BankId == query.BankId),
                 EmployeeCMND = _cmndRepository.GetAll().FirstOrDefault(b => b.EmployeeId == query.Id)
             };
             return employeeDto;

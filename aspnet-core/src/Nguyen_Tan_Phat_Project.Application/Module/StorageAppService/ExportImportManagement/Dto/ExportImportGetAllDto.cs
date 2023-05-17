@@ -15,7 +15,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         public int OrderType { get; set; }
         public float TotalPrice { get; set; }
         public DateTime CreationTime { get; set; }
-        public DateTime? LastModifiedDate { get; set; }
         public string NameOfExport { get; set; }
         public string Username { get; set; }
     }

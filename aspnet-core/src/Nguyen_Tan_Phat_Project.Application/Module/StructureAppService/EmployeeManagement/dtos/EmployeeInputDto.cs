@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.
         public string EmployeeGender { get; set; }
         public DateTime EmployeeDateOfBirth { get; set; }
         public CMND EmployeeCMND { get; set; }
+        public int PhoneNumber { get; set; }
         public string JobTitle { get; set; }
         public string WorkUnit { get; set; }
         public string TaxIdentification { get; set; }

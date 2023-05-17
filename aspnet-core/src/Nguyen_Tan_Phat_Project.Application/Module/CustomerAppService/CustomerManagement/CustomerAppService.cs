@@ -42,18 +42,38 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 }
 
                 DateTime creationTime = DateTime.Now;
-                await _customerRepository.InsertAsync(new Customer
+                
+                if (input.BankAccount.BankId == null)
                 {
-                    Id = input.CustomerCode,
-                    TaxIdentification = input.TaxIdentification,
-                    CustomerName = input.CustomerName,
-                    CustomerEmail = input.CustomerEmail,
-                    CustomerPhone = input.CustomerPhone,
-                    CustomerAddress = input.CustomerAddress,
-                    CustomerWebsite = input.CustomerWebsite,
-                    CustomerDescription = input.CustomerDescription,
-                    BankAccount = input.BankAccount,
-                });
+                    customer = new Customer
+                    {
+                        Id = input.CustomerCode,
+                        TaxIdentification = input.TaxIdentification,
+                        CustomerName = input.CustomerName,
+                        CustomerEmail = input.CustomerEmail,
+                        CustomerPhone = input.CustomerPhone,
+                        CustomerAddress = input.CustomerAddress,
+                        CustomerWebsite = input.CustomerWebsite,
+                        CustomerDescription = input.CustomerDescription,
+                    };
+                } else
+                {
+                    customer = new Customer
+                    {
+                        Id = input.CustomerCode,
+                        TaxIdentification = input.TaxIdentification,
+                        CustomerName = input.CustomerName,
+                        CustomerEmail = input.CustomerEmail,
+                        CustomerPhone = input.CustomerPhone,
+                        CustomerAddress = input.CustomerAddress,
+                        CustomerWebsite = input.CustomerWebsite,
+                        CustomerDescription = input.CustomerDescription,
+                        BankAccount = input.BankAccount,
+                    };
+                }
+
+                await _customerRepository.InsertAsync(customer);
+
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -92,7 +112,17 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 customerDto.CustomerAddress = input.CustomerAddress;
                 customerDto.CustomerWebsite = input.CustomerWebsite;
                 customerDto.CustomerDescription = input.CustomerDescription;
-                customerDto.BankAccount = input.BankAccount;
+
+                var customerBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.BankAccount.BankId);
+                if (customerBankAccount != null)
+                {
+                    await _bankRepository.UpdateAsync(input.BankAccount);
+                }
+                else
+                {
+                    await _bankRepository.InsertAsync(input.BankAccount);
+                    customerDto.BankId = input.BankAccount.BankId;
+                }
 
                 await _customerRepository.UpdateAsync(customerDto);
             } catch (Exception ex)
@@ -114,7 +144,8 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerAddress = e.CustomerAddress,
                         CustomerWebsite = e.CustomerWebsite,
                         CustomerPhone = e.CustomerPhone,
-                        CustomerBankAccount = e.BankAccount,
+                        CustomerBankId = e.BankAccount.BankId,
+                        CustomerBankName = e.BankAccount.BankName,
                     }).PageBy(input).ToListAsync();
 
                 int totalCount = _customerRepository.Count();

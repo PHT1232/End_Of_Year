@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230504172653_initial_2")]
-    partial class initial_2
+    [Migration("20230516084321_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1583,15 +1583,10 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("BankName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmployeeId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.HasKey("BankId");
-
-                    b.HasIndex("EmployeeId");
 
                     b.ToTable("bankAccounts");
                 });
@@ -1662,11 +1657,11 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Customer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<string>("BankId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1674,13 +1669,22 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("CustomerAdress")
+                    b.Property<string>("CustomerAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerEmail")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerWebsite")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("DeleterUserId")
@@ -1698,7 +1702,12 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("TaxIdentification")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BankId");
 
                     b.ToTable("customers");
                 });
@@ -1706,6 +1715,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Employee", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BankId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationTime")
@@ -1758,6 +1770,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BankId");
+
                     b.HasIndex("WorkUnitId");
 
                     b.ToTable("employees");
@@ -1773,9 +1787,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("CustomerPhone")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("DeleterUserId")
                         .HasColumnType("bigint");
@@ -1809,9 +1820,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<int>("OrderType")
                         .HasColumnType("int");
-
-                    b.Property<string>("ReceiveAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StorageId")
                         .HasColumnType("nvarchar(450)");
@@ -2450,15 +2458,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.BankAccount", b =>
-                {
-                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId");
-
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.CMND", b =>
                 {
                     b.HasOne("Nguyen_Tan_Phat_Project.Entities.Employee", "Employee")
@@ -2468,11 +2467,26 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Customer", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    b.Navigation("BankAccount");
+                });
+
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Employee", b =>
                 {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
                     b.HasOne("Nguyen_Tan_Phat_Project.Entities.Structure", "WorkUnit")
                         .WithMany()
                         .HasForeignKey("WorkUnitId");
+
+                    b.Navigation("BankAccount");
 
                     b.Navigation("WorkUnit");
                 });

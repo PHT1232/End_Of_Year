@@ -24,38 +24,32 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     public class ExportImportAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
         private readonly IRepository<Product, string> _productRepository;
-        private readonly IRepository<Category, string> _categoryRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<Storage, string> _storageRepository;
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
-        private readonly IRepository<SubCategory> _subCategoryRepository;
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
-            , IRepository<Category, string> categoryRepository
             , IRepository<User, long> userRepository
             , IRepository<Storage, string> storageRepository
             , IRepository<ProductStorage> productStorageRepository
             , IRepository<ExportImport, string> exportImportRepository
             , IRepository<ExportImportProduct> exportImportProductRepository
-            , IRepository<SubCategory> subCategoryRepository
             , IRepository<Customer, string> customerRepository
             , IRepository<ExportImportCustomer> exportImportCustomerRepository
             , IRepository<Employee, string> employeeRepository
             )
         {
             _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
             _userRepository = userRepository;
             _storageRepository = storageRepository;
             _productStorageRepository = productStorageRepository;
             _exportImportRepository = exportImportRepository;
             _exportImportProductRepository = exportImportProductRepository;
-            _subCategoryRepository = subCategoryRepository;
             _customerRepository = customerRepository;
             _exportImportCustomerRepository = exportImportCustomerRepository;
             _employeeRepository = employeeRepository;
@@ -356,39 +350,12 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         {
             try
             {
-                var firstDate = new DateTime();
-                var endDate = new DateTime();
-                if (input.DateTime != null)
-                {
-                    firstDate = DateTime.Parse(input.DateTime[0]);
-                    endDate = DateTime.Parse(input.DateTime[1]);
-                }
                 var exportImport = new List<ExportImportGetAllDto>();
-                if (input.DateTime != null)
+
+                if (input.Keyword != null)
                 {
                     exportImport = await _exportImportRepository.GetAll()
-                        .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage || e.StorageInputId == input.Storage)
-                        .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
-                        .PageBy(input).Select(e => new ExportImportGetAllDto
-                        {
-                            ExportImportCode = e.Id,
-                            NameOfReceiver = e.NameOfReceiver,
-                            StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
-                            OrderStatus = e.OrderStatus,
-                            OrderType = e.OrderType,
-                            TotalPrice = e.TotalPrice,
-                            CreationTime = e.CreationTime,
-                            LastModifiedDate = e.LastModificationTime,
-                            NameOfExport = e.NameOfExport,
-                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
-                        }).ToListAsync();
-                }
-                else
-                {
-                    exportImport = await _exportImportRepository.GetAll()
-                       .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword || e.NameOfReceiver == input.Keyword)
-                       .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage || e.StorageInputId == input.Storage)
-                       .WhereIf(input.DateTime != null, e => e.CreationTime >= firstDate && e.LastModificationTime <= endDate)
+                       .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword)
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                        .PageBy(input).Select(e => new ExportImportGetAllDto
                        {
@@ -398,13 +365,52 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                            OrderStatus = e.OrderStatus,
                            OrderType = e.OrderType,
                            TotalPrice = e.TotalPrice,
-                           CreationTime = e.CreationTime,
-                           LastModifiedDate = e.LastModificationTime,
                            NameOfExport = e.NameOfExport,
                            Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
                        }).ToListAsync();
-                }
+                } else
+                {
+                    if (input.DateTime != null)
+                    {
+                        var firstDate = new DateTime();
+                        var endDate = new DateTime();
 
+                        firstDate = DateTime.Parse(input.DateTime[0]);
+                        endDate = DateTime.Parse(input.DateTime[1]);
+
+                        exportImport = await _exportImportRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage || e.StorageInputId == input.Storage)
+                            .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
+                            .PageBy(input).Select(e => new ExportImportGetAllDto
+                            {
+                                ExportImportCode = e.Id,
+                                NameOfReceiver = e.NameOfReceiver,
+                                StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
+                                OrderStatus = e.OrderStatus,
+                                OrderType = e.OrderType,
+                                TotalPrice = e.TotalPrice,
+                                NameOfExport = e.NameOfExport,
+                                Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
+                            }).ToListAsync();
+                    }
+                    else
+                    {
+                        exportImport = await _exportImportRepository.GetAll()
+                           .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StorageId == input.Storage || e.StorageInputId == input.Storage)
+                           .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
+                           .PageBy(input).Select(e => new ExportImportGetAllDto
+                           {
+                               ExportImportCode = e.Id,
+                               NameOfReceiver = e.NameOfReceiver,
+                               StorageName = _storageRepository.GetAll().FirstOrDefault(p => p.Id == e.StorageId).StorageName,
+                               OrderStatus = e.OrderStatus,
+                               OrderType = e.OrderType,
+                               TotalPrice = e.TotalPrice,
+                               NameOfExport = e.NameOfExport,
+                               Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).FullName,
+                           }).ToListAsync();
+                    }
+                }
 
                 int totalCount = await _exportImportRepository.CountAsync();
 
