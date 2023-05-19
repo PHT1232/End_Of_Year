@@ -10,6 +10,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     public class ProductPagedRequest : PagedResultRequestDto
     {
         public string StorageId { get; set; }
+        public string Keyword { get; set; }
         public bool IsInsert { get; set; }
     }
 }

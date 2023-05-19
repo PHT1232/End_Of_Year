@@ -166,9 +166,8 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
             var query = await _customerRepository.GetAsync(id);
             if (query == null)
             {
-                throw new UserFriendlyException("Không thể tìm thấy nhân viên với mã này");
+                throw new UserFriendlyException("Không thể tìm thấy Khách hàng với mã này");
             }
-
 
             var customerOutput = new CustomerOutputDto
             {

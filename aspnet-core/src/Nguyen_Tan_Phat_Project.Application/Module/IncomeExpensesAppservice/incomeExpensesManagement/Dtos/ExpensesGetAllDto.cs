@@ -16,6 +16,7 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
         public int OrderStatus { get; set; }
         public float TotalPrice { get; set; }
         public float TotalPriceAfterDiscount { get; set; }
+        public string EmployeeCode { get; set; }
         public DateTime CreationTime { get; set; }
     }
 }

@@ -60,6 +60,12 @@ namespace Nguyen_Tan_Phat_Project.Authorization
             customer.CreateChildPermission(PermissionNames.Page_System_Customer_Add, L("Add"));
             customer.CreateChildPermission(PermissionNames.Page_System_Customer_Delete, L("Delete"));
 
+            var revenue = system.CreateChildPermission(PermissionNames.Page_System_Revenue, L("Revenue"));
+            revenue.CreateChildPermission(PermissionNames.Page_System_Revenue_Update, L("Update"));
+            revenue.CreateChildPermission(PermissionNames.Page_System_Revenue_View, L("View"));
+            revenue.CreateChildPermission(PermissionNames.Page_System_Revenue_Add, L("Add"));
+            revenue.CreateChildPermission(PermissionNames.Page_System_Revenue_Delete, L("Delete"));
+
             var summary = system.CreateChildPermission(PermissionNames.Page_System_Summary, L("Summary"));
             summary.CreateChildPermission(PermissionNames.Page_System_Summary_Update, L("Update"));
             summary.CreateChildPermission(PermissionNames.Page_System_Summary_View, L("View"));

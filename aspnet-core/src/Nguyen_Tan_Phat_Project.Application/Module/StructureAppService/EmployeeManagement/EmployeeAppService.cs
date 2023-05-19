@@ -170,16 +170,13 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 employeeDto.TypeOfContract = input.TypeOfContract;
 
                 var employeeBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.employeeBankAccount.BankId);
-                if (employeeBankAccount != null)
-                {
-                    await _bankRepository.UpdateAsync(input.employeeBankAccount);
-                } else
+                if (employeeBankAccount == null || employeeBankAccount.BankId != input.employeeBankAccount.BankId)
                 {
                     await _bankRepository.InsertAsync(input.employeeBankAccount);
                     employeeDto.BankId = input.employeeBankAccount.BankId;
+                    await _employeeRepository.UpdateAsync(employeeDto);
                 }
 
-                await _employeeRepository.UpdateAsync(employeeDto);
                 //_cmndRepository.Update(input.EmployeeCMND);
             }
             catch (Exception ex)
