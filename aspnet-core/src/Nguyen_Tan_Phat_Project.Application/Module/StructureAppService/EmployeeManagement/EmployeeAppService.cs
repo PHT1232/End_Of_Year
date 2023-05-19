@@ -12,6 +12,7 @@ using Abp.UI;
 using Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.dtos;
 using Abp.Linq.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Nguyen_Tan_Phat_Project.Authorization.Users;
 
 namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
 {
@@ -20,17 +21,20 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
     {
         private IRepository<Employee, string> _employeeRepository;
         private IRepository<Structure, string> _structureRepository;
+        private IRepository<User, long> _userReposistory;
         private IRepository<BankAccount> _bankRepository;
         private IRepository<CMND> _cmndRepository;
     
         public EmployeeAppService(IRepository<Employee, string> employeeRepository
             , IRepository<Structure, string> structureRepository
             , IRepository<BankAccount> bankRepository
+            , IRepository<User, long> userRepository
             , IRepository<CMND> cmndRepository)
         {
             _employeeRepository = employeeRepository;
             _structureRepository = structureRepository;
             _bankRepository = bankRepository;
+            _userReposistory = userRepository;
             _cmndRepository = cmndRepository;
         }
 
@@ -39,32 +43,57 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
         {
             try
             {
-                var employeeDto = await _employeeRepository.FirstOrDefaultAsync(e => e.Id == input.EmployeeCode || e.EmployeeName == input.EmployeeName);
-                if (employeeDto != null)
+                var employee = await _employeeRepository.FirstOrDefaultAsync(e => e.Id == input.EmployeeCode || e.EmployeeName == input.EmployeeName);
+                if (employee != null)
                 {
                     throw new UserFriendlyException("Nhân viên này đã tồn tại");
                 }
 
-                var employee = new Employee
+                if (input.employeeBankAccount.BankId == null)
                 {
-                    Id = input.EmployeeCode,
-                    EmployeeName = input.EmployeeName,
-                    EmployeeGender = input.EmployeeGender,
-                    EmployeeDateOfBirth = input.EmployeeDateOfBirth,
-                    JobTitle = input.JobTitle,
-                    WorkUnit = _structureRepository.Get(input.WorkUnit),
-                    TaxIdentification = input.TaxIdentification,
-                    EmployeeSalary = input.EmployeeSalary,
-                    SalaryFactor = input.SalaryFactor,
-                    TypeOfContract = input.TypeOfContract,
-                };
+                    employee = new Employee
+                    {
+                        Id = input.EmployeeCode,
+                        EmployeeName = input.EmployeeName,
+                        EmployeeGender = input.EmployeeGender,
+                        EmployeeDateOfBirth = input.EmployeeDateOfBirth,
+                        JobTitle = input.JobTitle,
+                        WorkUnitId = input.WorkUnit,
+                        TaxIdentification = input.TaxIdentification,
+                        phoneNumber = input.PhoneNumber,
+                        EmployeeSalary = input.EmployeeSalary,
+                        SalaryFactor = input.SalaryFactor,
+                        TypeOfContract = input.TypeOfContract,
+                    };
+                } else
+                {
+                    employee = new Employee
+                    {
+                        Id = input.EmployeeCode,
+                        EmployeeName = input.EmployeeName,
+                        EmployeeGender = input.EmployeeGender,
+                        EmployeeDateOfBirth = input.EmployeeDateOfBirth,
+                        JobTitle = input.JobTitle,
+                        WorkUnitId = input.WorkUnit,
+                        TaxIdentification = input.TaxIdentification,
+                        phoneNumber = input.PhoneNumber,
+                        EmployeeSalary = input.EmployeeSalary,
+                        SalaryFactor = input.SalaryFactor,
+                        TypeOfContract = input.TypeOfContract,
+                        BankAccount = input.employeeBankAccount
+                    };
+                }
+
                 await _employeeRepository.InsertAsync(employee);
 
                 input.EmployeeCMND.Employee = employee;
                 await _cmndRepository.InsertAsync(input.EmployeeCMND);
 
-                input.employeeBankAccount.EmployeeId = employee.Id;
-                _bankRepository.Insert(input.employeeBankAccount);
+                //if (input.employeeBankAccount.BankId != null)
+                //{
+                //    input.employeeBankAccount.EmployeeId = employee.Id;
+                //    _bankRepository.Insert(input.employeeBankAccount);
+                //}
                
             }
             catch (Exception ex)
@@ -78,51 +107,43 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
         {
             try
             {
+                var employeeAccount = await _userReposistory.FirstOrDefaultAsync(e => e.UserName == id);
+                if (employeeAccount != null)
+                {
+                    throw new UserFriendlyException("Nhân viên có tài khoản không thể bị xóa");
+                }
+                var employee = await _employeeRepository.GetAsync(id);
                 await _cmndRepository.DeleteAsync(e => e.Employee.Id == id);
-                await _bankRepository.DeleteAsync(e => e.Employee.Id == id);
+                await _bankRepository.DeleteAsync(e => e.BankId == employee.Id);
                 await _employeeRepository.HardDeleteAsync(e => e.Id == id);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new UserFriendlyException(ex.Message);
             }
         }
 
-        //[AbpAuthorize(PermissionNames.Page_System_Structure_Delete)]
-        //public async Task<string> DeleteMultipleAsync(string[] ids)
-        //{
-        //    try
-        //    {
-        //        int numOfDeleted = 0;
-        //        foreach (var id in ids)
-        //        {
-        //            var isEmployeeInUnit = await _employeeRepository.FirstOrDefaultAsync(e => e.WorkUnit.Id == id);
-        //            if (isEmployeeInUnit != null)
-        //            {
-        //                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
-        //                if (exportImport != null)
-        //                {
-        //                    throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
-        //                }
-        //            }
+        [AbpAuthorize(PermissionNames.Page_System_Structure_Delete)]
+        public async Task<string> DeleteMultipleAsync(string[] ids)
+        {
+            try
+            {
+                var employeeDontHaveAccount = ids.Where(e => _userReposistory.FirstOrDefault(x => x.UserName == e) == null).ToArray();
+                foreach (string id in employeeDontHaveAccount)
+                {
+                    var bankAccountToDelete = _employeeRepository.GetAll().Where(e => e.Id == id).FirstOrDefault().BankId;
+                    await _bankRepository.DeleteAsync(e => e.BankId == bankAccountToDelete);
+                }
+                await _cmndRepository.DeleteAsync(e => employeeDontHaveAccount.Contains(e.Employee.Id));
+                await _employeeRepository.HardDeleteAsync(e => employeeDontHaveAccount.Contains(e.Id));
 
-        //            await _productRepository.HardDeleteAsync(e => e.Id == id);
-        //            await _productStorageRepository.HardDeleteAsync(e => e.ProductId == id);
-        //            numOfDeleted++;
-        //        }
-
-        //        if (numOfDeleted == 0)
-        //        {
-        //            throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
-        //        }
-
-        //        return "Xóa thành công " + numOfDeleted + "/" + ids.Length + " sản phẩm thành công";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new UserFriendlyException(ex.Message);
-        //    }
-        //}
+                return "Xóa thành công " + employeeDontHaveAccount.Count() + "/" + ids.Length + " nhân viên";
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
 
         [AbpAuthorize(PermissionNames.Page_System_Employee_Update)]
         public async Task UpdateAsync(EmployeeInputDto input)
@@ -145,9 +166,18 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 employeeDto.TaxIdentification = input.TaxIdentification;
                 employeeDto.EmployeeSalary = input.EmployeeSalary;
                 employeeDto.SalaryFactor = input.SalaryFactor;
+                employeeDto.phoneNumber = input.PhoneNumber;
                 employeeDto.TypeOfContract = input.TypeOfContract;
 
-                await _employeeRepository.UpdateAsync(employeeDto);
+                var employeeBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.employeeBankAccount.BankId);
+                if (employeeBankAccount == null || employeeBankAccount.BankId != input.employeeBankAccount.BankId)
+                {
+                    await _bankRepository.InsertAsync(input.employeeBankAccount);
+                    employeeDto.BankId = input.employeeBankAccount.BankId;
+                    await _employeeRepository.UpdateAsync(employeeDto);
+                }
+
+                //_cmndRepository.Update(input.EmployeeCMND);
             }
             catch (Exception ex)
             {
@@ -168,9 +198,9 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     EmployeeName = e.EmployeeName,
                     JobTitle = e.JobTitle,
                     WorkUnit = e.WorkUnit.UnitName,
-                    TaxIdentification = e.TaxIdentification,
-                    AccountId = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == e.Id).BankId,
-                    AccountName = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == e.Id).BankName,
+                    EmployeePhone = e.phoneNumber,
+                    AccountId = e.BankAccount.BankId,
+                    AccountName = e.BankAccount.BankName,
                 }).PageBy(input).ToListAsync();
 
                 int totalCount = _employeeRepository.Count();
@@ -229,10 +259,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 JobTitle = query.JobTitle,
                 WorkUnit = query.WorkUnit,
                 TaxIdentification = query.TaxIdentification,
+                EmployeePhone = query.phoneNumber,
                 EmployeeSalary = query.EmployeeSalary,
                 SalaryFactor = query.SalaryFactor,
                 TypeOfContract = query.TypeOfContract,
-                EmployeeBankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.EmployeeId == query.Id),
+                EmployeeBankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.BankId == query.BankId),
                 EmployeeCMND = _cmndRepository.GetAll().FirstOrDefault(b => b.EmployeeId == query.Id)
             };
             return employeeDto;

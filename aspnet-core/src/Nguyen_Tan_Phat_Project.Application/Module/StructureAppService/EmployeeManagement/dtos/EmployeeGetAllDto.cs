@@ -13,7 +13,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.
         public string EmployeeName { get; set; }
         public string JobTitle { get; set; }
         public string WorkUnit { get; set; }
-        public string TaxIdentification { get; set; }
+        public int EmployeePhone { get; set; }
         public string AccountId { get; set; }
         public string AccountName { get; set; }
     }

@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230504172653_initial_2")]
-    partial class initial_2
+    [Migration("20230517131246_initial_5")]
+    partial class initial_5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1583,15 +1583,10 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("BankName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmployeeId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.HasKey("BankId");
-
-                    b.HasIndex("EmployeeId");
 
                     b.ToTable("bankAccounts");
                 });
@@ -1662,11 +1657,11 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Customer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<string>("BankId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1674,13 +1669,22 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("CustomerAdress")
+                    b.Property<string>("CustomerAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerEmail")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerWebsite")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("DeleterUserId")
@@ -1698,7 +1702,12 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("TaxIdentification")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BankId");
 
                     b.ToTable("customers");
                 });
@@ -1706,6 +1715,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Employee", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BankId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationTime")
@@ -1756,11 +1768,76 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("WorkUnitId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("phoneNumber")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BankId");
 
                     b.HasIndex("WorkUnitId");
 
                     b.ToTable("employees");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Expenses", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionForDenied")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OrderCreator")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProductProvider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StorageId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageId");
+
+                    b.ToTable("expenses");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImport", b =>
@@ -1773,9 +1850,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("CustomerPhone")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("DeleterUserId")
                         .HasColumnType("bigint");
@@ -1810,9 +1884,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<int>("OrderType")
                         .HasColumnType("int");
 
-                    b.Property<string>("ReceiveAddress")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("StorageId")
                         .HasColumnType("nvarchar(450)");
 
@@ -1827,6 +1898,56 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.HasIndex("StorageId");
 
                     b.ToTable("exportImport");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImportCustomer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CustomerCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExportImportCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PhoneToCall")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReciveAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerCode");
+
+                    b.HasIndex("ExportImportCode");
+
+                    b.ToTable("exportImportCustomer");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImportProduct", b =>
@@ -1939,6 +2060,62 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.HasIndex("SubCategoryId");
 
                     b.ToTable("products");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductExpenses", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExpensesId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("FinalPrice")
+                        .HasColumnType("real");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ProductCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpensesId");
+
+                    b.HasIndex("ProductCode");
+
+                    b.ToTable("productExpenses");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductStorage", b =>
@@ -2450,15 +2627,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.BankAccount", b =>
-                {
-                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId");
-
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.CMND", b =>
                 {
                     b.HasOne("Nguyen_Tan_Phat_Project.Entities.Employee", "Employee")
@@ -2468,13 +2636,37 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Customer", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
+                    b.Navigation("BankAccount");
+                });
+
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Employee", b =>
                 {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankId");
+
                     b.HasOne("Nguyen_Tan_Phat_Project.Entities.Structure", "WorkUnit")
                         .WithMany()
                         .HasForeignKey("WorkUnitId");
 
+                    b.Navigation("BankAccount");
+
                     b.Navigation("WorkUnit");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Expenses", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Storage", "Storage")
+                        .WithMany()
+                        .HasForeignKey("StorageId");
+
+                    b.Navigation("Storage");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImport", b =>
@@ -2484,6 +2676,21 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         .HasForeignKey("StorageId");
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImportCustomer", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerCode");
+
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.ExportImport", "ExportImport")
+                        .WithMany()
+                        .HasForeignKey("ExportImportCode");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("ExportImport");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImportProduct", b =>
@@ -2514,6 +2721,21 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductExpenses", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Expenses", "Expenses")
+                        .WithMany()
+                        .HasForeignKey("ExpensesId");
+
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductCode");
+
+                    b.Navigation("Expenses");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductStorage", b =>

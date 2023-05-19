@@ -13,6 +13,7 @@ using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.InventoryManagement.ProductManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
+using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement.Dto;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<ProductExpenses> _expensesProductRepository;
         private readonly IRepository<SubCategory> _subCategoryRepository;
 
         public ProductAppService(IRepository<Product, string> productRepository
@@ -43,6 +45,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             , IRepository<ExportImport, string> exportImportRepository
             , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<SubCategory> subCategoryRepository
+            , IRepository<ProductExpenses> expensesProductRepository
             )
         {
             _productRepository = productRepository;
@@ -53,6 +56,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             _exportImportRepository = exportImportRepository;
             _exportImportProductRepository = exportImportProductRepository;
             _subCategoryRepository = subCategoryRepository;
+            _expensesProductRepository = expensesProductRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Product_Add)]
@@ -103,20 +107,21 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             try
             {
                 var productExportImport = await _exportImportProductRepository.FirstOrDefaultAsync(pd => pd.ProductId == id);
-                if (productExportImport != null)
+                var productExpense = await _expensesProductRepository.FirstOrDefaultAsync(pt => pt.ProductCode == id);
+                if (productExportImport != null || productExpense != null)
                 {
-                    var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
-                    if (exportImport != null)
-                    {
+                    //var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == productExportImport.ExportImportCode);
+                    //if (exportImport != null)
+                    //{
                         throw new UserFriendlyException("Không thể xóa sản phẩm trong Đơn");
-                    }
+                    //}
                 }
 
                 await _productRepository.HardDeleteAsync(e => e.Id == id);
                 await _productStorageRepository.HardDeleteAsync(e => e.ProductId == id);
             } catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new UserFriendlyException(ex.Message);
             }
         }
 
@@ -367,6 +372,22 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 }).ToListAsync();
 
             return new StorageProductDetailList
+            {
+                items = items
+            };
+        }
+
+        public async Task<LookUpTableList> GetStorageExpenseAsync()
+        {
+            List<LookUpTable> items = new List<LookUpTable>();
+            items = await _storageRepository.GetAll().OrderByDescending(e => e.CreationTime)
+                .Select(e => new LookUpTable
+                {
+                    Code = e.Id,
+                    Name = e.StorageName,
+                }).ToListAsync();
+
+            return new LookUpTableList
             {
                 items = items
             };

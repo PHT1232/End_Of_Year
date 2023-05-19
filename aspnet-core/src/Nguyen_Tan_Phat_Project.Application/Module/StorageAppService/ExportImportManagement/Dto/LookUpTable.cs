@@ -13,7 +13,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
 
     public class LookUpTable
     {
-        public int Id { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
     }
 }

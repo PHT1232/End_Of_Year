@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string EmployeeGender { get; set; }
         public DateTime EmployeeDateOfBirth { get; set; }
         public string JobTitle { get; set; }
+        public int phoneNumber { get; set; }
         [ForeignKey("Structure")]
         public string WorkUnitId { get; set; }
         public Structure WorkUnit { get; set; }
@@ -21,6 +22,9 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public int EmployeeSalary { get; set; }
         public float SalaryFactor { get; set; }
         public string TypeOfContract { get; set; }
+        [ForeignKey("BankAccount")]
+        public string BankId { get; set; }
+        public BankAccount BankAccount { get; set; }
     }
 }
     

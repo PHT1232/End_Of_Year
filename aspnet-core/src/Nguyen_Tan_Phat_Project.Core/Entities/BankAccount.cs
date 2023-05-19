@@ -13,9 +13,6 @@ namespace Nguyen_Tan_Phat_Project.Entities
     {
         [Key]
         public string BankId { get; set; }
-        [ForeignKey("Employee")]
-        public string EmployeeId { get; set; }
-        public Employee Employee { get; set; }
         public string BankName { get; set; }
         public string BankAddress { get; set; }
         public string BankCity { get; set; }

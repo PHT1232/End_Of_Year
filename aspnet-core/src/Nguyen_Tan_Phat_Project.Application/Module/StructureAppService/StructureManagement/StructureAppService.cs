@@ -158,8 +158,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
                 var list = await _structureRepository.GetAll()
                     .Select(e => new StructureSelectDto
                     {
-                        UnitCode = e.Id,
-                        UnitName = e.UnitName
+                        Code = e.Id,
+                        Name = e.UnitName
                     }).ToListAsync();
 
                 return new StructureSelectListDto

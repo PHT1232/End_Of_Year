@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    partial class Nguyen_Tan_Phat_ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230516101225_initial_2")]
+    partial class initial_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1778,66 +1780,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.ToTable("employees");
                 });
 
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Expenses", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("CreatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DeleterUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DescriptionForDenied")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("LastModifierUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("OrderCreator")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProductProvider")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StorageId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<float>("TotalPrice")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StorageId");
-
-                    b.ToTable("expenses");
-                });
-
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImport", b =>
                 {
                     b.Property<string>("Id")
@@ -2058,62 +2000,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.HasIndex("SubCategoryId");
 
                     b.ToTable("products");
-                });
-
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductExpenses", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("CreatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DeleterUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ExpensesId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<float>("FinalPrice")
-                        .HasColumnType("real");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("LastModifierUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
-
-                    b.Property<string>("ProductCode")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExpensesId");
-
-                    b.HasIndex("ProductCode");
-
-                    b.ToTable("productExpenses");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductStorage", b =>
@@ -2658,15 +2544,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("WorkUnit");
                 });
 
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Expenses", b =>
-                {
-                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Storage", "Storage")
-                        .WithMany()
-                        .HasForeignKey("StorageId");
-
-                    b.Navigation("Storage");
-                });
-
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ExportImport", b =>
                 {
                     b.HasOne("Nguyen_Tan_Phat_Project.Entities.Storage", "Storage")
@@ -2719,21 +2596,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("SubCategory");
-                });
-
-            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductExpenses", b =>
-                {
-                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Expenses", "Expenses")
-                        .WithMany()
-                        .HasForeignKey("ExpensesId");
-
-                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductCode");
-
-                    b.Navigation("Expenses");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.ProductStorage", b =>

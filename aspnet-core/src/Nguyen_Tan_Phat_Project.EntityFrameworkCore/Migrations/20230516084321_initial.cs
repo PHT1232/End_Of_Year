@@ -445,6 +445,21 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "bankAccounts",
+                columns: table => new
+                {
+                    BankId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BankName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankCity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_bankAccounts", x => x.BankId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "categories",
                 columns: table => new
                 {
@@ -462,28 +477,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_categories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "customers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomerPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomerAdress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_customers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -873,6 +866,37 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "customers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TaxIdentification = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerWebsite = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_customers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_customers_bankAccounts_BankId",
+                        column: x => x.BankId,
+                        principalTable: "bankAccounts",
+                        principalColumn: "BankId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "subCategories",
                 columns: table => new
                 {
@@ -907,8 +931,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     OrderCreator = table.Column<long>(type: "bigint", nullable: false),
                     OrderStatus = table.Column<int>(type: "int", nullable: false),
                     OrderType = table.Column<int>(type: "int", nullable: false),
-                    CustomerPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReceiveAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StorageId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     StorageInputId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameOfExport = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -946,6 +968,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     EmployeeSalary = table.Column<int>(type: "int", nullable: false),
                     SalaryFactor = table.Column<float>(type: "real", nullable: false),
                     TypeOfContract = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
                     LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -957,6 +980,11 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_employees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_employees_bankAccounts_BankId",
+                        column: x => x.BankId,
+                        principalTable: "bankAccounts",
+                        principalColumn: "BankId");
                     table.ForeignKey(
                         name: "FK_employees_structure_WorkUnitId",
                         column: x => x.WorkUnitId,
@@ -1104,33 +1132,12 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "bankAccounts",
-                columns: table => new
-                {
-                    BankId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    BankName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BankAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BankCity = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_bankAccounts", x => x.BankId);
-                    table.ForeignKey(
-                        name: "FK_bankAccounts_employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "employees",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "chungMinhND",
                 columns: table => new
                 {
                     SoCMND = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    NgayCap = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NgayCap = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NoiCap = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     QuocTich = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -1567,14 +1574,19 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 column: "WebhookEventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_bankAccounts_EmployeeId",
-                table: "bankAccounts",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_chungMinhND_EmployeeId",
                 table: "chungMinhND",
                 column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_customers_BankId",
+                table: "customers",
+                column: "BankId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_employees_BankId",
+                table: "employees",
+                column: "BankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_employees_WorkUnitId",
@@ -1706,9 +1718,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "AbpWebhookSubscriptions");
 
             migrationBuilder.DropTable(
-                name: "bankAccounts");
-
-            migrationBuilder.DropTable(
                 name: "chungMinhND");
 
             migrationBuilder.DropTable(
@@ -1755,6 +1764,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
             migrationBuilder.DropTable(
                 name: "AbpUsers");
+
+            migrationBuilder.DropTable(
+                name: "bankAccounts");
 
             migrationBuilder.DropTable(
                 name: "structure");
