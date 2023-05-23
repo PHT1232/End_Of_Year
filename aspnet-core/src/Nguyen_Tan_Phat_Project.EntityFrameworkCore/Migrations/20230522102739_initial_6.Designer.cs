@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 
@@ -11,9 +12,10 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    partial class Nguyen_Tan_Phat_ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522102739_initial_6")]
+    partial class initial_6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1861,9 +1863,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1879,8 +1878,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("NameOfReceiver")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrderCreator")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("OrderCreator")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
@@ -1926,9 +1925,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
 
                     b.Property<string>("ExportImportCode")
                         .HasColumnType("nvarchar(450)");

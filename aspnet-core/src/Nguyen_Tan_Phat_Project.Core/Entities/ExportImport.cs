@@ -11,7 +11,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
     public class ExportImport : FullAuditedEntity<string>
     {
         public string NameOfReceiver { get; set; }
-        public long OrderCreator { get; set; }
+        public string OrderCreator { get; set; }
         public int OrderStatus { get; set; }
         public int OrderType { get; set; }
         [ForeignKey("Storage")]
@@ -21,6 +21,6 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string NameOfExport { get; set; }
         public string Description { get; set; }
         public float TotalPrice { get; set; }
-
+        public float Discount { get; set; }
     }
 }

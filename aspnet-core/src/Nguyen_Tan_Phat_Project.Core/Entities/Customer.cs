@@ -17,6 +17,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string CustomerAddress { get; set; }
         public string CustomerWebsite { get; set; }
         public string CustomerDescription { get; set; }
+        public float Discount { get; set; }
         [ForeignKey("BankAccount")]
         public string BankId { get; set; }
         public BankAccount BankAccount { get; set; }

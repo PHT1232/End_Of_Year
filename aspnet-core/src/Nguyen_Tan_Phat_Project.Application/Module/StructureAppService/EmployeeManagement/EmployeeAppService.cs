@@ -21,12 +21,16 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
     {
         private IRepository<Employee, string> _employeeRepository;
         private IRepository<Structure, string> _structureRepository;
+        private readonly IRepository<Expenses, string> _expensesRepository;
         private IRepository<User, long> _userReposistory;
+        private readonly IRepository<ExportImport, string> _exportImportRepository;
         private IRepository<BankAccount> _bankRepository;
         private IRepository<CMND> _cmndRepository;
     
         public EmployeeAppService(IRepository<Employee, string> employeeRepository
             , IRepository<Structure, string> structureRepository
+            , IRepository<Expenses, string> expensesRepository
+            , IRepository<ExportImport, string> exportImportRepository
             , IRepository<BankAccount> bankRepository
             , IRepository<User, long> userRepository
             , IRepository<CMND> cmndRepository)
@@ -36,6 +40,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
             _bankRepository = bankRepository;
             _userReposistory = userRepository;
             _cmndRepository = cmndRepository;
+            _expensesRepository = expensesRepository;
+            _exportImportRepository = exportImportRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Employee_Add)]
@@ -108,9 +114,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
             try
             {
                 var employeeAccount = await _userReposistory.FirstOrDefaultAsync(e => e.UserName == id);
-                if (employeeAccount != null)
+                var employeeInDon = await _exportImportRepository.FirstOrDefaultAsync(e => e.OrderCreator == id);
+                var employeeInDon2 = await _expensesRepository.FirstOrDefaultAsync(e => e.OrderCreator == id);
+                if (employeeAccount != null || employeeInDon != null || employeeInDon2 != null)
                 {
-                    throw new UserFriendlyException("Nhân viên có tài khoản không thể bị xóa");
+                    throw new UserFriendlyException("Nhân viên không thể bị xóa");
                 }
                 var employee = await _employeeRepository.GetAsync(id);
                 await _cmndRepository.DeleteAsync(e => e.Employee.Id == id);

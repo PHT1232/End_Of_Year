@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nguyen_Tan_Phat_Project.Global;
+using Nguyen_Tan_Phat_Project.Module;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Abp.UI;
+using Microsoft.AspNetCore.Http;
+using Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpensesManagement.Libary;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -13,6 +17,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
     public class UploadController : Nguyen_Tan_Phat_ProjectControllerBase
     {
         private readonly IAppFolders _appFolders;
+        private readonly string HashSecret = "WHOHZLSSRWPOJRSLOLBQFDJSGSFCZTHI";
 
         public UploadController(IAppFolders appFolders)
         {
@@ -46,5 +51,21 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
             return await Task.FromResult(files);
         }
+
+        //public IActionResult PaymentCallback()
+        //{
+        //    var response = PaymentExecute(Request.Query);
+
+        //    return Json(response);
+        //}
+
+        //public PaymentResponseModel PaymentExecute(IQueryCollection collections)
+        //{
+        //    var pay = new VnPayLibary();
+        //    var response = pay.GetFullResponseData(collections, HashSecret);
+
+        //    return response;
+        //}
     }
 }
+

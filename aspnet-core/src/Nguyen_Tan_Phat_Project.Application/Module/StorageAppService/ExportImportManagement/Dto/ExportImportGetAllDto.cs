@@ -10,6 +10,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     {
         public string ExportImportCode { get; set; }
         public string NameOfReceiver { get; set; }
+        public string Address { get; set; }
         public string StorageName { get; set; }
         public int OrderStatus { get; set; }
         public int OrderType { get; set; }
@@ -17,5 +18,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         public DateTime CreationTime { get; set; }
         public string NameOfExport { get; set; }
         public string Username { get; set; }
+        public float Discount { get; set; }
     }
 }

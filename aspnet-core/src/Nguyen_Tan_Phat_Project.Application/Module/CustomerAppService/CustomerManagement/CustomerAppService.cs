@@ -55,6 +55,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerAddress = input.CustomerAddress,
                         CustomerWebsite = input.CustomerWebsite,
                         CustomerDescription = input.CustomerDescription,
+                        Discount = input.Discount
                     };
                 } else
                 {
@@ -69,6 +70,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerWebsite = input.CustomerWebsite,
                         CustomerDescription = input.CustomerDescription,
                         BankAccount = input.BankAccount,
+                        Discount = input.Discount
                     };
                 }
 
@@ -102,7 +104,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                     throw new UserFriendlyException("Đã có khách hàng với tên này");
 
                 var customerDto = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.CustomerCode);
-                if (customerDto != null)
+                if (customerDto == null)
                     throw new UserFriendlyException("Không thể tìm thấy khách hàng này");
 
                 customerDto.CustomerName = input.CustomerName;
@@ -112,19 +114,17 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 customerDto.CustomerAddress = input.CustomerAddress;
                 customerDto.CustomerWebsite = input.CustomerWebsite;
                 customerDto.CustomerDescription = input.CustomerDescription;
+                customerDto.Discount = input.Discount;
 
                 var customerBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.BankAccount.BankId);
-                if (customerBankAccount != null)
-                {
-                    await _bankRepository.UpdateAsync(input.BankAccount);
-                }
-                else
+                if (customerBankAccount == null || customerBankAccount.BankId != input.BankAccount.BankId)
                 {
                     await _bankRepository.InsertAsync(input.BankAccount);
                     customerDto.BankId = input.BankAccount.BankId;
+                    await _customerRepository.UpdateAsync(customerDto);
                 }
 
-                await _customerRepository.UpdateAsync(customerDto);
+                //await _customerRepository.UpdateAsync(customerDto);
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -146,6 +146,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerPhone = e.CustomerPhone,
                         CustomerBankId = e.BankAccount.BankId,
                         CustomerBankName = e.BankAccount.BankName,
+                        Discount = e.Discount,
                     }).PageBy(input).ToListAsync();
 
                 int totalCount = _customerRepository.Count();
@@ -179,7 +180,8 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 CustomerPhone = query.CustomerPhone,
                 CustomerDescription = query.CustomerDescription,
                 CustomerEmail = query.CustomerEmail,
-                BankAccount = query.BankAccount,
+                BankAccount = _bankRepository.GetAll().FirstOrDefault(e => e.BankId == query.BankId),
+                Discount = query.Discount,
             };
 
             return customerOutput;
