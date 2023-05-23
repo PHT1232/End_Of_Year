@@ -78,6 +78,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     ProductDetail = input.ProductDetail,
                     Price = input.Price,
                     CategoryId = input.CategoryId,
+                    ProductImage = input.ProductImage,
                     Unit = input.Unit,
                     SubCategoryId = input.SubCategoryId,
                     LastModificationTime = creationTime,
@@ -238,6 +239,17 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     foreach (var storageProduct in product)
                     {
                         var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+                        var productQuantityStatus = "";
+                        if (productFullQuantity > 0 && productFullQuantity < 10)
+                        {
+                            productQuantityStatus = "Ít hàng";
+                        } else if (productFullQuantity == 0)
+                        {
+                            productQuantityStatus = "Hết hàng";
+                        } else
+                        {
+                            productQuantityStatus = "Còn hàng";
+                        }
                         var productDto = new ProductGetAllDto
                         {
                             ProductCode = storageProduct.Id,
@@ -246,6 +258,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                             Price = storageProduct.Price,
                             Unit = storageProduct.Unit,
                             Quantity = productFullQuantity,
+                            InventoryStatus = productQuantityStatus,
                             CreationTime = storageProduct.CreationTime,
                             LastDateModified = storageProduct.LastModificationTime,
                             Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
@@ -270,6 +283,19 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     foreach (var storageProduct in product)
                     {
                         var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+                        var productQuantityStatus = "";
+                        if (productFullQuantity > 0 && productFullQuantity < 10)
+                        {
+                            productQuantityStatus = "Ít hàng";
+                        }
+                        else if (productFullQuantity == 0)
+                        {
+                            productQuantityStatus = "Hết hàng";
+                        }
+                        else
+                        {
+                            productQuantityStatus = "Còn hàng";
+                        }
                         var productDto = new ProductGetAllDto
                         {
                             ProductCode = storageProduct.Id,
@@ -278,6 +304,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                             Price = storageProduct.Price,
                             Unit = storageProduct.Unit,
                             Quantity = productFullQuantity,
+                            InventoryStatus = productQuantityStatus,
                             CreationTime = storageProduct.CreationTime,
                             LastDateModified = storageProduct.LastModificationTime,
                             Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == storageProduct.CreatorUserId || l.Id == storageProduct.LastModifierUserId).Name
@@ -311,6 +338,19 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
 
                         if (product != null)
                         {
+                            var productQuantityStatus = "";
+                            if (storageProduct.ProductQuantity > 0 && storageProduct.ProductQuantity < 10)
+                            {
+                                productQuantityStatus = "Ít hàng";
+                            }
+                            else if (storageProduct.ProductQuantity == 0)
+                            {
+                                productQuantityStatus = "Hết hàng";
+                            }
+                            else
+                            {
+                                productQuantityStatus = "Còn hàng";
+                            }
                             var productDto = new ProductGetAllDto
                             {
                                 ProductCode = product.Id,
@@ -320,6 +360,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                                 Unit = product.Unit,
                                 Quantity = storageProduct.ProductQuantity,
                                 CreationTime = product.CreationTime,
+                                InventoryStatus = productQuantityStatus,
                                 LastDateModified = product.LastModificationTime,
                                 Username = _userRepository.GetAll().FirstOrDefault(l => l.Id == product.CreatorUserId || l.Id == product.LastModifierUserId).Name
                             };

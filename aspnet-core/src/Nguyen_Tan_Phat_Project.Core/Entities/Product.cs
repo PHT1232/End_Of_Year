@@ -20,6 +20,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         [ForeignKey("SubCategory")]
         public int? SubCategoryId { get; set; }
         public SubCategory? SubCategory { get; set; }
+        public string ProductImage { get; set; }
         public string Unit { get; set; }
     }
 }

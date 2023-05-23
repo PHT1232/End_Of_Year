@@ -67,5 +67,10 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         //    return response;
         //}
     }
+
+    class ListOfStringFile
+    {
+        public List<string> File { get; set; }
+    }
 }
 
