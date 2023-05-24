@@ -17,6 +17,7 @@ using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dt
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,8 +38,8 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
         public ExpensesAppService(IRepository<Expenses, string> expensesRepository
             , IRepository<ProductExpenses> productExpensesReposistory
             , IRepository<Storage, string> storageRepository
-            , IRepository<ProductStorage> productStorageRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<ProductStorage> productStorageRepository
             , IRepository<Product, string> productRepository
             )
         {
@@ -321,5 +322,7 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
                 throw new UserFriendlyException(ex.Message);
             }
         }
+
+        
     }
 }

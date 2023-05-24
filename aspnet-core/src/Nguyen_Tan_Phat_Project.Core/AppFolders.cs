@@ -10,5 +10,6 @@ namespace Nguyen_Tan_Phat_Project
     public class AppFolders : IAppFolders, ISingletonDependency
     {
         public string DemoUploadFolder { get; set; }
+        public string ExcelTemplateFolder { get; set; }
     }
 }

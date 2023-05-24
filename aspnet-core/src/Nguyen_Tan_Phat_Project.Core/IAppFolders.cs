@@ -9,5 +9,6 @@ namespace Nguyen_Tan_Phat_Project
     public interface IAppFolders
     { 
         string DemoUploadFolder { get; set; } 
+        string ExcelTemplateFolder { get; set; }
     }
 }

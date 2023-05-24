@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using Abp.UI;
 using Microsoft.AspNetCore.Http;
 using Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpensesManagement.Libary;
+using Abp.Domain.Repositories;
+using Nguyen_Tan_Phat_Project.Entities;
+using Abp.Auditing;
+using Nguyen_Tan_Phat_Project.Roles.Dto;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -19,7 +23,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         private readonly IAppFolders _appFolders;
         private readonly string HashSecret = "WHOHZLSSRWPOJRSLOLBQFDJSGSFCZTHI";
 
-        public UploadController(IAppFolders appFolders)
+        public UploadController(IAppFolders appFolders
+            )
         {
             _appFolders = appFolders;
         }
@@ -52,6 +57,32 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             return await Task.FromResult(files);
         }
 
+        [HttpPost]
+        public async Task<string> DownloadFileUpdload(string linkFile)
+        {
+            if (string.IsNullOrEmpty(linkFile))
+            {
+                throw new UserFriendlyException("Null Parameter");
+            }
+
+            var fileName = linkFile.Split(@"/").Last();
+            var path = this._appFolders.DemoUploadFolder + linkFile;
+            return path;
+        }
+
+        [HttpPost]
+        public async Task<string> DownloadExcel(string linkFile)
+        {
+            if (string.IsNullOrEmpty(linkFile))
+            {
+                throw new UserFriendlyException("Null Parameter");
+            }
+
+            var fileName = linkFile.Split(@"/").Last();
+            var path = this._appFolders.ExcelTemplateFolder + linkFile;
+            return path;
+        }
+
         //public IActionResult PaymentCallback()
         //{
         //    var response = PaymentExecute(Request.Query);
@@ -66,11 +97,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
         //    return response;
         //}
+
     }
 
-    class ListOfStringFile
-    {
-        public List<string> File { get; set; }
-    }
 }
 

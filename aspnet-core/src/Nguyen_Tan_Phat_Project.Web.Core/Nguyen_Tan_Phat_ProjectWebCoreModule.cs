@@ -81,9 +81,11 @@ namespace Nguyen_Tan_Phat_Project
             var appFolders = IocManager.Resolve<AppFolders>();
 
             appFolders.DemoUploadFolder = Path.Combine(_env.WebRootPath, $"Upload{Path.DirectorySeparatorChar}Demo");
+            appFolders.ExcelTemplateFolder = Path.Combine(_env.WebRootPath, $"ExcelTemplate");
             try
             {
                 DirectoryHelper.CreateIfNotExists(appFolders.DemoUploadFolder);
+                DirectoryHelper.CreateIfNotExists(appFolders.ExcelTemplateFolder);
             } catch { }
         }
     }
