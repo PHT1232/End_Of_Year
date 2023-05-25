@@ -56,7 +56,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
             Response.Headers.Add("content-disposition", "attachment; filename=Information" + DateTime.Now.Year.ToString() + ".xlsx");
             this.Response.ContentType = "application/vnd.ms-excel";
-            byte[] temp = GenerateExcelFile(product);
+            byte[] temp = GenerateExcelFileTest(product);
             return File(temp, "application/vnd.ms-exce");
         }
 
