@@ -1,7 +1,5 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using ClosedXML.Excel;
+using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using System;
 using System.Collections.Generic;
@@ -42,298 +40,150 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
 
     public class FormatCell
     {
-        public Stylesheet InitStyleSheet(ref Stylesheet stylesheet)
+        public void AddBorderToCell()
         {
-            //var stylesheet = new Stylesheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac" } };
-            //stylesheet.AddNamespaceDeclaration("mc", "http: //schemas.openxmlformats.org/markup-compatibility/2006");
-            //stylesheet.AddNamespaceDeclaration("x14ac", "http: //schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
 
-            // create collections for fonts, fills, cellFormats, ...
-            var fonts = new Fonts() { Count = 1U, KnownFonts = true };
-
-            //var fills = new Fills() { Count = 5U };
-            var cellFormats = new CellFormats() { Count = 4U };
-
-            // create a font: bold, red, calibr
-            Font font = new Font();
-            font.Append(new FontSize() { Val = 11D });
-            font.Append(new FontName() { Val = "Times New Roman" });
-            font.Append(new FontFamilyNumbering() { Val = 2 });
-            font.Append(new FontScheme() { Val = FontSchemeValues.Minor });
-            font.Append(new Bold());
-            // add the created font to the fonts collection
-            // since this is the first added font it will gain the id 1U
-            fonts.Append(font);
-
-            // create a background: green
-            //Fill fill = new Fill();
-            //var patternFill = new PatternFill() { PatternType = PatternValues.Solid };
-            //patternFill.Append(new ForegroundColor() { Rgb = "00ff00" });
-            //patternFill.Append(new BackgroundColor() { Indexed = 64U });
-            //fill.Append(patternFill);
-            //fills.Append(fill);
-
-            // create a cell format (combining font and background)
-            // the first added font/fill/... has the id 0. The second 1,...
-            cellFormats.AppendChild(new CellFormat() { FontId = 0U });
-
-            // add the new collections to the stylesheet
-            stylesheet.Append(fonts);
-            //stylesheet.Append(fills);
-            stylesheet.Append(cellFormats);
-
-            return stylesheet;
-        }
-
-        public Border GenerateBorder()
-        {
-            Border border2 = new Border();
-
-            LeftBorder leftBorder2 = new LeftBorder() { Style = BorderStyleValues.Thin };
-            Color color1 = new Color() { Indexed = (UInt32Value)64U };
-
-            leftBorder2.Append(color1);
-
-            RightBorder rightBorder2 = new RightBorder() { Style = BorderStyleValues.Thin };
-            Color color2 = new Color() { Indexed = (UInt32Value)64U };
-
-            rightBorder2.Append(color2);
-
-            TopBorder topBorder2 = new TopBorder() { Style = BorderStyleValues.Thin };
-            Color color3 = new Color() { Indexed = (UInt32Value)64U };
-
-            topBorder2.Append(color3);
-
-            BottomBorder bottomBorder2 = new BottomBorder() { Style = BorderStyleValues.Thin };
-            Color color4 = new Color() { Indexed = (UInt32Value)64U };
-
-            bottomBorder2.Append(color4);
-            DiagonalBorder diagonalBorder2 = new DiagonalBorder();
-
-            border2.Append(leftBorder2);
-            border2.Append(rightBorder2);
-            border2.Append(topBorder2);
-            border2.Append(bottomBorder2);
-            border2.Append(diagonalBorder2);
-
-            return border2;
         }
     }
 
     public static class ExcelFileGenerator
     {
-
-        public static byte[] GenerateExcelFile(List<ExportImportProductDto> list)
+        public static byte[] GenerateExcelFileForExportImport(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee)
         {
-            string filePath = @"E:\Documents\GitHub\End_Of_Year\aspnet-core\src\Nguyen_Tan_Phat_Project.Web.Host\wwwroot\ExcelTemplate\phieu xuat kho sua.xlsx";
-            byte[] bytes = File.ReadAllBytes(filePath);
-            var memoryStream = new MemoryStream();
-            memoryStream.Write(bytes, 0, bytes.Length);
+            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\phieu xuat kho sua.xlsx");
+            IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
 
-            char productCodeReferenceCell = 'B';
-            char productCodeReferenceCell2 = 'D';
+            int rowNumber = 13, STT = 0;
 
-            ConvertClass convert = new ConvertClass();
-            DataTable dataTable = convert.ConvertToDataTable(list);
+            worksheet.Cell(6, 5).Value = "Ngày " + exportImport.CreationTime.Day + " tháng " + exportImport.CreationTime.Month + " năm " + exportImport.CreationTime.Year;
+            worksheet.Cell(6, 5).Style.Font.FontSize = 12;
+            worksheet.Cell(6, 5).Style.Font.FontName = "Times New Roman";
+            worksheet.Cell(6, 5).Style.Font.SetBold(true);
 
-            using var document = SpreadsheetDocument.Open(memoryStream, true);
-            //using var document = SpreadsheetDocument.Create(memoryStream, SpreadsheetDocumentType.Workbook);
-            //var workbookPart = document.AddWorkbookPart();
-            //workbookPart.Workbook = new Workbook();
+            worksheet.Cell(7, 5).Value = "Số: " + exportImport.Id.ToString();
+            worksheet.Cell(7, 5).Style.Font.FontName = "Times New Roman";
+            worksheet.Cell(7, 5).Style.Font.FontSize = 12;
+            worksheet.Cell(7, 5).Style.Font.SetBold(true);
 
-            //var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-            //worksheetPart.Worksheet = new Worksheet(new SheetData());
+            worksheet.Cell(9, 4).Value = customer.CustomerName;
+            worksheet.Cell(9, 4).Style.Font.FontSize = 12;
+            worksheet.Cell(9, 4).Style.Font.FontName = "Times New Roman";
 
-            //var sheets = workbookPart.Workbook.AppendChild(new Sheets());
+            worksheet.Cell(10, 4).Value = customer.CustomerAddress;
+            worksheet.Cell(10, 4).Style.Font.FontSize = 12;
+            worksheet.Cell(10, 4).Style.Font.FontName = "Times New Roman";
 
-            //sheets.AppendChild(new Sheet
-            //{
-            //    Id = workbookPart.GetIdOfPart(worksheetPart),
-            //    SheetId = 1,
-            //    Name = "Sheet 1"
-            //});
+            worksheet.Cell(11, 4).Value = exportImport.Storage.StorageName;
+            worksheet.Cell(11, 4).Style.Font.FontSize = 12;
+            worksheet.Cell(11, 4).Style.Font.FontName = "Times New Roman";
 
-            WorkbookPart workbookPart = document.WorkbookPart;
-
-            WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
-
-            Worksheet worksheet = worksheetPart.Worksheet;
-            SheetData sheetData = worksheet.GetFirstChild<SheetData>();
-
-            //var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
-
-            //char[] refrence = "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABAC".ToCharArray();
-
-            //foreach (DataRow item in dataTable.Rows)
-            //{
-            //    int productRows = 16;
-            //    productRows += dataTable.Rows.IndexOf(item);
-
-            //    Row row = new Row();
-            //    for (int i = 0; i < item.ItemArray.Length; i++)
-            //    {
-            //        Cell cell = new Cell()
-            //        {
-            //            CellValue = new CellValue(item[i].ToString()),
-            //            CellReference = refrence[i].ToString() + productRows,
-            //            DataType = CellValues.String
-            //        };
-            //        row.AppendChild(cell);
-            //    }
-            //    sheetData?.AppendChild(row);
-            //}            
-
-            //foreach (DataRow item in dataTable.Rows)
-            //{
-            //    int productRows = 16;
-            //    productRows += dataTable.Rows.IndexOf(item);
-
-            //    Row row = new Row();
-            //    for (int i = 0; i < item.ItemArray.Length; i++)
-            //    {
-            //        Cell cell = new Cell()
-            //        {
-            //            CellValue = new CellValue(item[i].ToString()),
-            //            CellReference = "A1",
-            //            DataType = CellValues.String
-            //        };
-            //        row.AppendChild(cell);
-            //    }
-            //    sheetData?.AppendChild(row);
-            //}
-
-            //for (int i = 16; i < 20; i++)
-            //{
-            //    Row row = sheetData.Elements<Row>().FirstOrDefault(r => r.RowIndex == i);
-            //    if (row == null)
-            //    {
-            //        row = new Row
-            //        {
-            //            RowIndex = (uint)i,
-            //        };
-
-            //        row.AppendChild(new Cell
-            //        {
-            //            CellReference = "B" + i,
-            //            CellValue = new CellValue(dataTable.Rows[0].ToString()),
-            //            DataType = CellValues.String
-            //        });
-
-            //        row.AppendChild(new Cell
-            //        {
-            //            CellReference = "C" + i,
-            //            CellValue = new CellValue(dataTable.Rows[0].ToString()),
-            //            DataType = CellValues.String
-            //        });
-            //        row.AppendChild(new Cell
-            //        {
-            //            CellReference = "D" + i,
-            //            CellValue = new CellValue(dataTable.Rows[0].ToString()),
-            //            DataType = CellValues.String
-            //        });
-            //        row.AppendChild(new Cell
-            //        {
-            //            CellReference = "E" + i,
-            //            CellValue = new CellValue(dataTable.Rows[0].ToString()),
-            //            DataType = CellValues.String
-            //        });
-            //        row.AppendChild(new Cell
-            //        {
-            //            CellReference = "F" + i,
-            //            CellValue = new CellValue(dataTable.Rows[0].ToString()),
-            //            DataType = CellValues.String
-            //        });
-
-            //        sheetData?.AppendChild(row);
-            //    }
-            //}
-
-            char STT = 'A';
-            char productNameReferenceCell = 'E';
-            char productNameReferenceCell2 = 'I';
-            char productUnit = 'J';
-            char productQuantity = 'K';
-            string productPrice = "L";
-            string productTotal = "M";
-
-            int exportCodeRows = 10;
-            int exportCustomerRows = 12;
-            int exportAddressRows = 13;
-            int exportStorageRows = 14;
-
-
-            int STTNumber = 0;
-            int productRows = 13;
-
-            foreach (DataRow item in dataTable.Rows)
+            foreach (var product in list)
             {
-                productRows += 1;
-                STTNumber += 1;
+                rowNumber++;
+                STT++;
+                IXLRange range = worksheet.Range("B" + rowNumber + ":" + "D" + rowNumber);
+                IXLRange range2 = worksheet.Range("E" + rowNumber + ":" + "I" + rowNumber);
+                range.Merge();
+                range2.Merge();
+                worksheet.Cell(rowNumber, 1).Value = STT.ToString();
+                worksheet.Cell(rowNumber, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 1).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 1).Style.Font.FontName = "Times New Roman";
 
-                Row row = sheetData.Elements<Row>().FirstOrDefault(r => r.RowIndex == productRows);
-                if (row == null)
-                {
-                    row = new Row
-                    {
-                        RowIndex = ((uint)productRows)
-                    };
+                worksheet.Cell(rowNumber, 2).Value = product.ProductId;
+                worksheet.Cell(rowNumber, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 2).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 2).Style.Font.FontName = "Times New Roman";
+                worksheet.Cell(rowNumber, 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = STT.ToString() + productRows,
-                        CellValue = new CellValue(STTNumber),
-                        DataType = CellValues.String,
-                    });
+                worksheet.Cell(rowNumber, 5).Value = product.ProductName;
+                worksheet.Cell(rowNumber, 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 5).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 5).Style.Font.FontName = "Times New Roman";
+                worksheet.Cell(rowNumber, 6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 8).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 9).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productCodeReferenceCell.ToString() + productRows,
-                        CellValue = new CellValue(item[0].ToString()),
-                        DataType = CellValues.String,
-                    });
+                worksheet.Cell(rowNumber, 10).Value = product.Unit;
+                worksheet.Cell(rowNumber, 10).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 10).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 10).Style.Font.FontName = "Times New Roman";
 
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productNameReferenceCell.ToString() + productRows,
-                        CellValue = new CellValue(item[1].ToString()),
-                        DataType = CellValues.String,
-                    });
+                worksheet.Cell(rowNumber, 11).Value = product.Quantity.ToString();
+                worksheet.Cell(rowNumber, 11).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 11).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 11).Style.Font.FontName = "Times New Roman";
 
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productUnit.ToString() + productRows,
-                        CellValue = new CellValue(item[2].ToString()),
-                        DataType = CellValues.String,
-                    });
+                worksheet.Cell(rowNumber, 12).Value = product.Price.ToString();
+                worksheet.Cell(rowNumber, 12).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 12).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 12).Style.Font.FontName = "Times New Roman";
 
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productQuantity.ToString() + productRows,
-                        CellValue = new CellValue(item[3].ToString()),
-                        DataType = CellValues.String,
-                    });
-
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productPrice.ToString() + productRows,
-                        CellValue = new CellValue(item[4].ToString()),
-                        DataType = CellValues.String,
-                    });
-
-                    row.AppendChild(new Cell
-                    {
-                        CellReference = productTotal.ToString() + productRows,
-                        CellValue = new CellValue(item[5].ToString()),
-                        DataType = CellValues.String,
-                    });
-
-                    sheetData?.AppendChild(row);
-                }
+                worksheet.Cell(rowNumber, 13).Value = product.FinalPrice.ToString();
+                worksheet.Cell(rowNumber, 13).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 13).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 13).Style.Font.FontName = "Times New Roman";
             }
 
-            document.Save();
-            document.Close();
+            IXLRange range3 = worksheet.Range("J" + (rowNumber + 3) + ":" + "L" + (rowNumber + 3));
+            range3.Merge();
+            worksheet.Cell(rowNumber + 3, 10).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 3, 10).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 3, 10).Value = "Ngày ..... tháng ..... năm .........";
+            worksheet.Cell(rowNumber + 3, 10).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 3, 10).Style.Font.SetItalic(true);
+            worksheet.Cell(rowNumber + 3, 10).Style.Font.FontName = "Times New Roman";
 
+            IXLRange range4 = worksheet.Range("B" + (rowNumber + 4) + ":" + "D" + (rowNumber + 4));
+            range4.Merge();
+            worksheet.Cell(rowNumber + 4, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 4, 2).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 4, 2).Value = "Người nhận hàng";
+            worksheet.Cell(rowNumber + 4, 2).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 4, 2).Style.Font.SetBold(true);
+            worksheet.Cell(rowNumber + 4, 2).Style.Font.FontName = "Times New Roman";
+
+            IXLRange range5 = worksheet.Range("F" + (rowNumber + 4) + ":" + "H" + (rowNumber + 4));
+            range5.Merge();
+            worksheet.Cell(rowNumber + 4, 6).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 4, 6).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 4, 6).Value = "Người lập phiếu";
+            worksheet.Cell(rowNumber + 4, 6).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 4, 6).Style.Font.SetBold(true);
+            worksheet.Cell(rowNumber + 4, 6).Style.Font.FontName = "Times New Roman";
+
+            IXLRange range6 = worksheet.Range("J" + (rowNumber + 4) + ":" + "L" + (rowNumber + 4));
+            range6.Merge();
+            worksheet.Cell(rowNumber + 4, 10).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 4, 10).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 4, 10).Value = "Thủ kho";
+            worksheet.Cell(rowNumber + 4, 10).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 4, 10).Style.Font.SetBold(true);
+            worksheet.Cell(rowNumber + 4, 10).Style.Font.FontName = "Times New Roman";
+
+            IXLRange range7 = worksheet.Range("B" + (rowNumber + 10) + ":" + "D" + (rowNumber + 10));
+            range7.Merge();
+            worksheet.Cell(rowNumber + 10, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 10, 2).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 10, 2).Value = customer.CustomerName;
+            worksheet.Cell(rowNumber + 10, 2).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 10, 2).Style.Font.SetItalic(true);
+            worksheet.Cell(rowNumber + 10, 2).Style.Font.FontName = "Times New Roman";
+
+            IXLRange range8 = worksheet.Range("F" + (rowNumber + 10) + ":" + "H" + (rowNumber + 10));
+            range8.Merge();
+            worksheet.Cell(rowNumber + 10, 6).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+            worksheet.Cell(rowNumber + 10, 6).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+            worksheet.Cell(rowNumber + 10, 6).Value = employee.EmployeeName;
+            worksheet.Cell(rowNumber + 10, 6).Style.Font.FontSize = 12;
+            worksheet.Cell(rowNumber + 10, 6).Style.Font.SetItalic(true);
+            worksheet.Cell(rowNumber + 10, 6).Style.Font.FontName = "Times New Roman";
+
+            MemoryStream memoryStream = new MemoryStream();
+            workbook.SaveAs(memoryStream);
+            memoryStream.Position = 0;
             return memoryStream.ToArray();
         }
     }           

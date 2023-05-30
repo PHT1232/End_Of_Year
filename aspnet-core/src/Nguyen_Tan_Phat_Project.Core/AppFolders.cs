@@ -11,5 +11,6 @@ namespace Nguyen_Tan_Phat_Project
     {
         public string DemoUploadFolder { get; set; }
         public string ExcelTemplateFolder { get; set; }
+        public string ProductUploadFolder { get; set; }
     }
 }

@@ -38,6 +38,17 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                 fileFolderPath = fileFolderPath.Replace(@"\", @"/");
             }
             return await Upload(fileFolderPath);
+        } 
+        
+        [HttpPost]
+        public async Task<List<string>> ProductUpload(string id)
+        {
+            string fileFolderPath = Path.Combine(_appFolders.ProductUploadFolder + @"\", id);
+            if (Request.Form.Files.Count > 0)
+            {
+                fileFolderPath = fileFolderPath.Replace(@"\", @"/");
+            }
+            return await Upload(fileFolderPath);
         }
 
         private async Task<List<string>> Upload(string fileFolderPath)
@@ -67,19 +78,6 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
             var fileName = linkFile.Split(@"/").Last();
             var path = this._appFolders.DemoUploadFolder + linkFile;
-            return path;
-        }
-
-        [HttpPost]
-        public async Task<string> DownloadExcel(string linkFile)
-        {
-            if (string.IsNullOrEmpty(linkFile))
-            {
-                throw new UserFriendlyException("Null Parameter");
-            }
-
-            var fileName = linkFile.Split(@"/").Last();
-            var path = this._appFolders.ExcelTemplateFolder + linkFile;
             return path;
         }
 

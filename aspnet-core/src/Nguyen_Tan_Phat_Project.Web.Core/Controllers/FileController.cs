@@ -22,28 +22,38 @@ namespace Nguyen_Tan_Phat_Project.Controllers
     {
         private readonly IAppFolders _appFolders;
         private readonly IRepository<Expenses, string> _expensesRepository;
+        private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<Storage, string> _storageRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
+        private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
 
         public FileController(IAppFolders appFolders
             , IRepository<Expenses, string> expensesRepository
-            , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<Storage, string> storageRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<ExportImport, string> exportImportRepository
+            , IRepository<ExportImportProduct> exportImportProductRepository
+            , IRepository<ExportImportCustomer> exportImportCustomerRepository
+            , IRepository<Customer, string> customerRepository
             )
         {
             _appFolders = appFolders;
-            _exportImportProductRepository = exportImportProductRepository;
             _expensesRepository = expensesRepository;
             _storageRepository = storageRepository;
             _employeeRepository = employeeRepository;
+            _exportImportRepository = exportImportRepository;
+            _exportImportCustomerRepository = exportImportCustomerRepository;
+            _exportImportProductRepository = exportImportProductRepository;
+            _customerRepository = customerRepository;
         }
 
         [DisableAuditing]
-        public ActionResult ExcelExport()
+        public ActionResult ExcelExport(string id)
         {
             var product = _exportImportProductRepository.GetAll().Include(e => e.Product)
+                   .Where(e => e.ExportImportCode == id)
                    .Select(e => new ExportImportProductDto
                    {
                        ProductId = e.ProductId,
@@ -54,10 +64,20 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                        FinalPrice = e.Product.Price * e.Quantity
                    }).ToList();
 
-            Response.Headers.Add("content-disposition", "attachment; filename=Information" + DateTime.Now.Year.ToString() + ".xlsx");
-            this.Response.ContentType = "application/vnd.ms-excel";
-            byte[] temp = GenerateExcelFileTest(product);
-            return File(temp, "application/vnd.ms-exce");
+            var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
+            var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
+            exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
+
+            var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
+            customer.CustomerPhone = exportImportCustomer.PhoneToCall;
+            customer.CustomerAddress = exportImportCustomer.ReciveAddress;
+
+            var employee = _employeeRepository.FirstOrDefault(e => e.Id == exportImport.OrderCreator);
+
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            string fileName = "Phiếu Xuất kho: " + exportImportCustomer.ExportImportCode + ".xlsx";
+            byte[] temp = GenerateExcelFileForExportImport(product, exportImport, customer, employee);
+            return File(temp, contentType, fileName);
         }
 
         [DisableAuditing]

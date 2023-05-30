@@ -15,6 +15,7 @@
     <ProjectReference Include="..\..\src\Nguyen_Tan_Phat_Project.EntityFrameworkCore\Nguyen_Tan_Phat_Project.EntityFrameworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.101.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="NSubstitute" Version="4.3.0" />
