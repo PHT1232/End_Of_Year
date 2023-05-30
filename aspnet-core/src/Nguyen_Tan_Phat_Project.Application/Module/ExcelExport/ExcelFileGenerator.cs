@@ -46,9 +46,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
         }
     }
 
-    public static class ExcelFileGenerator
+    public class ExcelFileGenerator
     {
-        public static byte[] GenerateExcelFileForExportImport(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee)
+        public byte[] GenerateExcelFileForExportImport(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee)
         {
             XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\phieu xuat kho sua.xlsx");
             IXLWorksheet worksheet = workbook.Worksheet("Sheet1");

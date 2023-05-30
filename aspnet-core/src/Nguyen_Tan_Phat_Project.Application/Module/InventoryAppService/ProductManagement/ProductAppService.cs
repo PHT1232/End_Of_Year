@@ -176,6 +176,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
 
                 productDto.ProductName = input.ProductName;
                 productDto.ProductDetail = input.ProductDetail;
+                productDto.ProductImage = input.ProductImage;
                 productDto.ProductDescription = input.ProductDescription;
                 productDto.Price = input.Price;
                 productDto.CategoryId = input.CategoryId;
@@ -240,7 +241,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     {
                         var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
                         var productQuantityStatus = "";
-                        if (productFullQuantity > 0 && productFullQuantity < 10)
+                        if (productFullQuantity > 0 && productFullQuantity <= 30)
                         {
                             productQuantityStatus = "Ít hàng";
                         } else if (productFullQuantity == 0)
@@ -254,6 +255,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         {
                             ProductCode = storageProduct.Id,
                             ProductName = storageProduct.ProductName,
+                            ProductImage = storageProduct.ProductImage,
                             CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
                             Price = storageProduct.Price,
                             Unit = storageProduct.Unit,
@@ -284,7 +286,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     {
                         var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
                         var productQuantityStatus = "";
-                        if (productFullQuantity > 0 && productFullQuantity < 10)
+                        if (productFullQuantity > 0 && productFullQuantity <= 30)
                         {
                             productQuantityStatus = "Ít hàng";
                         }
@@ -300,6 +302,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         {
                             ProductCode = storageProduct.Id,
                             ProductName = storageProduct.ProductName,
+                            ProductImage = storageProduct.ProductImage,
                             CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == storageProduct.CategoryId).CategoryName,
                             Price = storageProduct.Price,
                             Unit = storageProduct.Unit,
@@ -339,7 +342,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         if (product != null)
                         {
                             var productQuantityStatus = "";
-                            if (storageProduct.ProductQuantity > 0 && storageProduct.ProductQuantity < 10)
+                            if (storageProduct.ProductQuantity > 0 && storageProduct.ProductQuantity <= 30)
                             {
                                 productQuantityStatus = "Ít hàng";
                             }
@@ -355,6 +358,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                             {
                                 ProductCode = product.Id,
                                 ProductName = product.ProductName,
+                                ProductImage = product.ProductImage,
                                 CategoryName = _categoryRepository.GetAll().FirstOrDefault(i => i.Id == product.CategoryId).CategoryName,
                                 Price = product.Price,
                                 Unit = product.Unit,
@@ -392,8 +396,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
             items = await _categoryRepository.GetAll()
                 .Select(e => new CategoryProduct
                 {
-                    CategoryId = e.Id,
-                    CategoryName = e.CategoryName,
+                    Code = e.Id,
+                    Name = e.CategoryName,
                 }).ToListAsync();
 
             return new CategoryProductList 
@@ -441,8 +445,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 .Where(e => e.CategoryId == categoryId)
                 .Select(e => new SubcategoryProduct
                 {
-                    SubcategoryId = e.Id,
-                    SubcategoryName = e.SubCategoryName
+                    Code = e.Id,
+                    Name = e.SubCategoryName
                 }).ToListAsync();
 
             return new SubcategoryProductList
@@ -478,6 +482,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 {
                     ProductCode = product.Id,
                     ProductName = product.ProductName,
+                    ProductImage = product.ProductImage,
                     Price = product.Price,
                     Unit = product.Unit,
                     ProductDescription = product.ProductDescription,

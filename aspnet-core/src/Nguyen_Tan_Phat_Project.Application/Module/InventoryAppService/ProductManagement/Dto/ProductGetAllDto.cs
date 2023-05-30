@@ -11,6 +11,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
         public string? CategoryName { get; set; }
+        public string ProductImage { get; set; }
         public float Price { get; set; }
         public string Unit { get; set; }
         public int Quantity { get; set; }

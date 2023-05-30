@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using Nguyen_Tan_Phat_Project.Entities;
+using Nguyen_Tan_Phat_Project.Module.ExcelExport;
 using Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpensesManagement.Dtos;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using System;
@@ -52,7 +53,9 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         [DisableAuditing]
         public ActionResult ExcelExport(string id)
         {
-            var product = _exportImportProductRepository.GetAll().Include(e => e.Product)
+            try
+            {
+                var product = _exportImportProductRepository.GetAll().Include(e => e.Product)
                    .Where(e => e.ExportImportCode == id)
                    .Select(e => new ExportImportProductDto
                    {
@@ -64,20 +67,25 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                        FinalPrice = e.Product.Price * e.Quantity
                    }).ToList();
 
-            var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
-            var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
-            exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
+                var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
+                var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
+                exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
 
-            var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
-            customer.CustomerPhone = exportImportCustomer.PhoneToCall;
-            customer.CustomerAddress = exportImportCustomer.ReciveAddress;
+                var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
+                customer.CustomerPhone = exportImportCustomer.PhoneToCall;
+                customer.CustomerAddress = exportImportCustomer.ReciveAddress;
 
-            var employee = _employeeRepository.FirstOrDefault(e => e.Id == exportImport.OrderCreator);
+                var employee = _employeeRepository.FirstOrDefault(e => e.Id == exportImport.OrderCreator);
 
-            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            string fileName = "Phiếu Xuất kho: " + exportImportCustomer.ExportImportCode + ".xlsx";
-            byte[] temp = GenerateExcelFileForExportImport(product, exportImport, customer, employee);
-            return File(temp, contentType, fileName);
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = "Phiếu Xuất kho: " + exportImportCustomer.ExportImportCode + ".xlsx";
+                ExcelFileGenerator exf = new ExcelFileGenerator();
+                byte[] temp = exf.GenerateExcelFileForExportImport(product, exportImport, customer, employee);
+                return File(temp, contentType, fileName);
+            } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
         }
 
         [DisableAuditing]
@@ -94,6 +102,14 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             var fileBytes = System.IO.File.ReadAllBytes(filePath);
             System.IO.File.Delete(filePath);
             return File(fileBytes, "application/vnd.ms-excel");
+        }
+
+        [HttpGet]
+        public IActionResult GetImage(string fileName)
+        {
+            var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileName);
+            var fileStream = new FileStream(filePath, FileMode.Open);
+            return File(fileStream, "image/jpeg");
         }
     }
 }
