@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Nguyen_Tan_Phat_Project.Module.ExcelExport.ExcelFileGenerator;
 
@@ -107,9 +108,22 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         [HttpGet]
         public IActionResult GetImage(string fileName)
         {
-            var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileName);
-            var fileStream = new FileStream(filePath, FileMode.Open);
-            return File(fileStream, "image/jpeg");
+                var filePath = "";
+                if (fileName == null || fileName == "null")
+                {
+                    filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", "Default\\no-image.png");
+                }
+                else
+                {
+                    filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileName);
+                }
+
+
+                //FileStream fileStream = new FileStream(filePath, FileMode.Open);
+                Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
+                var file = File(buffer, "image/jpeg");
+                return file;
         }
+
     }
 }

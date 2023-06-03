@@ -9,6 +9,7 @@ using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Global;
+using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement.Dto;
 using System;
 using System.Collections.Generic;
@@ -26,18 +27,21 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement
         private readonly IRepository<Storage, string> _storageRepository;
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<Product, string> _productRepository;
+        private readonly IRepository<Structure, string> _structureRepository;
 
         public StorageAppService(
             IRepository<User, long> userRepository
             , IRepository<Storage, string> storageRepository
             , IRepository<ProductStorage> productStorageRepository
             , IRepository<Product, string> productRepository
+            , IRepository<Structure, string> structureRepository
             )
         {
             _userRepository = userRepository;
             _storageRepository = storageRepository;
             _productStorageRepository = productStorageRepository;
             _productRepository = productRepository;
+            _structureRepository = structureRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Storage_Add)]
@@ -55,6 +59,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement
                 {
                     Id = input.StorageCode,
                     StorageName = input.StorageName,
+                    StructureId = input.StructureId,
                     Address = input.Address,
                     Description = input.Description,
                     LastModificationTime = creationTime,
@@ -115,6 +120,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement
                 if (storageDto == null)
                     throw new UserFriendlyException("Kho này không tồn tại");
 
+                storageDto.StructureId = input.StructureId;
                 storageDto.StorageName = input.StorageName;
                 storageDto.Address = input.Address;
                 storageDto.Description = input.Description;
@@ -126,30 +132,64 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement
             }
         }
 
-        public async Task<PagedResultDto<StorageGetAllDto>> GetAllAsync(StoragePagedResultInput input)
+        public async Task<PagedResultDto<ListStorageGetAllDto>> GetAllAsync(StoragePagedResultInput input)
         {
             if (!string.IsNullOrEmpty(input.Keyword))
                 input.Keyword = GlobalFunction.RegexFormat(input.Keyword);
 
             try
             {
-                var query = await _storageRepository.GetAll()
-                .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageName.Contains(input.Keyword) || e.Id.Contains(input.Keyword))
-                .Select(e => new StorageGetAllDto
+                //var query = await _storageRepository.GetAll()
+                //.WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.StorageName.Contains(input.Keyword) || e.Id.Contains(input.Keyword))
+                //.Select(e => new ListStorageGetAllDto
+                //{
+                //    StorageCode = e.Id,
+                //    StorageName = e.StorageName,
+                //    Unit = _structureRepository.GetAll().FirstOrDefault(x => x.Id == e.StructureId).UnitName,
+                //    Address = e.Address,
+                //    CreationTime = e.CreationTime,
+                //    LastDateModified = (DateTime)e.LastModificationTime,
+                //    Username = _userRepository.GetAll().FirstOrDefault(x => x.Id == e.CreatorUserId || x.Id == e.LastModifierUserId).Name,
+                //}).OrderByDescending(e => e.CreationTime).PageBy(input).ToListAsync();
+                
+                
+
+                var structures = await _structureRepository.GetAll()
+                    .ToListAsync();
+
+                List<ListStorageGetAllDto> result = new List<ListStorageGetAllDto>();
+                foreach (var structure in structures)
                 {
-                    StorageCode = e.Id,
-                    StorageName = e.StorageName,
-                    Address = e.Address,
-                    CreationTime = e.CreationTime,
-                    LastDateModified = (DateTime)e.LastModificationTime,
-                    Username = _userRepository.GetAll().FirstOrDefault(x => x.Id == e.CreatorUserId || x.Id == e.LastModifierUserId).Name,
-                }).OrderByDescending(e => e.CreationTime).PageBy(input).ToListAsync();
+                    ListStorageGetAllDto dto = new ListStorageGetAllDto();
+                    var storages = await _storageRepository.GetAll()
+                        .Where(e => e.StructureId == structure.Id)
+                        .Select(e => new StorageGetAllDto
+                        {
+                            StorageCode = e.Id,
+                            StorageName = e.StorageName,
+                            Unit = _structureRepository.GetAll().FirstOrDefault(x => x.Id == e.StructureId).UnitName,
+                            Address = e.Address,
+                            CreationTime = e.CreationTime,
+                            LastDateModified = (DateTime)e.LastModificationTime,
+                            ProductQuantity = _productStorageRepository.GetAll().Where(x => x.StorageId.Equals(e.Id)).Select(x => x.ProductQuantity).Sum(),
+                            Username = _userRepository.GetAll().FirstOrDefault(x => x.Id == e.CreatorUserId || x.Id == e.LastModifierUserId).Name,
+                        })
+                        .ToListAsync();
+
+                    dto.StorageCode = structure.Id;
+                    dto.ProductQuantity = storages.Select(e => e.ProductQuantity).Sum();
+                    dto.StorageName = structure.UnitName;
+                    dto.Address = structure.Address;
+                    dto.Children = storages;
+
+                    result.Add(dto);
+                }
 
                 int totalCount = _storageRepository.Count();
 
-                return new PagedResultDto<StorageGetAllDto>
+                return new PagedResultDto<ListStorageGetAllDto>
                 {
-                    Items = query,
+                    Items = result,
                     TotalCount = totalCount
                 };
             }

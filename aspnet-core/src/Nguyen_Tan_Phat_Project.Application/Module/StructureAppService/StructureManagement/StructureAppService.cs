@@ -24,15 +24,18 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
         private IRepository<Structure, string> _structureRepository;
         private IRepository<Employee, string> _employeeRepository;
         private IRepository<User, long> _userRepository;
+        private IRepository<Storage, string> _storageRepository;
 
         public StructureAppService(
             IRepository<Structure, string> structureRepository
             , IRepository<Employee, string> employeeRepository
-            , IRepository<User, long> userRepository) 
+            , IRepository<User, long> userRepository
+            , IRepository<Storage, string> storageRepository) 
         { 
             _structureRepository = structureRepository;
             _employeeRepository = employeeRepository;
             _userRepository = userRepository;
+            _storageRepository = storageRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Structure_Add)]
@@ -59,7 +62,15 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
                     LastModificationTime = creationTime,
                 };
 
+                var storage = new Storage
+                {
+                    Id = input.UnitCode,
+                    StorageName = input.UnitName,
+                    Address = input.Address
+                };
+
                 await _structureRepository.InsertAsync(structure);
+                await _storageRepository.InsertAsync(storage);
             }
             catch (Exception ex)
             {
@@ -73,11 +84,16 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.StructureManagement
             try
             {
                 var isEmployeeInUnit = await _employeeRepository.FirstOrDefaultAsync(e => e.WorkUnit.Id == id);
+                var strorageInUnit = await _storageRepository.FirstOrDefaultAsync(e => e.StructureId == id);
                 if (isEmployeeInUnit != null)
                 {
                      throw new UserFriendlyException("Không thể xóa đơn vị đang có nhân viên làm việc");
+                } else if (strorageInUnit != null)
+                {
+                    throw new UserFriendlyException("Không thể xóa đơn vị đang có kho");
                 }
 
+                await _storageRepository.HardDeleteAsync(e => e.Id == id);
                 await _structureRepository.HardDeleteAsync(e => e.Id == id);
             }
             catch (Exception ex)

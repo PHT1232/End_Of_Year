@@ -90,7 +90,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 //    ProductQuantity = e.Quantity,
                 //    ProductLocation = e.ProductLocation,
                 //    //Description = e.Description
-                //}).ToList();
+                //}).ToList();  
                 await _productRepository.InsertAsync(product);
                 //foreach (var storage in listOfStorageProduct)
                 //{
@@ -223,14 +223,15 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     {
                         input.StorageCode = null;
                     }
-                    else
-                    {
-                        input.StorageCode = storageRepo[storageRepo.Length - 1].Id;
-                    }
+                    //else
+                    //{
+                    //    input.StorageCode = storageRepo[storageRepo.Length - 1].Id;
+                    //}
                 }
 
                 if (!string.IsNullOrEmpty(input.Keyword))
                 {
+
                     var product = await _productRepository
                         .GetAll()
                         .Where(e => e.Id.Contains(input.Keyword) || e.ProductName.Contains(input.Keyword))
@@ -239,7 +240,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     List<ProductGetAllDto> result = new List<ProductGetAllDto>();
                     foreach (var storageProduct in product)
                     {
-                        var productFullQuantity = _productStorageRepository.GetAll().Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+                        var productFullQuantity = _productStorageRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId == input.StorageCode)
+                            .Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
+
                         var productQuantityStatus = "";
                         if (productFullQuantity > 0 && productFullQuantity <= 30)
                         {
@@ -275,7 +279,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     };
                 }   
                 
-                if (input.StorageCode.Equals("0"))
+                if (input.StorageCode == null)
                 {
                     var product = await _productRepository
                         .GetAll()
@@ -334,9 +338,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     foreach (var storageProduct in storageProducts)
                     {
                         var product = _productRepository.GetAll()
-                        .WhereIf(input.CategoryCode != "0" && input.SubCategoryCode != 0, e => e.CategoryId == input.CategoryCode && e.SubCategoryId == input.SubCategoryCode)
-                        .WhereIf(input.CategoryCode != "0" && input.SubCategoryCode == 0, e => e.CategoryId == input.CategoryCode)
-                        .WhereIf(input.CategoryCode == "0" && input.SubCategoryCode == 0, e => e.Id == storageProduct.ProductId)
+                        .WhereIf(input.CategoryCode != null && input.SubCategoryCode != 0, e => e.CategoryId == input.CategoryCode && e.SubCategoryId == input.SubCategoryCode)
+                        .WhereIf(input.CategoryCode != null && input.SubCategoryCode == 0, e => e.CategoryId == input.CategoryCode)
+                        .WhereIf(input.CategoryCode == null && input.SubCategoryCode == 0, e => e.Id == storageProduct.ProductId)
                         .FirstOrDefault(x => storageProduct.ProductId.Equals(x.Id));
 
                         if (product != null)

@@ -12,6 +12,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.StorageManagement.Dto
         public string StorageCode { get; set; }
         public string StorageName { get; set; }
         public string Address { get; set; }
+        public string Unit { get; set; }
         public string Description { get; set; }
         public List<StorageProductDto> products { get; set; }
     }
