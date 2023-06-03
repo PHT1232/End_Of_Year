@@ -480,27 +480,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "storage",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StorageName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_storage", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "structure",
                 columns: table => new
                 {
@@ -877,6 +856,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     CustomerAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CustomerWebsite = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CustomerDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discount = table.Column<float>(type: "real", nullable: false),
                     BankId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
@@ -923,38 +903,6 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "exportImport",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    NameOfReceiver = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderCreator = table.Column<long>(type: "bigint", nullable: false),
-                    OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    OrderType = table.Column<int>(type: "int", nullable: false),
-                    StorageId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    StorageInputId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameOfExport = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TotalPrice = table.Column<float>(type: "real", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_exportImport", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_exportImport_storage_StorageId",
-                        column: x => x.StorageId,
-                        principalTable: "storage",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "employees",
                 columns: table => new
                 {
@@ -963,6 +911,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     EmployeeGender = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmployeeDateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     JobTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    phoneNumber = table.Column<int>(type: "int", nullable: false),
                     WorkUnitId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     TaxIdentification = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmployeeSalary = table.Column<int>(type: "int", nullable: false),
@@ -988,6 +937,61 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     table.ForeignKey(
                         name: "FK_employees_structure_WorkUnitId",
                         column: x => x.WorkUnitId,
+                        principalTable: "structure",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "retails",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OrderCreator = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StructureId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false),
+                    Discount = table.Column<float>(type: "real", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_retails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_retails_structure_StructureId",
+                        column: x => x.StructureId,
+                        principalTable: "structure",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "storage",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StorageName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StructureId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_storage", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_storage_structure_StructureId",
+                        column: x => x.StructureId,
                         principalTable: "structure",
                         principalColumn: "Id");
                 });
@@ -1107,6 +1111,7 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     Price = table.Column<float>(type: "real", nullable: false),
                     CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SubCategoryId = table.Column<int>(type: "int", nullable: true),
+                    ProductImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Unit = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
@@ -1153,17 +1158,46 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "exportImportProduct",
+                name: "retailsCustomer",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ExportImportCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    FinalPrice = table.Column<float>(type: "real", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RetailCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CustomerCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReciveAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discount = table.Column<float>(type: "real", nullable: false),
+                    PhoneToCall = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_retailsCustomer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_retailsCustomer_customers_CustomerCode",
+                        column: x => x.CustomerCode,
+                        principalTable: "customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_retailsCustomer_retails_RetailCode",
+                        column: x => x.RetailCode,
+                        principalTable: "retails",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expenses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OrderCreator = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderStatus = table.Column<int>(type: "int", nullable: false),
+                    ProductProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StorageId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Discount = table.Column<float>(type: "real", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DescriptionForDenied = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
                     LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -1174,16 +1208,44 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_exportImportProduct", x => x.Id);
+                    table.PrimaryKey("PK_expenses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_exportImportProduct_exportImport_ExportImportCode",
-                        column: x => x.ExportImportCode,
-                        principalTable: "exportImport",
+                        name: "FK_expenses_storage_StorageId",
+                        column: x => x.StorageId,
+                        principalTable: "storage",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "exportImport",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    NameOfReceiver = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderCreator = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderStatus = table.Column<int>(type: "int", nullable: false),
+                    OrderType = table.Column<int>(type: "int", nullable: false),
+                    StorageId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    StorageInputId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameOfExport = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false),
+                    Discount = table.Column<float>(type: "real", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_exportImport", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_exportImportProduct_products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "products",
+                        name: "FK_exportImport_storage_StorageId",
+                        column: x => x.StorageId,
+                        principalTable: "storage",
                         principalColumn: "Id");
                 });
 
@@ -1218,6 +1280,137 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         name: "FK_productsStorage_storage_StorageId",
                         column: x => x.StorageId,
                         principalTable: "storage",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "retailProducts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RetailId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    FinalPrice = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_retailProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_retailProducts_products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "products",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_retailProducts_retails_RetailId",
+                        column: x => x.RetailId,
+                        principalTable: "retails",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "productExpenses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExpensesId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalPrice = table.Column<float>(type: "real", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_productExpenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_productExpenses_expenses_ExpensesId",
+                        column: x => x.ExpensesId,
+                        principalTable: "expenses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_productExpenses_products_ProductCode",
+                        column: x => x.ProductCode,
+                        principalTable: "products",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "exportImportCustomer",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExportImportCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CustomerCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReciveAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discount = table.Column<float>(type: "real", nullable: false),
+                    PhoneToCall = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_exportImportCustomer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_exportImportCustomer_customers_CustomerCode",
+                        column: x => x.CustomerCode,
+                        principalTable: "customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_exportImportCustomer_exportImport_ExportImportCode",
+                        column: x => x.ExportImportCode,
+                        principalTable: "exportImport",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "exportImportProduct",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExportImportCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    FinalPrice = table.Column<float>(type: "real", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_exportImportProduct", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_exportImportProduct_exportImport_ExportImportCode",
+                        column: x => x.ExportImportCode,
+                        principalTable: "exportImport",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_exportImportProduct_products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "products",
                         principalColumn: "Id");
                 });
 
@@ -1594,9 +1787,24 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 column: "WorkUnitId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_expenses_StorageId",
+                table: "expenses",
+                column: "StorageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_exportImport_StorageId",
                 table: "exportImport",
                 column: "StorageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_exportImportCustomer_CustomerCode",
+                table: "exportImportCustomer",
+                column: "CustomerCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_exportImportCustomer_ExportImportCode",
+                table: "exportImportCustomer",
+                column: "ExportImportCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_exportImportProduct_ExportImportCode",
@@ -1607,6 +1815,16 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "IX_exportImportProduct_ProductId",
                 table: "exportImportProduct",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_productExpenses_ExpensesId",
+                table: "productExpenses",
+                column: "ExpensesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_productExpenses_ProductCode",
+                table: "productExpenses",
+                column: "ProductCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_products_CategoryId",
@@ -1627,6 +1845,36 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "IX_productsStorage_StorageId",
                 table: "productsStorage",
                 column: "StorageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_retailProducts_ProductId",
+                table: "retailProducts",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_retailProducts_RetailId",
+                table: "retailProducts",
+                column: "RetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_retails_StructureId",
+                table: "retails",
+                column: "StructureId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_retailsCustomer_CustomerCode",
+                table: "retailsCustomer",
+                column: "CustomerCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_retailsCustomer_RetailCode",
+                table: "retailsCustomer",
+                column: "RetailCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_storage_StructureId",
+                table: "storage",
+                column: "StructureId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_subCategories_CategoryId",
@@ -1721,13 +1969,22 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "chungMinhND");
 
             migrationBuilder.DropTable(
-                name: "customers");
+                name: "exportImportCustomer");
 
             migrationBuilder.DropTable(
                 name: "exportImportProduct");
 
             migrationBuilder.DropTable(
+                name: "productExpenses");
+
+            migrationBuilder.DropTable(
                 name: "productsStorage");
+
+            migrationBuilder.DropTable(
+                name: "retailProducts");
+
+            migrationBuilder.DropTable(
+                name: "retailsCustomer");
 
             migrationBuilder.DropTable(
                 name: "tests");
@@ -1754,7 +2011,16 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "exportImport");
 
             migrationBuilder.DropTable(
+                name: "expenses");
+
+            migrationBuilder.DropTable(
                 name: "products");
+
+            migrationBuilder.DropTable(
+                name: "customers");
+
+            migrationBuilder.DropTable(
+                name: "retails");
 
             migrationBuilder.DropTable(
                 name: "AbpDynamicProperties");
@@ -1766,16 +2032,16 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                 name: "AbpUsers");
 
             migrationBuilder.DropTable(
-                name: "bankAccounts");
-
-            migrationBuilder.DropTable(
-                name: "structure");
-
-            migrationBuilder.DropTable(
                 name: "storage");
 
             migrationBuilder.DropTable(
                 name: "subCategories");
+
+            migrationBuilder.DropTable(
+                name: "bankAccounts");
+
+            migrationBuilder.DropTable(
+                name: "structure");
 
             migrationBuilder.DropTable(
                 name: "categories");

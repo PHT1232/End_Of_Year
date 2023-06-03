@@ -6,6 +6,7 @@ using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Abp.UI;
 using Castle.Core.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
@@ -80,6 +81,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     StorageId = input.StorageId,
                     NameOfReceiver = input.Customer.CustomerName,
                     OrderCreator = input.OrderCreator,
+                    DeliveryEmployee = input.EmployeeDelivery,
                     NameOfExport = input.NameOfExport,
                     OrderStatus = 1,
                     OrderType = input.OrderType,
@@ -214,6 +216,114 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+        
+        [AbpAllowAnonymous]
+        [HttpGet]
+        public async Task<ContentResult> UpdateOrderQRAsync(ExportImportInput input)
+        {
+            try
+            {
+                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == input.ExportImportCode);
+                if (exportImport.OrderType == 1 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        product.ProductQuantity -= productExport.Quantity;
+                        _productStorageRepository.Update(product);
+                    }
+                }
+
+                else if (exportImport.OrderType == 2 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var productOutput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageInputId && e.ProductId == productExport.ProductId);
+                        if (productInput == null)
+                        {
+                            productInput = new ProductStorage
+                            {
+                                StorageId = exportImport.StorageInputId,
+                                ProductId = productExport.ProductId,
+                                ProductLocation = productExport.Location,
+                                ProductQuantity = productExport.Quantity,
+                            };
+                            _productStorageRepository.Insert(productInput);
+                        }
+                        else
+                        {
+                            productInput.ProductQuantity += productExport.Quantity;
+                            _productStorageRepository.Update(productInput);
+                        }
+                        productOutput.ProductQuantity -= productExport.Quantity;
+                        _productStorageRepository.Update(productOutput);
+                    }
+                }
+
+                else if (exportImport.OrderType == 3 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct = await _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToListAsync();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageInputId && e.ProductId == productExport.ProductId);
+                        if (productInput == null)
+                        {
+                            productInput = new ProductStorage
+                            {
+                                StorageId = exportImport.StorageInputId,
+                                ProductId = productExport.ProductId,
+                                ProductLocation = productExport.Location,
+                                ProductQuantity = productExport.Quantity,
+                            };
+                            _productStorageRepository.Insert(productInput);
+                        }
+                        else
+                        {
+                            productInput.ProductQuantity += productExport.Quantity;
+                            _productStorageRepository.Update(productInput);
+                        }
+                    }
+                }
+
+                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 || exportImport.OrderType == 3 && input.OrderStatus == 3)
+                {
+                    exportImport.OrderStatus = input.OrderStatus;
+                    await _exportImportRepository.UpdateAsync(exportImport);
+                }
+
+                var html = "<html><body><h1>HOÀN THÀNH ĐƠN THÀNH CÔNG</h1></body></html>";
+
+                return new ContentResult
+                {
+                    Content = html,
+                    ContentType = "text/html"
+                };
             }
             catch (Exception ex)
             {
@@ -477,7 +587,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 ExportImportOutput output = new ExportImportOutput
                 {
                     ExportImportCode = exportImport.Id,
-                    OrderCreator = exportImport.OrderCreator,
+                    OrderCreator = _employeeRepository.GetAll().FirstOrDefault(e => e.Id == exportImport.OrderCreator).EmployeeName,
+                    EmployeeDelivery = _employeeRepository.GetAll().FirstOrDefault(e => e.Id == exportImport.DeliveryEmployee).EmployeeName,
                     OrderStatus = exportImport.OrderStatus,
                     OrderType = exportImport.OrderType,
                     ReceiveAddress = exportImportCustomer.ReciveAddress,

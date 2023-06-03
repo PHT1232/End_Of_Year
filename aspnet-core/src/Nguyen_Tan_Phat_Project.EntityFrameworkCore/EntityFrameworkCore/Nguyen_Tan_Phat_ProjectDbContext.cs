@@ -26,6 +26,9 @@ namespace Nguyen_Tan_Phat_Project.EntityFrameworkCore
         public DbSet<ExportImportCustomer> exportImportCustomer { get; set; }
         public DbSet<Expenses> expenses { get; set; }
         public DbSet<ProductExpenses> productExpenses { get; set; }
+        public DbSet<Retail> retails { get; set; }
+        public DbSet<RetailCustomer> retailsCustomer { get; set; }
+        public DbSet<RetailProduct> retailProducts { get; set; }
         
         public Nguyen_Tan_Phat_ProjectDbContext(DbContextOptions<Nguyen_Tan_Phat_ProjectDbContext> options)
             : base(options)

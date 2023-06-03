@@ -10,6 +10,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     {
         public string ExportImportCode { get; set; }
         public string OrderCreator { get; set; }
+        public string EmployeeDelivery { get; set; }
         public int OrderType { get; set; }
         public int OrderStatus { get; set; }
         public CustomerDto Customer { get; set; }

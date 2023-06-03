@@ -12,8 +12,8 @@ using Nguyen_Tan_Phat_Project.EntityFrameworkCore;
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
     [DbContext(typeof(Nguyen_Tan_Phat_ProjectDbContext))]
-    [Migration("20230517125145_initial_3")]
-    partial class initial_3
+    [Migration("20230603113043_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1693,6 +1693,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1800,6 +1803,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DescriptionForDenied")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float>("Discount")
                         .HasColumnType("real");
 
@@ -1812,8 +1818,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("OrderCreator")
-                        .HasColumnType("bigint");
+                    b.Property<string>("OrderCreator")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
@@ -1857,6 +1863,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -1872,8 +1881,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("NameOfReceiver")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("OrderCreator")
-                        .HasColumnType("bigint");
+                    b.Property<string>("OrderCreator")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
@@ -1919,6 +1928,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
 
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
 
                     b.Property<string>("ExportImportCode")
                         .HasColumnType("nvarchar(450)");
@@ -2039,6 +2051,9 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductDetail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductName")
@@ -2168,6 +2183,118 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.ToTable("productsStorage");
                 });
 
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Retail", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OrderCreator")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StructureId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StructureId");
+
+                    b.ToTable("retails");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.RetailCustomer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CustomerCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
+                    b.Property<string>("PhoneToCall")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReciveAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RetailCode")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerCode");
+
+                    b.HasIndex("RetailCode");
+
+                    b.ToTable("retailsCustomer");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.RetailProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<float>("FinalPrice")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RetailId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("RetailId");
+
+                    b.ToTable("retailProducts");
+                });
+
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Storage", b =>
                 {
                     b.Property<string>("Id")
@@ -2203,7 +2330,12 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Property<string>("StorageName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StructureId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StructureId");
 
                     b.ToTable("storage");
                 });
@@ -2748,6 +2880,54 @@ namespace Nguyen_Tan_Phat_Project.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Retail", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Structure", "Structure")
+                        .WithMany()
+                        .HasForeignKey("StructureId");
+
+                    b.Navigation("Structure");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.RetailCustomer", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerCode");
+
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Retail", "Retail")
+                        .WithMany()
+                        .HasForeignKey("RetailCode");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Retail");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.RetailProduct", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Retail", "Retail")
+                        .WithMany()
+                        .HasForeignKey("RetailId");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Retail");
+                });
+
+            modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.Storage", b =>
+                {
+                    b.HasOne("Nguyen_Tan_Phat_Project.Entities.Structure", "Structure")
+                        .WithMany()
+                        .HasForeignKey("StructureId");
+
+                    b.Navigation("Structure");
                 });
 
             modelBuilder.Entity("Nguyen_Tan_Phat_Project.Entities.SubCategory", b =>

@@ -4,13 +4,13 @@
 
 namespace Nguyen_Tan_Phat_Project.Migrations
 {
-    public partial class initial_4 : Migration
+    public partial class initial_1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "DescriptionForDenied",
-                table: "expenses",
+                name: "DeliveryEmployee",
+                table: "exportImport",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -18,8 +18,8 @@ namespace Nguyen_Tan_Phat_Project.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "DescriptionForDenied",
-                table: "expenses");
+                name: "DeliveryEmployee",
+                table: "exportImport");
         }
     }
 }

@@ -14,9 +14,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using IronBarCode;
 using System.Threading;
 using System.Threading.Tasks;
 using static Nguyen_Tan_Phat_Project.Module.ExcelExport.ExcelFileGenerator;
+using QRCoder;
+using System.Drawing;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -108,22 +111,33 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         [HttpGet]
         public IActionResult GetImage(string fileName)
         {
-                var filePath = "";
-                if (fileName == null || fileName == "null")
-                {
-                    filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", "Default\\no-image.png");
-                }
-                else
-                {
-                    filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileName);
-                }
+            var filePath = "";
+            if (fileName == null || fileName == "null")
+            {
+                filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", "Default\\no-image.png");
+            }
+            else
+            {
+                filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileName);
+            }
 
 
-                //FileStream fileStream = new FileStream(filePath, FileMode.Open);
-                Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
-                var file = File(buffer, "image/jpeg");
-                return file;
+            //FileStream fileStream = new FileStream(filePath, FileMode.Open);
+            Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
+            var file = File(buffer, "image/jpeg");
+            return file;
         }
 
+        [HttpGet]
+        public IActionResult GenerateQRCode(string text)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+            BitmapByteQRCode bm = new BitmapByteQRCode(qrCodeData);
+            Byte[] qrCodeImage = bm.GetGraphic(20);
+            var file = File(qrCodeImage, "image/jpeg");
+            return file;
+            //qrCodeImage.Save("qrcode.png", ImageFormat.Png);
+        }
     }
 }

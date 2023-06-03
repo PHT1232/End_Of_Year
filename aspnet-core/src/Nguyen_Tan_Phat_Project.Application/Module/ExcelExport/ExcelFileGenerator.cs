@@ -1,9 +1,12 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Mvc;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,11 +41,16 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
         }
     }
 
-    public class FormatCell
+    public class QRCodeGen
     {
-        public void AddBorderToCell()
+        public Byte[] GenerateQRCode(string text)
         {
-
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+            BitmapByteQRCode bm = new BitmapByteQRCode(qrCodeData);
+            Byte[] qrCodeImage = bm.GetGraphic(20);
+            return qrCodeImage;
+            //qrCodeImage.Save("qrcode.png", ImageFormat.Png);
         }
     }
 
@@ -180,6 +188,17 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             worksheet.Cell(rowNumber + 10, 6).Style.Font.FontSize = 12;
             worksheet.Cell(rowNumber + 10, 6).Style.Font.SetItalic(true);
             worksheet.Cell(rowNumber + 10, 6).Style.Font.FontName = "Times New Roman";
+
+            if (exportImport.OrderStatus == 2)
+            {
+                QRCodeGen qr = new QRCodeGen();
+                var byteImage = qr.GenerateQRCode("https://unten.tech:44311/api/services/app/ExportImport/UpdateOrderQR?exportImportCode=" + exportImport.Id.ToString() + "&orderStatus=2");
+                var mStream = new MemoryStream(byteImage);
+
+                var picture = worksheet.AddPicture(mStream);
+
+                picture.MoveTo(worksheet.Cell("E" + (rowNumber + 15))).Scale(0.2);
+            }
 
             MemoryStream memoryStream = new MemoryStream();
             workbook.SaveAs(memoryStream);
