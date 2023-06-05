@@ -14,6 +14,11 @@ using Abp.Domain.Repositories;
 using Nguyen_Tan_Phat_Project.Entities;
 using Abp.Auditing;
 using Nguyen_Tan_Phat_Project.Roles.Dto;
+using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
+using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement;
+using Abp.Authorization;
+using Nguyen_Tan_Phat_Project.Authorization.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -22,11 +27,41 @@ namespace Nguyen_Tan_Phat_Project.Controllers
     {
         private readonly IAppFolders _appFolders;
         private readonly string HashSecret = "WHOHZLSSRWPOJRSLOLBQFDJSGSFCZTHI";
+        private readonly IVnPayService _vnPayService;
+        private readonly IRepository<Product, string> _productRepository;
+        private readonly IRepository<User, long> _userRepository;
+        private readonly IRepository<Storage, string> _storageRepository;
+        private readonly IRepository<ProductStorage> _productStorageRepository;
+        private readonly IRepository<ExportImport, string> _exportImportRepository;
+        private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<Customer, string> _customerRepository;
+        private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
+        private readonly IRepository<Employee, string> _employeeRepository;
 
         public UploadController(IAppFolders appFolders
+            , IVnPayService vnPayService
+            , IRepository<Product, string> productRepository
+            , IRepository<User, long> userRepository
+            , IRepository<Storage, string> storageRepository
+            , IRepository<ProductStorage> productStorageRepository
+            , IRepository<ExportImport, string> exportImportRepository
+            , IRepository<ExportImportProduct> exportImportProductRepository
+            , IRepository<Customer, string> customerRepository
+            , IRepository<ExportImportCustomer> exportImportCustomerRepository
+            , IRepository<Employee, string> employeeRepository
             )
         {
             _appFolders = appFolders;
+            _vnPayService = vnPayService;
+            _productRepository = productRepository;
+            _userRepository = userRepository;
+            _storageRepository = storageRepository;
+            _productStorageRepository = productStorageRepository;
+            _exportImportRepository = exportImportRepository;
+            _exportImportProductRepository = exportImportProductRepository;
+            _customerRepository = customerRepository;
+            _exportImportCustomerRepository = exportImportCustomerRepository;
+            _employeeRepository = employeeRepository;
         }
 
         [HttpPost]
@@ -79,6 +114,44 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             var fileName = linkFile.Split(@"/").Last();
             var path = this._appFolders.DemoUploadFolder + linkFile;
             return path;
+        }
+
+        [HttpGet]
+        public string CreatePaymentUrl(string id)
+        {
+            var url = _vnPayService.CreatePaymentUrl(id);
+
+            return url;
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallback()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+            if (response.Success == true)
+            {
+                ExportImportInput input = new ExportImportInput();
+                input.ExportImportCode = response.OrderId;
+                input.OrderStatus = 2;
+
+                var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == input.ExportImportCode);
+                if (exportImport.OrderType == 1 && input.OrderStatus == 2)
+                {
+                    var exportImportProduct =  _exportImportProductRepository.GetAll()
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .ToList();
+                    exportImport.OrderStatus = input.OrderStatus;
+                    _exportImportRepository.Update(exportImport);
+
+                    foreach (var productExport in exportImportProduct)
+                    {
+                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        product.ProductQuantity -= productExport.Quantity;
+                        _productStorageRepository.Update(product);
+                    }
+                }
+            }
+            return Json(response);
         }
 
         //public IActionResult PaymentCallback()

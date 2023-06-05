@@ -117,7 +117,7 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
                 }
             }
 
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
+            var orderId = vnPay.GetResponseData("vnp_TxnRef");
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             var vnpSecureHash =

@@ -189,7 +189,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             worksheet.Cell(rowNumber + 10, 6).Style.Font.SetItalic(true);
             worksheet.Cell(rowNumber + 10, 6).Style.Font.FontName = "Times New Roman";
 
-            if (exportImport.OrderStatus == 2)
+            if (exportImport.OrderStatus != 2)
             {
                 QRCodeGen qr = new QRCodeGen();
                 var byteImage = qr.GenerateQRCode("https://unten.tech:44311/api/services/app/ExportImport/UpdateOrderQR?exportImportCode=" + exportImport.Id.ToString() + "&orderStatus=2");

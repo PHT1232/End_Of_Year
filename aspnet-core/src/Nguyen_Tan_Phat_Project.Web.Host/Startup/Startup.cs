@@ -21,6 +21,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using System.Net;
+using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement;
 
 namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 {
@@ -41,6 +42,7 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IExportImportAppService, ExportImportAppService>();
             //MVC
             services.AddControllersWithViews(
                 options => { options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute()); }

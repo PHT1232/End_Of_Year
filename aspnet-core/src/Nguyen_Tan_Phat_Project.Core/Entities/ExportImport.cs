@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string OrderCreator { get; set; }
         public string DeliveryEmployee { get; set; }
         public int OrderStatus { get; set; }
+        public bool IsDelivered { get; set; }
         public int OrderType { get; set; }
         [ForeignKey("Storage")]
         public string StorageId { get; set; }

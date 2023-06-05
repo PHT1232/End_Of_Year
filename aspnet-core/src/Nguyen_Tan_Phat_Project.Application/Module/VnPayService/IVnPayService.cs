@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Nguyen_Tan_Phat_Project
 {
     public interface IVnPayService
     {
-        string CreatePaymentUrl(PaymentInformationModel model, HttpContext context);
+        string CreatePaymentUrl(string id);
         PaymentResponseModel PaymentExecute(IQueryCollection collections);
     }
 }

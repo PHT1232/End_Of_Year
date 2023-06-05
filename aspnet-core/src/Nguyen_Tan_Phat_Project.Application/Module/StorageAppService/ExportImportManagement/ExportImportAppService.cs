@@ -1,11 +1,14 @@
 ﻿using Abp.Application.Services.Dto;
+using Abp.Auditing;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
+using Abp.Dependency;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Abp.UI;
 using Castle.Core.Internal;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
@@ -23,7 +26,7 @@ using System.Threading.Tasks;
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement
 {
     [AbpAuthorize(PermissionNames.Page_System_Export_Import_View)]
-    public class ExportImportAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
+    public class ExportImportAppService : Nguyen_Tan_Phat_ProjectAppServiceBase, IExportImportAppService, ITransientDependency
     {
         private readonly IRepository<Product, string> _productRepository;
         private readonly IRepository<User, long> _userRepository;
@@ -124,7 +127,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        [AbpAuthorize(PermissionNames.Page_System_Export_Import_Update)]
+        [AbpAllowAnonymous]
         public async Task UpdateOrderAsync(ExportImportInput input)
         {
             try
@@ -224,6 +227,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         }
         
         [AbpAllowAnonymous]
+        [DisableCors]
+        [DisableAuditing]
         [HttpGet]
         public async Task<ContentResult> UpdateOrderQRAsync(ExportImportInput input)
         {
@@ -233,7 +238,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 if (exportImport.OrderType == 1 && input.OrderStatus == 2)
                 {
                     var exportImportProduct = await _exportImportProductRepository.GetAll()
-                        .Where(e => e.ExportImportCode == input.ExportImportCode)
+                        .Where(e => e.ExportImportCode == exportImport.Id)
                         .ToListAsync();
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
