@@ -145,7 +145,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
                     foreach (var productExport in exportImportProduct)
                     {
-                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == exportImport.StorageId && e.ProductId == productExport.ProductId);
+                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
                         product.ProductQuantity -= productExport.Quantity;
                         _productStorageRepository.Update(product);
                     }

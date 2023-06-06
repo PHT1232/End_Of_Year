@@ -10,7 +10,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement.Dtos
     {
         public string RetailCode { get; set; }
         public string NameOfReceiver { get; set; }
-        public string DeliveryEmployee { get; set; }
+        public string OrderCreator { get; set; }
         public int OrderStatus { get; set; }
         public string StructureId { get; set; }
         public bool IsDelivered { get; set; }

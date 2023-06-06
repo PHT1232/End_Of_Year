@@ -73,7 +73,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
                 var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
                 var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
-                exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
+                //exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
 
                 var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
                 customer.CustomerPhone = exportImportCustomer.PhoneToCall;
