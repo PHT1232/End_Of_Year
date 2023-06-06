@@ -66,7 +66,7 @@ namespace Nguyen_Tan_Phat_Project.Module
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(httpContext));
             pay.AddRequestData("vnp_Locale", Locale);
             pay.AddRequestData("vnp_OrderInfo", $"{model.Id} {productStorage.Select(e => e.Quantity).Sum()}");
-            pay.AddRequestData("vnp_OrderType", "other");
+            pay.AddRequestData("vnp_OrderType", "electric");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
             pay.AddRequestData("vnp_TxnRef", model.Id);
 

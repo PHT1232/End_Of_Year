@@ -151,7 +151,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                     }
                 }
             }
-            return Json(response);
+
+            return Redirect("http://localhost:4200/app/exportimport");
         }
 
         //public IActionResult PaymentCallback()
