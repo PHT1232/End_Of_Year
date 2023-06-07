@@ -486,6 +486,24 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
+        public async Task<LookUpTableList> GetStorageAsync(string id)
+        {
+            List<LookUpTable> items = new List<LookUpTable>();
+            items = await _storageRepository.GetAll()
+                .Where(e => e.StructureId == id)
+                .OrderByDescending(e => e.CreationTime)
+                .Select(e => new LookUpTable
+                {
+                    Code = e.Id,
+                    Name = e.StorageName,
+                }).ToListAsync();
+
+            return new LookUpTableList
+            {
+                items = items
+            };
+        }
+
         public async Task<PagedResultDto<ExportImportGetAllDto>> GetAllAsync(ExportImportPagedResultInput input)
         {
             try

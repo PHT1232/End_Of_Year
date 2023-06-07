@@ -30,6 +30,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<Storage, string> _storageRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
+        private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
         private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
@@ -42,6 +43,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<ExportImportCustomer> exportImportCustomerRepository
             , IRepository<Customer, string> customerRepository
+            , IRepository<ProductStorage> productStorageRepository
             )
         {
             _appFolders = appFolders;
@@ -52,6 +54,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             _exportImportCustomerRepository = exportImportCustomerRepository;
             _exportImportProductRepository = exportImportProductRepository;
             _customerRepository = customerRepository;
+            _productStorageRepository = productStorageRepository;
         }
 
         [DisableAuditing]
@@ -64,8 +67,10 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                    .Select(e => new ExportImportProductDto
                    {
                        ProductId = e.ProductId,
+                       StorageId = e.StorageId,
                        ProductName = e.Product.ProductName,
                        Quantity = e.Quantity,
+                       Location = _productStorageRepository.GetAll().FirstOrDefault(x => x.ProductId == e.ProductId && x.StorageId == e.StorageId).ProductLocation,
                        Price = e.Product.Price,
                        Unit = e.Product.Unit,
                        FinalPrice = e.Product.Price * e.Quantity
@@ -87,6 +92,48 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                 byte[] temp = exf.GenerateExcelFileForExportImport(product, exportImport, customer, employee);
                 return File(temp, contentType, fileName);
             } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        [DisableAuditing]
+        public ActionResult ExcelExportForXuatHang(string id)
+        {
+            try
+            {
+                var product = _exportImportProductRepository.GetAll().Include(e => e.Product)
+                   .Where(e => e.ExportImportCode == id)
+                   .Select(e => new ExportImportProductDto
+                   {
+                       ProductId = e.ProductId,
+                       StorageId = e.StorageId,
+                       ProductName = e.Product.ProductName,
+                       Quantity = e.Quantity,
+                       Location = e.Location,
+                       Price = e.Product.Price,
+                       Unit = e.Product.Unit,
+                       FinalPrice = e.Product.Price * e.Quantity
+                   }).ToList();
+
+                var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
+                var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
+                //exportImport.Storage = _storageRepository.FirstOrDefault(e => e.Id == exportImport.StorageId);
+
+                var customer = _customerRepository.FirstOrDefault(e => e.Id == exportImportCustomer.CustomerCode);
+                customer.CustomerPhone = exportImportCustomer.PhoneToCall;
+                customer.CustomerAddress = exportImportCustomer.ReciveAddress;
+
+                var employee = _employeeRepository.FirstOrDefault(e => e.Id == exportImport.OrderCreator);
+                var deliveryEmployee = _employeeRepository.FirstOrDefault(e => e.Id == exportImport.DeliveryEmployee);
+
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = "Phiếu Xuất hàng: " + exportImportCustomer.ExportImportCode + ".xlsx";
+                ExcelFileGenerator exf = new ExcelFileGenerator();
+                byte[] temp = exf.GenerateDeliveryExcel(product, exportImport, customer, employee, deliveryEmployee);
+                return File(temp, contentType, fileName);
+            }
+            catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
             }
