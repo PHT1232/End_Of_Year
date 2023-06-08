@@ -20,6 +20,10 @@ using System.Threading.Tasks;
 using static Nguyen_Tan_Phat_Project.Module.ExcelExport.ExcelFileGenerator;
 using QRCoder;
 using System.Drawing;
+using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Http;
+using System.Globalization;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -27,6 +31,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
     {
         private readonly IAppFolders _appFolders;
         private readonly IRepository<Expenses, string> _expensesRepository;
+        private readonly IRepository<Product, string> _productRepository;
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<Storage, string> _storageRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
@@ -37,6 +42,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
         public FileController(IAppFolders appFolders
             , IRepository<Expenses, string> expensesRepository
+            , IRepository<Product, string> productRepository
             , IRepository<Storage, string> storageRepository
             , IRepository<Employee, string> employeeRepository
             , IRepository<ExportImport, string> exportImportRepository
@@ -55,6 +61,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             _exportImportProductRepository = exportImportProductRepository;
             _customerRepository = customerRepository;
             _productStorageRepository = productStorageRepository;
+            _productRepository = productRepository;
         }
 
         [DisableAuditing]
@@ -102,19 +109,23 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         {
             try
             {
-                var product = _exportImportProductRepository.GetAll().Include(e => e.Product)
-                   .Where(e => e.ExportImportCode == id)
-                   .Select(e => new ExportImportProductDto
-                   {
-                       ProductId = e.ProductId,
-                       StorageId = e.StorageId,
-                       ProductName = e.Product.ProductName,
-                       Quantity = e.Quantity,
-                       Location = e.Location,
-                       Price = e.Product.Price,
-                       Unit = e.Product.Unit,
-                       FinalPrice = e.Product.Price * e.Quantity
-                   }).ToList();
+                var product = _exportImportProductRepository.GetAll()
+                    .Include(e => e.Product)
+                    .Where(e => e.ExportImportCode == id)
+                    .GroupBy(e => e.ProductId)
+                    .Select(g => new ExportImportProductDto
+                    {
+                        ProductId = g.Key,
+                        StorageId = g.First().StorageId,
+                        ProductName = g.First().Product.ProductName,
+                        Quantity = g.Sum(e => e.Quantity),
+                        Location = g.First().Location,
+                        Price = g.First().Product.Price,
+                        Unit = g.First().Product.Unit,
+                        FinalPrice = g.First().Product.Price * g.Sum(e => e.Quantity)
+                    });
+
+                var productList = product.ToList();
 
                 var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == id);
                 var exportImportCustomer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == id);
@@ -130,8 +141,48 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                 string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 string fileName = "Phiếu Xuất hàng: " + exportImportCustomer.ExportImportCode + ".xlsx";
                 ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateDeliveryExcel(product, exportImport, customer, employee, deliveryEmployee);
+                byte[] temp = exf.GenerateDeliveryExcel(productList, exportImport, customer, employee, deliveryEmployee);
                 return File(temp, contentType, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        [DisableAuditing]
+        public IActionResult ExcelExportForSalary(string structureId, string date)
+        {
+            try
+            {
+                DateTime dateTime = DateTime.Parse(date);
+                var exportImport = _exportImportRepository.GetAll()
+                    .Where(e => e.StructureId == structureId && e.CreationTime.Month <= dateTime.Month && e.CreationTime.Month >= (dateTime.Month - 1) && e.OrderStatus == 2)
+                    .ToList();
+
+                var employee = _employeeRepository.GetAll()
+                    .Where(e => e.WorkUnitId == structureId)
+                    .ToList();
+
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = "Bảng lương tháng " + dateTime.Month + ".xlsx";
+                ExcelFileGenerator exf = new ExcelFileGenerator();
+                byte[] temp = exf.GenerateExcelExportSalary(employee, exportImport, dateTime);
+                return File(temp, contentType, fileName);
+            } catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        [DisableAuditing]
+        public ActionResult ExcelExportForBaoGia(byte[] fileBytes)
+        {
+            try
+            {
+                string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = "Báo giá.xlsx";
+                return File(fileBytes, contentType, fileName);
             }
             catch (Exception ex)
             {

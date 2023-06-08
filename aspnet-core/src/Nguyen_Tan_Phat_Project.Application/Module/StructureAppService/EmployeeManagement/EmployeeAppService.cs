@@ -68,6 +68,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                         TaxIdentification = input.TaxIdentification,
                         phoneNumber = input.PhoneNumber,
                         EmployeeSalary = input.EmployeeSalary,
+                        EmployeeAllowance = input.EmployeeAllowance,
                         SalaryFactor = input.SalaryFactor,
                         TypeOfContract = input.TypeOfContract,
                     };
@@ -84,6 +85,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                         TaxIdentification = input.TaxIdentification,
                         phoneNumber = input.PhoneNumber,
                         EmployeeSalary = input.EmployeeSalary,
+                        EmployeeAllowance = input.EmployeeAllowance,
                         SalaryFactor = input.SalaryFactor,
                         TypeOfContract = input.TypeOfContract,
                         BankAccount = input.employeeBankAccount
@@ -173,6 +175,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 employeeDto.WorkUnit = _structureRepository.Get(input.WorkUnit);
                 employeeDto.TaxIdentification = input.TaxIdentification;
                 employeeDto.EmployeeSalary = input.EmployeeSalary;
+                employeeDto.EmployeeAllowance = input.EmployeeAllowance;
                 employeeDto.SalaryFactor = input.SalaryFactor;
                 employeeDto.phoneNumber = input.PhoneNumber;
                 employeeDto.TypeOfContract = input.TypeOfContract;
@@ -183,6 +186,13 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     await _bankRepository.InsertAsync(input.employeeBankAccount);
                     employeeDto.BankId = input.employeeBankAccount.BankId;
                     await _employeeRepository.UpdateAsync(employeeDto);
+                } else
+                {
+                    var bankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.employeeBankAccount.BankId);
+                    bankAccount.BankName = input.employeeBankAccount.BankName;
+                    bankAccount.BankCity = input.employeeBankAccount.BankCity;
+                    bankAccount.BankAddress = input.employeeBankAccount.BankAddress;
+                    await _bankRepository.UpdateAsync(bankAccount);
                 }
 
                 //_cmndRepository.Update(input.EmployeeCMND);
@@ -207,6 +217,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                     JobTitle = e.JobTitle,
                     WorkUnit = e.WorkUnit.UnitName,
                     EmployeePhone = e.phoneNumber,
+                    EmployeeAllowance = e.EmployeeAllowance,
+                    EmployeeSalary = e.EmployeeSalary,
                     AccountId = e.BankAccount.BankId,
                     AccountName = e.BankAccount.BankName,
                 }).PageBy(input).ToListAsync();
@@ -254,6 +266,22 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
 
             return result;
         }
+        
+        public async Task<EmployeeSelectForAccountList> GetEmployeeSelectWithStructureId(string structureId)
+        {
+            var query = await _employeeRepository.GetAll()
+                .Where(e => e.WorkUnitId == structureId)
+                .Select(e => new EmployeeSelectForAccount
+                {
+                    Code = e.Id,
+                    Name = e.EmployeeName,
+                }).ToListAsync();
+
+            EmployeeSelectForAccountList result = new EmployeeSelectForAccountList();
+            result.items = query;
+
+            return result;
+        }
 
         public async Task<EmployeeOutputDto> GetAsync(string id)
         {
@@ -269,6 +297,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 TaxIdentification = query.TaxIdentification,
                 EmployeePhone = query.phoneNumber,
                 EmployeeSalary = query.EmployeeSalary,
+                EmployeeAllowance = query.EmployeeAllowance,
                 SalaryFactor = query.SalaryFactor,
                 TypeOfContract = query.TypeOfContract,
                 EmployeeBankAccount = _bankRepository.GetAll().FirstOrDefault(b => b.BankId == query.BankId),

@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
+using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
+using Nguyen_Tan_Phat_Project.Module.ExcelExport;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using System;
@@ -22,12 +24,14 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement
 {
     [AbpAuthorize(PermissionNames.Page_System_Export_Import_View)]
     public class ExportImportAppService : Nguyen_Tan_Phat_ProjectAppServiceBase, IExportImportAppService, ITransientDependency
     {
+        private readonly IAppFolders _appFolders;
         private readonly IRepository<Product, string> _productRepository;
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<Storage, string> _storageRepository;
@@ -39,6 +43,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         private readonly IRepository<Employee, string> _employeeRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
+            , IAppFolders appFolders
             , IRepository<User, long> userRepository
             , IRepository<Storage, string> storageRepository
             , IRepository<ProductStorage> productStorageRepository
@@ -49,6 +54,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             , IRepository<Employee, string> employeeRepository
             )
         {
+            _appFolders = appFolders;
             _productRepository = productRepository;
             _userRepository = userRepository;
             _storageRepository = storageRepository;
@@ -439,6 +445,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 {
                     var product = await _productRepository
                         .GetAll()
+                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
                         .PageBy(input).ToListAsync();
 
                     List<ExportImportProductDto> result = new List<ExportImportProductDto>();
@@ -509,11 +516,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             try
             {
                 var exportImport = new List<ExportImportGetAllDto>();
-
+                int totalCount = 0;
                 if (input.Keyword != null)
                 {
                     exportImport = await _exportImportRepository.GetAll()
-                       .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword)
+                       .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                        .PageBy(input).Select(e => new ExportImportGetAllDto
                        {
@@ -527,6 +534,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                            CreationTime = e.CreationTime,
                            Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                        }).ToListAsync();
+
+                    totalCount = await _exportImportRepository.GetAll()
+                       .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id == input.Keyword)
+                       .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
+                       .CountAsync();
                 } else
                 {
                     if (input.DateTime != null)
@@ -551,6 +563,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                 CreationTime = e.CreationTime,
                                 Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                             }).ToListAsync();
+                        totalCount = await _exportImportRepository.GetAll().Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus).CountAsync();
                     }
                     else
                     {
@@ -568,10 +581,9 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                CreationTime = e.CreationTime,
                                Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                            }).ToListAsync();
+                        totalCount = await _exportImportRepository.GetAll().WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus).CountAsync();
                     }
                 }
-
-                int totalCount = await _exportImportRepository.CountAsync();
 
                 return new PagedResultDto<ExportImportGetAllDto>
                 {
@@ -631,6 +643,37 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     TotalPrice = exportImport.TotalPrice,
                 };
                 return output;
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        public byte[] GetByteForExcelExport(BaoGiaObject baoGia)
+        {
+            try
+            {
+                var productList = new List<ExportImportProductDto>();
+
+                foreach (var product in baoGia.Products)
+                {
+                    var fileNameImage = _productRepository.FirstOrDefault(e => e.Id == product.ProductId).ProductImage;
+
+                    var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileNameImage);
+                    Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
+                    product.PictureImage = buffer;
+                    productList.Add(product);
+                }
+
+                var customer = new CustomerDto();
+                customer.CustomerName = baoGia.CustomerName;
+                customer.CustomerPhone = baoGia.CustomerPhone;
+                customer.CustomerAdress = baoGia.CustomerAddress;
+
+                ExcelFileGenerator exf = new ExcelFileGenerator();
+                byte[] temp = exf.GenerateBaoGia(productList, customer, baoGia.Date);
+                return temp;
             }
             catch (Exception ex)
             {

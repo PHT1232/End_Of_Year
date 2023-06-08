@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Nguyen_Tan_Phat_Project.Entities;
+using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.dtos;
 using QRCoder;
@@ -56,9 +57,20 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
         }
     }
 
+    public class EmployeeSalary
+    {
+        public string EmployeeName { get; set; }
+        public int SimpleSalary { get; set; }
+        public int AccturalSalary { get; set; }
+        public int SalesRevenue { get; set; }
+        public int EmployeeAllowance { get; set; }
+        public int DeliveryRevenue { get; set; }
+        public int TotalSalary { get; set; }
+    }
+
     public class ExcelFileGenerator
     {
-        public void SetFormatCell(ref IXLWorksheet worksheet, int row, int cell, bool isItalic, bool isBold, XLAlignmentHorizontalValues valuesHorizontal, XLAlignmentVerticalValues verticalValues)
+        private void SetFormatCell(ref IXLWorksheet worksheet, int row, int cell, bool isItalic, bool isBold, XLAlignmentHorizontalValues valuesHorizontal, XLAlignmentVerticalValues verticalValues)
         {
             worksheet.Cell(row, cell).Style.Alignment.SetHorizontal(valuesHorizontal);
             worksheet.Cell(row, cell).Style.Alignment.SetVertical(verticalValues);
@@ -68,7 +80,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             worksheet.Cell(row, cell).Style.Font.FontName = "Times New Roman";
         }
 
-        public void SetBorderCell(ref IXLWorksheet worksheet, int row, int startCell, int endCell)
+        private void SetBorderCell(ref IXLWorksheet worksheet, int row, int startCell, int endCell)
         {
 
             for (int i = startCell; i <= endCell; i++)
@@ -299,11 +311,13 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
                 worksheet.Cell(rowNumber, 10).Style.Font.FontName = "Times New Roman";
 
                 worksheet.Cell(rowNumber, 11).Value = double.Parse(product.Price.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 11).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
                 worksheet.Cell(rowNumber, 11).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(rowNumber, 11).Style.Font.FontSize = 11;
                 worksheet.Cell(rowNumber, 11).Style.Font.FontName = "Times New Roman";
 
-                worksheet.Cell(rowNumber, 12).Value = double.Parse(product.FinalPrice.ToString()).ToString("#,###", cul.NumberFormat); 
+                worksheet.Cell(rowNumber, 12).Value = double.Parse(product.FinalPrice.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 12).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
                 worksheet.Cell(rowNumber, 12).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(rowNumber, 12).Style.Font.FontSize = 11;
                 worksheet.Cell(rowNumber, 12).Style.Font.FontName = "Times New Roman";
@@ -415,9 +429,220 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             return memoryStream.ToArray();
         }
 
-        public byte[] GenerateExcelSalary(List<EmployeeInputDto> employee, List<ExportImport> exportImport)
+        //public byte[] GenerateExcelSalary(List<EmployeeInputDto> employee, List<ExportImport> exportImport)
+        //{
+
+        //}
+
+        public byte[] GenerateBaoGia(List<ExportImportProductDto> list, CustomerDto customer, string date)
+        {
+            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\bao_gia.xlsx");
+            IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
+
+            int rowNumber = 11, STT = 0;
+            CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
+
+            worksheet.Cell(5, 2).Value = "NGÀY: " + date;
+            worksheet.Cell(5, 2).Style.Font.FontSize = 12;
+            worksheet.Cell(5, 2).Style.Font.FontName = "Times New Roman";
+
+            worksheet.Cell(6, 2).Value = "KÍNH GỬI: " + customer.CustomerName;
+            worksheet.Cell(6, 2).Style.Font.FontSize = 12;
+            worksheet.Cell(6, 2).Style.Font.FontName = "Times New Roman";
+
+            worksheet.Cell(11, 4).Value = "ĐIỆN THOẠI: " + customer.CustomerPhone;
+            worksheet.Cell(11, 4).Style.Font.FontSize = 12;
+            worksheet.Cell(11, 4).Style.Font.FontName = "Times New Roman";
+
+            worksheet.Cell(10, 4).Value = "ĐỊA CHỈ: " + customer.CustomerAdress;
+            worksheet.Cell(10, 4).Style.Font.FontSize = 12;
+            worksheet.Cell(10, 4).Style.Font.FontName = "Times New Roman";
+
+            foreach (var product in list)
+            {
+                rowNumber++;
+                STT++;
+                IXLRange range = worksheet.Range("B" + rowNumber + ":" + "C" + rowNumber);
+                IXLRange range2 = worksheet.Range("D" + rowNumber + ":" + "F" + rowNumber);
+                IXLRange range3 = worksheet.Range("G" + rowNumber + ":" + "J" + rowNumber);
+                range.Merge();
+                range2.Merge();
+                range3.Merge();
+                worksheet.Cell(rowNumber, 1).Value = STT.ToString();
+                worksheet.Cell(rowNumber, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 1).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 1).Style.Font.FontName = "Times New Roman";
+
+                var mStream = new MemoryStream(product.PictureImage);
+
+                var picture = worksheet.AddPicture(mStream);
+
+                picture.MoveTo(worksheet.Cell("B" + rowNumber)).Scale(0.01);
+
+                worksheet.Cell(rowNumber, 4).Value = product.ProductId;
+                worksheet.Cell(rowNumber, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 4).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 4).Style.Font.FontName = "Times New Roman";
+                worksheet.Cell(rowNumber, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                worksheet.Cell(rowNumber, 7).Value = product.ProductName;
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 7).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 7).Style.Font.FontName = "Times New Roman";
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                worksheet.Cell(rowNumber, 11).Value = product.Unit;
+                worksheet.Cell(rowNumber, 11).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 11).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 11).Style.Font.FontName = "Times New Roman";
+
+                worksheet.Cell(rowNumber, 12).Value = product.Quantity.ToString();
+                worksheet.Cell(rowNumber, 12).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 12).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 12).Style.Font.FontName = "Times New Roman";
+
+                worksheet.Cell(rowNumber, 13).Value = double.Parse(product.Price.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 13).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 13).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 13).Style.Font.FontName = "Times New Roman";
+
+                worksheet.Cell(rowNumber, 14).Value = double.Parse(product.FinalPrice.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 14).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(rowNumber, 14).Style.Font.FontSize = 11;
+                worksheet.Cell(rowNumber, 14).Style.Font.FontName = "Times New Roman";
+            }
+
+            MemoryStream memoryStream = new MemoryStream();
+            workbook.SaveAs(memoryStream);
+            memoryStream.Position = 0;
+            return memoryStream.ToArray();
+        }
+
+        public byte[] GenerateExcelExportSalary(List<Employee> employees, List<ExportImport> exports, DateTime date)
+        {
+            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\bang_luong.xlsx");
+            IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
+
+            GenerateWorkSheet(ref worksheet, employees, exports, date);
+            MemoryStream memoryStream = new MemoryStream();
+            workbook.SaveAs(memoryStream);
+            memoryStream.Position = 0;
+            return memoryStream.ToArray();
+        }
+
+        public void GenerateWorkSheet(ref IXLWorksheet worksheet, List<Employee> employees, List<ExportImport> exports, DateTime date)
+        {
+            int rowNumber = 3;
+            int STT = 0;
+            List<EmployeeSalary> list = new List<EmployeeSalary>();
+            CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
+
+            worksheet.Cell(1, 1).Value = "BẢNG LƯƠNG THÁNG " + date.Month + "/" + date.Year;
+            SetFormatCell(ref worksheet, rowNumber + 1, 1, false, true, XLAlignmentHorizontalValues.Center, XLAlignmentVerticalValues.Center);
+
+            foreach (Employee employee in employees)
+            {
+                EmployeeSalary employeeSalary = new EmployeeSalary();
+                int tongTienDonVC = (int)exports.Where(e => e.DeliveryEmployee == employee.Id).Select(e => e.TotalPrice).Sum();
+                int tongTienBanHang = (int)exports.Where(e => e.OrderCreator == employee.Id).Select(e => e.TotalPrice).Sum();
+                employeeSalary.EmployeeName = employee.EmployeeName;
+                employeeSalary.SimpleSalary = employee.EmployeeSalary;
+                employeeSalary.EmployeeAllowance = employee.EmployeeAllowance;
+                employeeSalary.AccturalSalary = employee.EmployeeSalary;
+                employeeSalary.SalesRevenue = (int)(tongTienBanHang * 0.013);
+                employeeSalary.DeliveryRevenue = (int)(tongTienDonVC * 0.005);
+                list.Add(employeeSalary);
+            }
+
+            var tongLuongSum = 0;
+
+            foreach (EmployeeSalary employeeSalary in list)
+            {
+                STT++;
+                rowNumber++;
+                worksheet.Cell(rowNumber, 1).Value = STT.ToString();
+                worksheet.Cell(rowNumber, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 1, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 2).Value = employeeSalary.EmployeeName;
+                worksheet.Cell(rowNumber, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 2, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 3).Value = double.Parse(employeeSalary.SimpleSalary.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 3, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 4).Value = double.Parse(employeeSalary.AccturalSalary.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 4, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 5).Value = double.Parse(employeeSalary.SalesRevenue.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 5, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 6).Value = double.Parse(employeeSalary.EmployeeAllowance.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 6, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 7).Value = double.Parse(employeeSalary.DeliveryRevenue.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 7, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                var tongLuong = (employeeSalary.DeliveryRevenue + employeeSalary.AccturalSalary + employeeSalary.SalesRevenue + employeeSalary.EmployeeAllowance);
+                tongLuongSum += tongLuong;
+                worksheet.Cell(rowNumber, 8).Value = double.Parse(tongLuong.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 8).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 8, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+                worksheet.Cell(rowNumber, 9).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                worksheet.Cell(rowNumber, 10).Value = double.Parse(tongLuong.ToString()).ToString("#,###", cul.NumberFormat);
+                worksheet.Cell(rowNumber, 10).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                SetFormatCell(ref worksheet, rowNumber, 10, false, false, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+            }
+
+            IXLRange range = worksheet.Range("A" + (rowNumber + 1) + ":" + "B" + (rowNumber + 1));
+            IXLRange rangeColor = worksheet.Range("A" + (rowNumber + 1) + ":" + "J" + (rowNumber + 1));
+            rangeColor.Style.Fill.BackgroundColor = XLColor.LightGreen;
+            range.Merge();
+
+            worksheet.Cell(rowNumber + 1, 1).Value = "Tổng cộng";
+            worksheet.Cell(rowNumber + 1, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            worksheet.Cell(rowNumber + 1, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 1, false, true, XLAlignmentHorizontalValues.Center, XLAlignmentVerticalValues.Center);
+
+            worksheet.Cell(rowNumber + 1, 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            worksheet.Cell(rowNumber + 1, 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+            worksheet.Cell(rowNumber + 1, 5).Value = double.Parse(list.Select(e => e.SalesRevenue).Sum().ToString()).ToString("#,###", cul.NumberFormat);
+            worksheet.Cell(rowNumber + 1, 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 5, false, true, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+            worksheet.Cell(rowNumber + 1, 6).Value = double.Parse(list.Select(e => e.EmployeeAllowance).Sum().ToString()).ToString("#,###", cul.NumberFormat);
+            worksheet.Cell(rowNumber + 1, 6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 6, false, true, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+            worksheet.Cell(rowNumber + 1, 7).Value = double.Parse(list.Select(e => e.DeliveryRevenue).Sum().ToString()).ToString("#,###", cul.NumberFormat);
+            worksheet.Cell(rowNumber + 1, 7).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 7, false, true, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+            worksheet.Cell(rowNumber + 1, 8).Value = double.Parse(tongLuongSum.ToString()).ToString("#,###", cul.NumberFormat);
+            worksheet.Cell(rowNumber + 1, 8).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 8, false, true, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+
+            worksheet.Cell(rowNumber + 1, 9).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+            worksheet.Cell(rowNumber + 1, 10).Value = double.Parse(tongLuongSum.ToString()).ToString("#,###", cul.NumberFormat);
+            worksheet.Cell(rowNumber + 1, 10).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            SetFormatCell(ref worksheet, rowNumber + 1, 10, false, true, XLAlignmentHorizontalValues.Right, XLAlignmentVerticalValues.Center);
+        }
+
+        public void GenerateWorkSheet2(ref IXLWorksheet worksheet2, List<Employee> employees)
         {
 
         }
-    }           
+    }
 }

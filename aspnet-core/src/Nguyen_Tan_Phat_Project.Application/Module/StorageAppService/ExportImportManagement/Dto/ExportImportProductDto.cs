@@ -11,6 +11,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     {
         public string ProductId { get; set; }
         public string ProductName { get; set; }
+        public byte[] PictureImage { get; set; }
         public string StorageId { get; set; }
         public string StorageInputId { get; set; }
         public int Quantity { get; set; }
