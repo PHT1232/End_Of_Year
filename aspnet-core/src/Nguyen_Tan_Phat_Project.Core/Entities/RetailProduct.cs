@@ -16,6 +16,9 @@ namespace Nguyen_Tan_Phat_Project.Entities
         [ForeignKey("Product")]
         public string ProductId { get; set; }
         public Product Product { get; set; }
+        [ForeignKey("Storage")]
+        public string StorageId { get; set; }
+        public Storage Storage { get; set; }
         public int Quantity { get; set; }
         public float Price { get; set; }
         public float FinalPrice { get; set; }

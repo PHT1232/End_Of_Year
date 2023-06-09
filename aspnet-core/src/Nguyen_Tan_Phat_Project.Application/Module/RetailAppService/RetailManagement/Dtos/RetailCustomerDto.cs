@@ -12,7 +12,6 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement.Dtos
         public string CustomerCode { get; set; }
         public string CustomerName { get; set; }
         public string ReveciveAddress { get; set; }
-        public float Discount { get; set; } 
         public string PhoneToCall { get; set; }
     }
 }
