@@ -150,9 +150,12 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                         _productStorageRepository.Update(product);
                     }
                 }
+            } else if (response.Success == false) 
+            { 
+                return Redirect("http://localhost:4200/app/retail?failed=true");
             }
 
-            return Redirect("http://localhost:4200/app/exportimport");
+            return Redirect("http://localhost:4200/app/retail?failed=false");
         }
 
         //public IActionResult PaymentCallback()

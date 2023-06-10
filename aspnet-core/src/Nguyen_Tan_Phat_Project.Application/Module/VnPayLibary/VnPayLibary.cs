@@ -96,7 +96,6 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
             string signData = queryString;
             if (signData.Length > 0)
             {
-
                 signData = signData.Remove(data.Length - 1, 1);
             }
             string vnp_SecureHash = HmacSHA512(vnp_HashSecret, signData);
