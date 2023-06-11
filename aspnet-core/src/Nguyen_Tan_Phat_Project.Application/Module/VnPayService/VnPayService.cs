@@ -24,28 +24,35 @@ namespace Nguyen_Tan_Phat_Project.Module
         private readonly string Version = "2.1.0";
         private readonly string Locale = "vn";
         private readonly string TimeZoneId = "SE Asia Standard Time";
-        private readonly string ReturnUrl = "https://unten.tech:44311/api/Upload/PaymentCallback";
+        //private readonly string ReturnUrl = "https://unten.tech:44311/api/Upload/PaymentCallback";
+        private readonly string ReturnUrl = "https://localhost:44311/api/Upload/PaymentCallback";
         private HttpContext httpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
+        private readonly IRepository<Retail, string> _retailRepository;
+        private readonly IRepository<RetailProduct> _retailProductRepository;
         private readonly IExportImportAppService _exportImportAppService;
 
         public VnPayService(IHttpContextAccessor httpContextAccessor
             , IRepository<ExportImportProduct> exportImportProductRepository
             , IRepository<ExportImport, string> exportImportRepository
             , IExportImportAppService exportImportAppService
+            , IRepository<Retail, string> retailRepository
+            , IRepository<RetailProduct> retailProductRepository
             )
         {
             _httpContextAccessor = httpContextAccessor;
             _exportImportProductRepository = exportImportProductRepository;
             _exportImportRepository = exportImportRepository;
             _exportImportAppService = exportImportAppService;
+            _retailRepository = retailRepository;
+            _retailProductRepository = retailProductRepository;
         }
 
         public string CreatePaymentUrl(string id)
         {
-            var model = _exportImportRepository.FirstOrDefault(e => e.Id == id);
+            var model = _retailRepository.FirstOrDefault(e => e.Id == id);
 
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
             var timeNow = DateTime.Now;
@@ -53,7 +60,7 @@ namespace Nguyen_Tan_Phat_Project.Module
             var pay = new VnPayLibary();
             var urlCallBack = ReturnUrl;
 
-            var productStorage = _exportImportProductRepository.GetAll().Where(e => e.ExportImportCode == model.Id).ToList();
+            var productStorage = _retailProductRepository.GetAll().Where(e => e.RetailId == model.Id).ToList();
 
             var priceToPay = model.TotalPrice - (model.TotalPrice * (model.Discount / 100));
 

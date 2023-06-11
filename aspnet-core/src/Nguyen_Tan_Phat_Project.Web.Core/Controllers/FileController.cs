@@ -105,7 +105,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         }
 
         [DisableAuditing]
-        public ActionResult ExcelExportForXuatHang(string id)
+        public ActionResult ExcelExportForXuatHang(string id, bool isRetail)
         {
             try
             {

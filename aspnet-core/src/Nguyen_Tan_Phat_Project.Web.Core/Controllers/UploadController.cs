@@ -19,6 +19,7 @@ using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement;
 using Abp.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Microsoft.EntityFrameworkCore;
+using Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement.Dtos;
 
 namespace Nguyen_Tan_Phat_Project.Controllers
 {
@@ -34,6 +35,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
         private readonly IRepository<ProductStorage> _productStorageRepository;
         private readonly IRepository<ExportImport, string> _exportImportRepository;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
+        private readonly IRepository<Retail, string> _retailRepository;
+        private readonly IRepository<RetailProduct> _retailProductRepository;
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
@@ -49,6 +52,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             , IRepository<Customer, string> customerRepository
             , IRepository<ExportImportCustomer> exportImportCustomerRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<Retail, string> retailRepository
+            , IRepository<RetailProduct> retailProductRepository
             )
         {
             _appFolders = appFolders;
@@ -62,6 +67,8 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             _customerRepository = customerRepository;
             _exportImportCustomerRepository = exportImportCustomerRepository;
             _employeeRepository = employeeRepository;
+            _retailRepository = retailRepository;
+            _retailProductRepository = retailProductRepository;
         }
 
         [HttpPost]
@@ -130,25 +137,22 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             var response = _vnPayService.PaymentExecute(Request.Query);
             if (response.Success == true)
             {
-                ExportImportInput input = new ExportImportInput();
-                input.ExportImportCode = response.OrderId;
+                RetailInputDto input = new RetailInputDto();
+                input.RetailCode = response.OrderId;
                 input.OrderStatus = 2;
 
-                var exportImport = _exportImportRepository.FirstOrDefault(e => e.Id == input.ExportImportCode);
-                if (exportImport.OrderType == 1 && input.OrderStatus == 2)
-                {
-                    var exportImportProduct =  _exportImportProductRepository.GetAll()
-                        .Where(e => e.ExportImportCode == input.ExportImportCode)
-                        .ToList();
-                    exportImport.OrderStatus = input.OrderStatus;
-                    _exportImportRepository.Update(exportImport);
+                var retail = _retailRepository.FirstOrDefault(e => e.Id == input.RetailCode);
+                var retailProduct =  _retailProductRepository.GetAll()
+                    .Where(e => e.RetailId == input.RetailCode)
+                    .ToList();
+                retail.OrderStatus = input.OrderStatus;
+                _retailRepository.Update(retail);
 
-                    foreach (var productExport in exportImportProduct)
-                    {
-                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
-                        product.ProductQuantity -= productExport.Quantity;
-                        _productStorageRepository.Update(product);
-                    }
+                foreach (var productRetail in retailProduct)
+                {
+                    var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productRetail.StorageId && e.ProductId == productRetail.ProductId);
+                    product.ProductQuantity -= productRetail.Quantity;
+                    _productStorageRepository.Update(product);
                 }
             } else if (response.Success == false) 
             { 

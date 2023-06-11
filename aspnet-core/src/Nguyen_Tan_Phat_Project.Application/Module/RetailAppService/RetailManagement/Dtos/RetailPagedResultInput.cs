@@ -13,5 +13,6 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement.Dtos
         public string[] DateTime { get; set; }
         public string Storage { get; set; }
         public int OrderStatus { get; set; }
+        public bool isDelived { get; set; }
     }
 }

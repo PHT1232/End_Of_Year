@@ -65,7 +65,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
         {
             try
             {
-                var productDto = await _productRepository.FirstOrDefaultAsync(e => e.Id == input.ProductCode || e.ProductName == input.ProductName);
+                var productDto = await _productRepository.FirstOrDefaultAsync(e => e.Id == input.ProductCode);
                 if (productDto != null)
                 {
                     throw new UserFriendlyException("Sản phẩm này đã tồn tại");
@@ -494,6 +494,8 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                 {
                     var product = await _productRepository
                         .GetAll()
+                        .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.CategoryId == input.CategoryCode)
+                        .WhereIf(input.SubCategoryCode != 0, e => e.SubCategoryId == input.SubCategoryCode)
                         .PageBy(input).ToListAsync();
 
                     List<ListProductGetAll> list = new List<ListProductGetAll>();
@@ -501,7 +503,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                     foreach (var storageProduct in product)
                     {
                         var productFullQuantity = _productStorageRepository.GetAll()
-                            .WhereIf(!string.IsNullOrEmpty(input.StorageCode), e => e.StorageId == input.StorageCode)
+                            .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.StorageId == input.StorageCode)
                             .Where(e => e.ProductId == storageProduct.Id).Select(L => L.ProductQuantity).Sum();
 
                         var productStorages = await _productStorageRepository.GetAll()
@@ -559,7 +561,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement
                         productDto.Products = result;
                         list.Add(productDto);
                     }
-                    var totalCount = await _productRepository.CountAsync();
+                    var totalCount = await _productRepository.GetAll()
+                        .WhereIf(!string.IsNullOrEmpty(input.CategoryCode), e => e.CategoryId == input.CategoryCode)
+                        .WhereIf(input.SubCategoryCode != 0, e => e.SubCategoryId == input.SubCategoryCode).CountAsync();
+
                     return new PagedResultDto<ListProductGetAll>
                     {
                         Items = list,

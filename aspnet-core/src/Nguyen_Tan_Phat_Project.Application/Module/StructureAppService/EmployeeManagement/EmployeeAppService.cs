@@ -224,6 +224,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement
                 }).PageBy(input).ToListAsync();
 
                 int totalCount = _employeeRepository.Count();
+                
+                if (!string.IsNullOrEmpty(input.UnitCode))
+                {
+                    totalCount = _employeeRepository.GetAll().Where(e => e.WorkUnitId.Contains(input.UnitCode)).Count();
+                }
 
                 return new PagedResultDto<EmployeeGetAllDto>
                 {

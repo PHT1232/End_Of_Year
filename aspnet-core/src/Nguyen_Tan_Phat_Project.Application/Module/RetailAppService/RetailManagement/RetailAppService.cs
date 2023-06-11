@@ -66,6 +66,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     StructureId = input.StructureId,
                     NameOfReceiver = input.Customer.CustomerName,
                     OrderCreator = input.OrderCreator,
+                    PaymentMethod = input.PaymentMethod,
                     DeliveryEmployee = input.DeliveryEmployee,
                     OrderStatus = 1,
                     Description = input.Description,
@@ -84,15 +85,19 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     PhoneToCall = input.Customer.PhoneToCall,
                 };
 
-                var customer = new Customer
+                var customerCheck = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.Customer.CustomerCode);
+                if (customerCheck == null)
                 {
-                    Id = input.Customer.CustomerCode,
-                    CustomerName = input.Customer.CustomerName,
-                    CustomerAddress = input.Customer.ReveciveAddress,
-                    CustomerPhone = input.Customer.PhoneToCall,
-                };
+                    var customer = new Customer
+                    {
+                        Id = input.Customer.CustomerCode,
+                        CustomerName = input.Customer.CustomerName,
+                        CustomerAddress = input.Customer.ReveciveAddress,
+                        CustomerPhone = input.Customer.PhoneToCall,
+                    };
 
-                await _customerRepository.InsertAsync(customer);
+                    await _customerRepository.InsertAsync(customer);
+                }
 
                 await _retailCustomerRepository.InsertAsync(customerRetail);
 
@@ -173,12 +178,14 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     retail = await _retailRepository.GetAll()
                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
+                       .Where(e => e.IsDelivered == input.isDelived)
                        .PageBy(input).Select(e => new RetailGetAllDto
                        {
                            RetailCode = e.Id,
                            NameOfReceiver = e.NameOfReceiver,
                            Address = _retailCustomerRepository.GetAll().FirstOrDefault(c => c.RetailCode == e.Id).ReciveAddress,
                            OrderStatus = e.OrderStatus,
+                           PaymentMethod = e.PaymentMethod,
                            TotalPrice = e.TotalPrice,
                            StructureId = e.StructureId,
                            IsDelivered = e.IsDelivered,
@@ -203,12 +210,14 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
 
                         retail = await _retailRepository.GetAll()
                             .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
+                            .Where(e => e.IsDelivered == input.isDelived)
                             .PageBy(input).Select(e => new RetailGetAllDto
                             {
                                 RetailCode = e.Id,
                                 NameOfReceiver = e.NameOfReceiver,
                                 Address = _retailCustomerRepository.GetAll().FirstOrDefault(c => c.RetailCode == e.Id).ReciveAddress,
                                 OrderStatus = e.OrderStatus,
+                                PaymentMethod = e.PaymentMethod,
                                 TotalPrice = e.TotalPrice,
                                 StructureId = e.StructureId,
                                 IsDelivered = e.IsDelivered,
@@ -221,12 +230,14 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     {
                         retail = await _retailRepository.GetAll()
                            .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
+                           .Where(e => e.IsDelivered == input.isDelived)
                            .PageBy(input).Select(e => new RetailGetAllDto
                            {
                                RetailCode = e.Id,
                                NameOfReceiver = e.NameOfReceiver,
                                Address = _retailCustomerRepository.GetAll().FirstOrDefault(c => c.RetailCode == e.Id).ReciveAddress,
                                OrderStatus = e.OrderStatus,
+                               PaymentMethod = e.PaymentMethod,
                                TotalPrice = e.TotalPrice,
                                StructureId = e.StructureId,
                                IsDelivered = e.IsDelivered,
