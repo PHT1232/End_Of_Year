@@ -25,6 +25,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using DocumentFormat.OpenXml.VariantTypes;
 
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement
 {
@@ -41,6 +42,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
+        private readonly IRepository<Structure, string> _structureRepository;
+        private readonly IRepository<RetailCustomer> _retailCustomerRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
             , IAppFolders appFolders
@@ -52,6 +55,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             , IRepository<Customer, string> customerRepository
             , IRepository<ExportImportCustomer> exportImportCustomerRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<Structure, string> structureRepository
+            , IRepository<RetailCustomer> retailCustomerRepository
             )
         {
             _appFolders = appFolders;
@@ -64,6 +69,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             _customerRepository = customerRepository;
             _exportImportCustomerRepository = exportImportCustomerRepository;
             _employeeRepository = employeeRepository;
+            _structureRepository = structureRepository;
+            _retailCustomerRepository = retailCustomerRepository;
         }
 
         public string GetRandomCode()
@@ -376,19 +383,32 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        public async Task<ListOfCustomer> GetCustomerListAsync()
+        public async Task<ListOfCustomer> GetCustomerListAsync(string structureId)
         {
             try
             {
-                var customerList = await _customerRepository.GetAll().Select(e => new CustomerListDto
+                var customerList = await _customerRepository.GetAll()
+                    .Where(e => e.StructureCode == structureId)
+                    .Select(e => new CustomerListDto
+                    {
+                        Code = e.Id,
+                        Name = e.CustomerName
+                    }).ToListAsync();
+
+                var customerLists = new List<CustomerListDto>();
+
+                foreach (var customer in customerList)
                 {
-                    Code = e.Id,
-                    Name = e.CustomerName
-                }).ToListAsync();
+                    var retailCustomer = _retailCustomerRepository.FirstOrDefault(e => e.CustomerCode == customer.Code);
+                    if (retailCustomer == null)
+                    {
+                        customerLists.Add(customer);
+                    }
+                }
 
                 return new ListOfCustomer
                 {
-                    items = customerList
+                    items = customerLists
                 };
             } catch (Exception ex)
             {
@@ -446,6 +466,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             try
             {
                 var exportImport = new List<ExportImportProductDto>();
+
                 if (input.IsInsert)
                 {
                     exportImport = await _productRepository.GetAll()
@@ -459,12 +480,43 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         FinalPrice = 0,
                     }).PageBy(input).ToListAsync();
                 }
-                else
+                else if (!string.IsNullOrEmpty(input.StorageId))
                 {
-                    var productStorage = await _productStorageRepository.GetAll()
+                    var storageStructureList = await _storageRepository.GetAll().Where(e => e.StructureId == input.StorageId).ToListAsync();
+                    storageStructureList.Add(_storageRepository.FirstOrDefault(e => e.Id == input.StorageId));
+                    var structureStorage = await _structureRepository.FirstOrDefaultAsync(e => e.Id == input.StorageId);
+                    var productStorage = new List<ProductStorage>();
+                    var productStorageList = await _productRepository.GetAll()
+                        .ToListAsync();
+
+                    if (structureStorage != null)
+                    {
+                        if (!string.IsNullOrEmpty(input.Keyword))
+                        {
+                            productStorage = await _productStorageRepository.GetAll()
+                                .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.ProductId.Contains(input.Keyword))
+                                .PageBy(input).ToListAsync();
+                        } else
+                        {
+                            foreach (var productIn in productStorageList)
+                            {
+                                foreach (var storage in storageStructureList)
+                                {
+                                    var productProduct = _productStorageRepository.FirstOrDefault(e => e.StorageId == storage.Id && productIn.Id == e.ProductId);
+                                    if (productProduct != null)
+                                    {
+                                        productStorage.Add(productProduct);
+                                    }
+                                }
+                            }
+                        }
+                    } else
+                    {
+                         productStorage = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.ProductId.Contains(input.Keyword))
                         .Where(e => e.StorageId.Contains(input.StorageId))
                         .PageBy(input).ToListAsync();
+                    }
 
                     List<ExportImportProductDto> result = new List<ExportImportProductDto>();
                     foreach (var storageProduct in productStorage)
@@ -475,6 +527,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
 
                         var productDto = new ExportImportProductDto
                         {
+                            StorageId = storageProduct.StorageId,
                             ProductId = product.Id,
                             ProductName = product.ProductName,
                             Quantity = storageProduct.ProductQuantity,

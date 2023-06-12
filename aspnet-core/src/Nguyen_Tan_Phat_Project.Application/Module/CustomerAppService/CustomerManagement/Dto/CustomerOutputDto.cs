@@ -16,6 +16,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement.D
         public string CustomerPhone { get; set; }
         public string CustomerAddress { get; set; }
         public string CustomerWebsite { get; set; }
+        public string StructureCode { get; set; }
         public string CustomerDescription { get; set; }
         public float Discount { get; set; }
         public BankAccount BankAccount { get; set; }

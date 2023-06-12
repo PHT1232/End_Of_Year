@@ -92,6 +92,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     {
                         Id = input.Customer.CustomerCode,
                         CustomerName = input.Customer.CustomerName,
+                        StructureCode = input.StructureId,
                         CustomerAddress = input.Customer.ReveciveAddress,
                         CustomerPhone = input.Customer.PhoneToCall,
                     };

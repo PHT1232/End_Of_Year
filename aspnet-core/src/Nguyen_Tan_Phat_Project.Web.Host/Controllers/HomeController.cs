@@ -21,7 +21,7 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Controllers
         public IActionResult Index()
         {
             //return Redirect("/swagger");
-            return Redirect("/aspnet/swagger");
+            return Redirect("/swagger");
         }
 
         /// <summary>
