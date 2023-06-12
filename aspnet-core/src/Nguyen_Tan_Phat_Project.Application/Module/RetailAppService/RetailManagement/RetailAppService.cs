@@ -167,6 +167,58 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
             }
         }
 
+        public async Task<RetailOutputDto> GetAsync(string id)
+        {
+            try 
+            {
+                var retail = await _retailRepository.FirstOrDefaultAsync(e => e.Id == id);
+                var retailCustomer = await _retailCustomerRepository.FirstOrDefaultAsync(e => e.RetailCode == id);
+                var customer = await _customerRepository.FirstOrDefaultAsync(e => e.Id.Equals(retailCustomer.CustomerCode));
+                if (retail == null)
+                {
+                    throw new UserFriendlyException("Không thể tìm đơn này");
+                }
+
+                var product = await _retailProductRepository.GetAll().Include(e => e.Product)
+                    .Where(l => l.RetailId == id)
+                    .Select(l => new RetailProductDto
+                    {
+                        RetailId = l.RetailId,
+                        ProductId = l.ProductId,
+                        StorageId = l.StorageId,
+                        ProductName = l.Product.ProductName,
+                        Quantity = l.Quantity,
+                        Price = l.Price,
+                        Unit = l.Product.Unit,
+                        FinalPrice = l.FinalPrice,
+                    }).ToListAsync();
+
+                var customerDto = new CustomerDto();
+
+                if (customer != null)
+                {
+                    customerDto.CustomerCode = customer.Id;
+                    customerDto.CustomerName = customer.CustomerName;
+                    customerDto.CustomerPhone = customer.CustomerPhone;
+                }
+
+                RetailOutputDto outputDto = new RetailOutputDto
+                {
+                    RetailCode = retail.Id,
+                    OrderCreator = _employeeRepository.GetAll().FirstOrDefault(e => e.Id == retail.OrderCreator).EmployeeName,
+                    OrderStatus = retail.OrderStatus,
+                    Customer = customerDto,
+                    Products = product,
+                    PaymentMethod = retail.PaymentMethod,
+                    TotalPrice = retail.TotalPrice,
+                };
+
+                return outputDto;
+            } catch (Exception ex) {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
         public async Task<PagedResultDto<RetailGetAllDto>> GetAllAsync(RetailPagedResultInput input)
         {
             try

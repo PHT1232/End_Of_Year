@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement.Dtos
         public bool IsDelivered { get; set; }
         public float TotalPrice { get; set; }
         public float Discount { get; set; }
-        public RetailCustomerDto customer { get; set; }
-        public List<RetailProductDto> products { get; set; }
+        public CustomerDto Customer { get; set; }
+        public List<RetailProductDto> Products { get; set; }
     }
 }

@@ -68,11 +68,12 @@ namespace Nguyen_Tan_Phat_Project.Module
             pay.AddRequestData("vnp_Command", Command);
             pay.AddRequestData("vnp_TmnCode", TmnCode);
             pay.AddRequestData("vnp_Amount", ((Int64)priceToPay * 100).ToString());
+            pay.AddRequestData("vnp_BankCode", "VNBANK");
             pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
             pay.AddRequestData("vnp_CurrCode", CurrCode);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(httpContext));
             pay.AddRequestData("vnp_Locale", Locale);
-            pay.AddRequestData("vnp_OrderInfo", $"{model.Id} {productStorage.Select(e => e.Quantity).Sum()}");
+            pay.AddRequestData("vnp_OrderInfo", $"{model.Id}");
             pay.AddRequestData("vnp_OrderType", "electric");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
             pay.AddRequestData("vnp_TxnRef", model.Id);
