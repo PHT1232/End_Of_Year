@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using static Nguyen_Tan_Phat_Project.Module.ExcelExport.ExcelFileGenerator;
 using QRCoder;
 using System.Drawing;
-using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
@@ -95,8 +94,9 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
                 string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 string fileName = "Phiếu Xuất kho: " + exportImportCustomer.ExportImportCode + ".xlsx";
+                string filePath = Path.Combine(_appFolders.ExcelTemplateFolder + @"\", "phieu xuat kho sua.xlsx");
                 ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateExcelFileForExportImport(product, exportImport, customer, employee);
+                byte[] temp = exf.GenerateExcelFileForExportImport(product, exportImport, customer, employee, filePath);
                 return File(temp, contentType, fileName);
             } catch (Exception ex)
             {
@@ -140,8 +140,9 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
                 string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 string fileName = "Phiếu Xuất hàng: " + exportImportCustomer.ExportImportCode + ".xlsx";
+                string filePath = Path.Combine(_appFolders.ExcelTemplateFolder + @"\", "phieu xuat hang.xlsx");
                 ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateDeliveryExcel(productList, exportImport, customer, employee, deliveryEmployee);
+                byte[] temp = exf.GenerateDeliveryExcel(productList, exportImport, customer, employee, deliveryEmployee, filePath);
                 return File(temp, contentType, fileName);
             }
             catch (Exception ex)
@@ -166,8 +167,9 @@ namespace Nguyen_Tan_Phat_Project.Controllers
 
                 string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 string fileName = "Bảng lương tháng " + dateTime.Month + ".xlsx";
+                string filePath = Path.Combine(_appFolders.ExcelTemplateFolder + @"\", "bang_luong.xlsx");
                 ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateExcelExportSalary(employee, exportImport, dateTime);
+                byte[] temp = exf.GenerateExcelExportSalary(employee, exportImport, dateTime, filePath);
                 return File(temp, contentType, fileName);
             } catch (Exception ex)
             {

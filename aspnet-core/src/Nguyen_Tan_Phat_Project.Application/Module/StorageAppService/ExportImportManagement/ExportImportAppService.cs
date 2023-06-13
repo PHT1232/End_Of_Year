@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
-using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
 using Nguyen_Tan_Phat_Project.Module.ExcelExport;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
@@ -594,6 +593,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 {
                     exportImport = await _exportImportRepository.GetAll()
                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
+                       .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                        .PageBy(input).Select(e => new ExportImportGetAllDto
                        {
@@ -602,9 +602,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                            Address = _exportImportCustomerRepository.GetAll().FirstOrDefault(c => c.ExportImportCode == e.Id).ReciveAddress,
                            OrderStatus = e.OrderStatus,
                            OrderType = e.OrderType,
+                           StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                            TotalPrice = e.TotalPrice,
                            NameOfExport = e.NameOfExport,
                            CreationTime = e.CreationTime,
+                           Discount = e.Discount,
                            Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                        }).ToListAsync();
 
@@ -623,6 +625,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         endDate = DateTime.Parse(input.DateTime[1]);
 
                         exportImport = await _exportImportRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                             .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
                             .PageBy(input).Select(e => new ExportImportGetAllDto
                             {
@@ -631,9 +634,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                 Address = _exportImportCustomerRepository.GetAll().FirstOrDefault(c => c.ExportImportCode == e.Id).ReciveAddress,
                                 OrderStatus = e.OrderStatus,
                                 OrderType = e.OrderType,
+                                StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                                 TotalPrice = e.TotalPrice,
                                 NameOfExport = e.NameOfExport,
                                 CreationTime = e.CreationTime,
+                                Discount = e.Discount,
                                 Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                             }).ToListAsync();
                         totalCount = await _exportImportRepository.GetAll().Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus).CountAsync();
@@ -641,6 +646,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     else
                     {
                         exportImport = await _exportImportRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                            .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                            .PageBy(input).Select(e => new ExportImportGetAllDto
                            {
@@ -650,8 +656,10 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                OrderStatus = e.OrderStatus,
                                OrderType = e.OrderType,
                                TotalPrice = e.TotalPrice,
+                               StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                                NameOfExport = e.NameOfExport,
                                CreationTime = e.CreationTime,
+                               Discount = e.Discount,
                                Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                            }).ToListAsync();
                         totalCount = await _exportImportRepository.GetAll().WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus).CountAsync();
@@ -723,35 +731,35 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        public byte[] GetByteForExcelExport(BaoGiaObject baoGia)
-        {
-            try
-            {
-                var productList = new List<ExportImportProductDto>();
+        //public byte[] GetByteForExcelExport(BaoGiaObject baoGia)
+        //{
+        //    try
+        //    {
+        //        var productList = new List<ExportImportProductDto>();
 
-                foreach (var product in baoGia.Products)
-                {
-                    var fileNameImage = _productRepository.FirstOrDefault(e => e.Id == product.ProductId).ProductImage;
+        //        foreach (var product in baoGia.Products)
+        //        {
+        //            var fileNameImage = _productRepository.FirstOrDefault(e => e.Id == product.ProductId).ProductImage;
 
-                    var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileNameImage);
-                    Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
-                    product.PictureImage = buffer;
-                    productList.Add(product);
-                }
+        //            var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileNameImage);
+        //            Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
+        //            product.PictureImage = buffer;
+        //            productList.Add(product);
+        //        }
 
-                var customer = new CustomerDto();
-                customer.CustomerName = baoGia.CustomerName;
-                customer.CustomerPhone = baoGia.CustomerPhone;
-                customer.CustomerAdress = baoGia.CustomerAddress;
+        //        var customer = new CustomerDto();
+        //        customer.CustomerName = baoGia.CustomerName;
+        //        customer.CustomerPhone = baoGia.CustomerPhone;
+        //        customer.CustomerAdress = baoGia.CustomerAddress;
 
-                ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateBaoGia(productList, customer, baoGia.Date);
-                return temp;
-            }
-            catch (Exception ex)
-            {
-                throw new UserFriendlyException(ex.Message);
-            }
-        }
+        //        ExcelFileGenerator exf = new ExcelFileGenerator();
+        //        byte[] temp = exf.GenerateBaoGia(productList, customer, baoGia.Date);
+        //        return temp;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new UserFriendlyException(ex.Message);
+        //    }
+        //}
     }
 }
