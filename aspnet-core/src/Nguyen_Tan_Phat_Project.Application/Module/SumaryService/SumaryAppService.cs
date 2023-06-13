@@ -73,20 +73,20 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
             _retailProductRepository = retailProductRepository;
         }
 
-        public async Task<int> GetAllSales(string date)
+        public async Task<float> GetAllSales(string date)
         {
             DateTime dateTime = DateTime.Parse(date);
-            var exportImportStructureRevenue = await _exportImportRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).ToListAsync();
+            var exportImportStructureRevenue = _exportImportRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).Select(item => item.TotalPrice - (item.TotalPrice * (item.Discount / 100))).Sum();
             var retailStructureRevenue = _retailRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).Select(e => e.TotalPrice).Sum();
 
-            int totalPriceExport = 0;
+            //int totalPriceExport = 0;
 
-            foreach (var item in exportImportStructureRevenue) {
-                int totalPriceAfterDiscount = (int)(item.TotalPrice - (item.TotalPrice * (item.Discount / 100)));
-                totalPriceExport += totalPriceAfterDiscount;
-            }
-            
-            int totalRevenue = (int)(totalPriceExport + retailStructureRevenue);
+            //foreach (var item in exportImportStructureRevenue) {
+            //    int totalPriceAfterDiscount = (int)(item.TotalPrice - (item.TotalPrice * (item.Discount / 100)));
+            //    totalPriceExport += totalPriceAfterDiscount;
+            //}
+
+            float totalRevenue = exportImportStructureRevenue + retailStructureRevenue;
 
             return totalRevenue;
         }
@@ -164,6 +164,8 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
                 datasetClass.HoverBackgroundColor.Add(randomColor);
 
             }
+            datasetClass.Label = "Sản phẩm";
+            datasetClass.BorderWidth = 1;
             revenues.Datasets.Add(datasetClass);
 
             DatasetDtoList list = new DatasetDtoList();
