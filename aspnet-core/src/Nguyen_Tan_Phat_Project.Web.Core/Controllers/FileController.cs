@@ -158,7 +158,7 @@ namespace Nguyen_Tan_Phat_Project.Controllers
             {
                 DateTime dateTime = DateTime.Parse(date);
                 var exportImport = _exportImportRepository.GetAll()
-                    .Where(e => e.StructureId == structureId && e.CreationTime.Month <= dateTime.Month && e.CreationTime.Month >= (dateTime.Month - 1) && e.OrderStatus == 2)
+                    .Where(e => e.StructureId == structureId && e.CreationTime.Month <= dateTime.Month && e.CreationTime.Month >= (dateTime.Month - 1) && e.CreationTime.Year <= dateTime.Year && e.CreationTime.Year >= (dateTime.Year - 1) && e.OrderStatus == 2 )
                     .ToList();
 
                 var employee = _employeeRepository.GetAll()

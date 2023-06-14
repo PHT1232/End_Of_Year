@@ -79,16 +79,17 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
             var exportImportStructureRevenue = _exportImportRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).Select(item => item.TotalPrice - (item.TotalPrice * (item.Discount / 100))).Sum();
             var retailStructureRevenue = _retailRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).Select(e => e.TotalPrice).Sum();
 
-            //int totalPriceExport = 0;
-
-            //foreach (var item in exportImportStructureRevenue) {
-            //    int totalPriceAfterDiscount = (int)(item.TotalPrice - (item.TotalPrice * (item.Discount / 100)));
-            //    totalPriceExport += totalPriceAfterDiscount;
-            //}
-
             float totalRevenue = exportImportStructureRevenue + retailStructureRevenue;
 
             return totalRevenue;
+        }
+
+        public async Task<float> GetAllExpenses(string date)
+        {
+            DateTime dateTime = DateTime.Parse(date);
+            var expenses = _expensesRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).Select(item => item.TotalPrice - (item.TotalPrice * (item.Discount / 100))).Sum();
+
+            return expenses;
         }
 
         public async Task<DatasetDtoList> GetRevenueStructure(string date)
@@ -115,7 +116,7 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
 
                     revenues.Labels.Add(item.UnitName);
                     datasetClass.Data.Add(totalRevenue);
-                    string randomColor = $"rgba({_rand.Next(256)}, {_rand.Next(256)}, {_rand.Next(256)}, {_rand.Next(256)})";
+                    string randomColor = $"rgba({_rand.Next(255)}, {_rand.Next(159)}, {_rand.Next(64)}, {_rand.Next(26)})";
                     datasetClass.BackgroundColor.Add(randomColor);
                     datasetClass.HoverBackgroundColor.Add(randomColor);
                 }
@@ -160,10 +161,13 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
                 }
                 datasetClass.Data.Add(productQuantity);
                 string randomColor = $"rgba({_rand.Next(256)}, {_rand.Next(256)}, {_rand.Next(256)}, {_rand.Next(256)})";
-                datasetClass.BackgroundColor.Add(randomColor);
-                datasetClass.HoverBackgroundColor.Add(randomColor);
+
 
             }
+
+            datasetClass.BackgroundColor = new List<string> { "rgba(255, 159, 64, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)" };
+            datasetClass.HoverBackgroundColor = new List<string> { "rgba(255, 159, 64, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)" };
+            datasetClass.BorderColor = new List<string> { "rgb(255, 159, 64)", "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)" };
             datasetClass.Label = "Sản phẩm";
             datasetClass.BorderWidth = 1;
             revenues.Datasets.Add(datasetClass);
@@ -173,5 +177,41 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
 
             return list;
         }
+
+        public async Task<ProductTopSalesList> GetProductTopSalesAsync(string date)
+        {
+            DateTime dateTime = DateTime.Parse(date);
+            var exportImportStructureRevenue = await _exportImportRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).ToListAsync();
+            var retailStructureRevenue = await _retailRepository.GetAll().Where(e => e.CreationTime.Year >= (dateTime.Year - 1) && e.CreationTime.Year <= dateTime.Year).ToListAsync();
+            var product = await _productRepository.GetAll().ToListAsync();
+
+            List<ProductTopSales> list = new List<ProductTopSales>();
+            foreach ( var item in product)
+            {
+                ProductTopSales productTop = new ProductTopSales();
+                productTop.ProductCode = item.Id;
+                productTop.ProductName = item.ProductName;
+                var quantity = 0;
+                foreach (var export in exportImportStructureRevenue)
+                {
+                    var productInExport = _exportImportProductRepository.GetAll().FirstOrDefault(e => e.ProductId == item.Id && e.ExportImportCode == export.Id);
+                    if (productInExport != null)
+                    {
+                        quantity += productInExport.Quantity;
+                        productTop.ProductSales = productInExport.FinalPrice;
+                    }
+                }
+
+                productTop.ProductQuantity = quantity;
+                list.Add(productTop);
+            }
+
+            ProductTopSalesList productTopSales = new ProductTopSalesList();
+            productTopSales.items = list.OrderByDescending(e => e.ProductQuantity).Take(6).ToList();
+
+            return productTopSales;
+        }
+        
+
     }
 }

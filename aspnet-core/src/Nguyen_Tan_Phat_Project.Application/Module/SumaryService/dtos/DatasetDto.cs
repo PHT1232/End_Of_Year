@@ -22,6 +22,7 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService.dtos
         public List<int> Data { get; set; }
         public List<string> BackgroundColor { get; set; }
         public List<string> HoverBackgroundColor { get; set; }
+        public List<string> BorderColor { get; set; }
         public int BorderWidth { get; set; }
     }
 }
