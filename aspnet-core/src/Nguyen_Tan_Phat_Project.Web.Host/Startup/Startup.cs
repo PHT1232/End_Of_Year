@@ -27,7 +27,7 @@ namespace Nguyen_Tan_Phat_Project.Web.Host.Startup
 {
     public class Startup
     {
-        private const string _defaultCorsPolicyName = "localhost";
+        private const string _defaultCorsPolicyName = "unten.tech";
 
         private const string _apiVersion = "v1";
 
