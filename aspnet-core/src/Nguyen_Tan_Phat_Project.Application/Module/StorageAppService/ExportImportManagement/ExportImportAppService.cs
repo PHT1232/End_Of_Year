@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Authorization.Users;
 using Nguyen_Tan_Phat_Project.Entities;
-using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
 using Nguyen_Tan_Phat_Project.Module.ExcelExport;
 using Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
@@ -25,6 +24,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using DocumentFormat.OpenXml.VariantTypes;
 
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement
 {
@@ -41,6 +41,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         private readonly IRepository<Customer, string> _customerRepository;
         private readonly IRepository<ExportImportCustomer> _exportImportCustomerRepository;
         private readonly IRepository<Employee, string> _employeeRepository;
+        private readonly IRepository<Structure, string> _structureRepository;
+        private readonly IRepository<RetailCustomer> _retailCustomerRepository;
 
         public ExportImportAppService(IRepository<Product, string> productRepository
             , IAppFolders appFolders
@@ -52,6 +54,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             , IRepository<Customer, string> customerRepository
             , IRepository<ExportImportCustomer> exportImportCustomerRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<Structure, string> structureRepository
+            , IRepository<RetailCustomer> retailCustomerRepository
             )
         {
             _appFolders = appFolders;
@@ -64,6 +68,8 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             _customerRepository = customerRepository;
             _exportImportCustomerRepository = exportImportCustomerRepository;
             _employeeRepository = employeeRepository;
+            _structureRepository = structureRepository;
+            _retailCustomerRepository = retailCustomerRepository;
         }
 
         public string GetRandomCode()
@@ -376,19 +382,32 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        public async Task<ListOfCustomer> GetCustomerListAsync()
+        public async Task<ListOfCustomer> GetCustomerListAsync(string structureId)
         {
             try
             {
-                var customerList = await _customerRepository.GetAll().Select(e => new CustomerListDto
+                var customerList = await _customerRepository.GetAll()
+                    .Where(e => e.StructureCode == structureId)
+                    .Select(e => new CustomerListDto
+                    {
+                        Code = e.Id,
+                        Name = e.CustomerName
+                    }).ToListAsync();
+
+                var customerLists = new List<CustomerListDto>();
+
+                foreach (var customer in customerList)
                 {
-                    Code = e.Id,
-                    Name = e.CustomerName
-                }).ToListAsync();
+                    var retailCustomer = _retailCustomerRepository.FirstOrDefault(e => e.CustomerCode == customer.Code);
+                    if (retailCustomer == null)
+                    {
+                        customerLists.Add(customer);
+                    }
+                }
 
                 return new ListOfCustomer
                 {
-                    items = customerList
+                    items = customerLists
                 };
             } catch (Exception ex)
             {
@@ -446,6 +465,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             try
             {
                 var exportImport = new List<ExportImportProductDto>();
+
                 if (input.IsInsert)
                 {
                     exportImport = await _productRepository.GetAll()
@@ -459,12 +479,43 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         FinalPrice = 0,
                     }).PageBy(input).ToListAsync();
                 }
-                else
+                else if (!string.IsNullOrEmpty(input.StorageId))
                 {
-                    var productStorage = await _productStorageRepository.GetAll()
+                    var storageStructureList = await _storageRepository.GetAll().Where(e => e.StructureId == input.StorageId).ToListAsync();
+                    storageStructureList.Add(_storageRepository.FirstOrDefault(e => e.Id == input.StorageId));
+                    var structureStorage = await _structureRepository.FirstOrDefaultAsync(e => e.Id == input.StorageId);
+                    var productStorage = new List<ProductStorage>();
+                    var productStorageList = await _productRepository.GetAll()
+                        .ToListAsync();
+
+                    if (structureStorage != null)
+                    {
+                        if (!string.IsNullOrEmpty(input.Keyword))
+                        {
+                            productStorage = await _productStorageRepository.GetAll()
+                                .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.ProductId.Contains(input.Keyword))
+                                .PageBy(input).ToListAsync();
+                        } else
+                        {
+                            foreach (var productIn in productStorageList)
+                            {
+                                foreach (var storage in storageStructureList)
+                                {
+                                    var productProduct = _productStorageRepository.FirstOrDefault(e => e.StorageId == storage.Id && productIn.Id == e.ProductId);
+                                    if (productProduct != null)
+                                    {
+                                        productStorage.Add(productProduct);
+                                    }
+                                }
+                            }
+                        }
+                    } else
+                    {
+                         productStorage = await _productStorageRepository.GetAll()
                         .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.ProductId.Contains(input.Keyword))
                         .Where(e => e.StorageId.Contains(input.StorageId))
                         .PageBy(input).ToListAsync();
+                    }
 
                     List<ExportImportProductDto> result = new List<ExportImportProductDto>();
                     foreach (var storageProduct in productStorage)
@@ -475,6 +526,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
 
                         var productDto = new ExportImportProductDto
                         {
+                            StorageId = storageProduct.StorageId,
                             ProductId = product.Id,
                             ProductName = product.ProductName,
                             Quantity = storageProduct.ProductQuantity,
@@ -541,6 +593,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                 {
                     exportImport = await _exportImportRepository.GetAll()
                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
+                       .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                        .PageBy(input).Select(e => new ExportImportGetAllDto
                        {
@@ -549,9 +602,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                            Address = _exportImportCustomerRepository.GetAll().FirstOrDefault(c => c.ExportImportCode == e.Id).ReciveAddress,
                            OrderStatus = e.OrderStatus,
                            OrderType = e.OrderType,
+                           StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                            TotalPrice = e.TotalPrice,
                            NameOfExport = e.NameOfExport,
                            CreationTime = e.CreationTime,
+                           Discount = e.Discount,
                            Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                        }).ToListAsync();
 
@@ -570,6 +625,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                         endDate = DateTime.Parse(input.DateTime[1]);
 
                         exportImport = await _exportImportRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                             .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
                             .PageBy(input).Select(e => new ExportImportGetAllDto
                             {
@@ -578,9 +634,11 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                 Address = _exportImportCustomerRepository.GetAll().FirstOrDefault(c => c.ExportImportCode == e.Id).ReciveAddress,
                                 OrderStatus = e.OrderStatus,
                                 OrderType = e.OrderType,
+                                StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                                 TotalPrice = e.TotalPrice,
                                 NameOfExport = e.NameOfExport,
                                 CreationTime = e.CreationTime,
+                                Discount = e.Discount,
                                 Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                             }).ToListAsync();
                         totalCount = await _exportImportRepository.GetAll().Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus).CountAsync();
@@ -588,6 +646,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     else
                     {
                         exportImport = await _exportImportRepository.GetAll()
+                            .WhereIf(!string.IsNullOrEmpty(input.Storage), e => e.StructureId.Contains(input.Storage))
                            .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                            .PageBy(input).Select(e => new ExportImportGetAllDto
                            {
@@ -597,8 +656,10 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                                OrderStatus = e.OrderStatus,
                                OrderType = e.OrderType,
                                TotalPrice = e.TotalPrice,
+                               StructureName = _structureRepository.GetAll().FirstOrDefault(c => c.Id == e.StructureId).UnitName,
                                NameOfExport = e.NameOfExport,
                                CreationTime = e.CreationTime,
+                               Discount = e.Discount,
                                Username = _employeeRepository.GetAll().FirstOrDefault(l => l.Id == e.OrderCreator).EmployeeName,
                            }).ToListAsync();
                         totalCount = await _exportImportRepository.GetAll().WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus).CountAsync();
@@ -670,35 +731,35 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
             }
         }
 
-        public byte[] GetByteForExcelExport(BaoGiaObject baoGia)
-        {
-            try
-            {
-                var productList = new List<ExportImportProductDto>();
+        //public byte[] GetByteForExcelExport(BaoGiaObject baoGia)
+        //{
+        //    try
+        //    {
+        //        var productList = new List<ExportImportProductDto>();
 
-                foreach (var product in baoGia.Products)
-                {
-                    var fileNameImage = _productRepository.FirstOrDefault(e => e.Id == product.ProductId).ProductImage;
+        //        foreach (var product in baoGia.Products)
+        //        {
+        //            var fileNameImage = _productRepository.FirstOrDefault(e => e.Id == product.ProductId).ProductImage;
 
-                    var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileNameImage);
-                    Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
-                    product.PictureImage = buffer;
-                    productList.Add(product);
-                }
+        //            var filePath = Path.Combine(_appFolders.ProductUploadFolder + @"\", fileNameImage);
+        //            Byte[] buffer = System.IO.File.ReadAllBytes(filePath);
+        //            product.PictureImage = buffer;
+        //            productList.Add(product);
+        //        }
 
-                var customer = new CustomerDto();
-                customer.CustomerName = baoGia.CustomerName;
-                customer.CustomerPhone = baoGia.CustomerPhone;
-                customer.CustomerAdress = baoGia.CustomerAddress;
+        //        var customer = new CustomerDto();
+        //        customer.CustomerName = baoGia.CustomerName;
+        //        customer.CustomerPhone = baoGia.CustomerPhone;
+        //        customer.CustomerAdress = baoGia.CustomerAddress;
 
-                ExcelFileGenerator exf = new ExcelFileGenerator();
-                byte[] temp = exf.GenerateBaoGia(productList, customer, baoGia.Date);
-                return temp;
-            }
-            catch (Exception ex)
-            {
-                throw new UserFriendlyException(ex.Message);
-            }
-        }
+        //        ExcelFileGenerator exf = new ExcelFileGenerator();
+        //        byte[] temp = exf.GenerateBaoGia(productList, customer, baoGia.Date);
+        //        return temp;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new UserFriendlyException(ex.Message);
+        //    }
+        //}
     }
 }

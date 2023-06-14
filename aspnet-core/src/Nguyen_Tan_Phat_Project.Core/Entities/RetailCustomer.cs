@@ -17,6 +17,8 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public string CustomerCode { get; set; }
         public Customer Customer { get; set; }
         public string ReciveAddress { get; set; }
+        [ForeignKey("Structure")]
+        public string StructureCode { get; set; }
         public float Discount { get; set; }
         public string PhoneToCall { get; set; }
     }

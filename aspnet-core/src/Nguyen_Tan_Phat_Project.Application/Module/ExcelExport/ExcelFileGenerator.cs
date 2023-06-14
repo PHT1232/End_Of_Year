@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Nguyen_Tan_Phat_Project.Entities;
-using Nguyen_Tan_Phat_Project.Module.ExcelExport.Dtos;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using Nguyen_Tan_Phat_Project.Module.StructureAppService.EmployeeManagement.dtos;
 using QRCoder;
@@ -68,8 +67,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
         public int TotalSalary { get; set; }
     }
 
-    public class ExcelFileGenerator
+    public class ExcelFileGenerator : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
+
         private void SetFormatCell(ref IXLWorksheet worksheet, int row, int cell, bool isItalic, bool isBold, XLAlignmentHorizontalValues valuesHorizontal, XLAlignmentVerticalValues verticalValues)
         {
             worksheet.Cell(row, cell).Style.Alignment.SetHorizontal(valuesHorizontal);
@@ -89,9 +89,10 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             }
         }
 
-        public byte[] GenerateExcelFileForExportImport(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee)
+        public byte[] GenerateExcelFileForExportImport(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee, string filePath)
         {
-            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\phieu xuat kho sua.xlsx");
+            //XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\phieu xuat kho sua.xlsx");
+            XLWorkbook workbook = new XLWorkbook(filePath);
             IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
 
             int rowNumber = 13, STT = 0;
@@ -238,9 +239,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             return memoryStream.ToArray();
         }
 
-        public byte[] GenerateDeliveryExcel(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee, Employee deliveryEmployee)
+        public byte[] GenerateDeliveryExcel(List<ExportImportProductDto> list, ExportImport exportImport, Customer customer, Employee employee, Employee deliveryEmployee, string filePath)
         {
-            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\phieu xuat hang.xlsx");
+            XLWorkbook workbook = new XLWorkbook(filePath);
             IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
 
             int rowNumber = 13, STT = 0;
@@ -521,9 +522,9 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             return memoryStream.ToArray();
         }
 
-        public byte[] GenerateExcelExportSalary(List<Employee> employees, List<ExportImport> exports, DateTime date)
+        public byte[] GenerateExcelExportSalary(List<Employee> employees, List<ExportImport> exports, DateTime date, string filePath)
         {
-            XLWorkbook workbook = new XLWorkbook("E:\\Documents\\GitHub\\End_Of_Year\\aspnet-core\\src\\Nguyen_Tan_Phat_Project.Web.Host\\wwwroot\\ExcelTemplate\\bang_luong.xlsx");
+            XLWorkbook workbook = new XLWorkbook(filePath);
             IXLWorksheet worksheet = workbook.Worksheet("Sheet1");
 
             GenerateWorkSheet(ref worksheet, employees, exports, date);

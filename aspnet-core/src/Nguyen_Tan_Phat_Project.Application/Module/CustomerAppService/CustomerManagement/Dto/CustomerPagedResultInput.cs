@@ -10,5 +10,6 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement.D
     public class CustomerPagedResultInput : PagedResultRequestDto
     {
         public string KeyWord { get; set; }
+        public bool isRetail { get; set; }
     }
 }

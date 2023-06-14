@@ -92,6 +92,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     {
                         Id = input.Customer.CustomerCode,
                         CustomerName = input.Customer.CustomerName,
+                        StructureCode = input.StructureId,
                         CustomerAddress = input.Customer.ReveciveAddress,
                         CustomerPhone = input.Customer.PhoneToCall,
                     };
@@ -229,6 +230,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                 {
                     retail = await _retailRepository.GetAll()
                        .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.Id.Contains(input.Keyword))
+                       .WhereIf(!string.IsNullOrEmpty(input.Structure), e => e.StructureId.Contains(input.Structure))
                        .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
                        .Where(e => e.IsDelivered == input.isDelived)
                        .PageBy(input).Select(e => new RetailGetAllDto
@@ -262,7 +264,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
 
                         retail = await _retailRepository.GetAll()
                             .Where(e => e.CreationTime >= firstDate && e.CreationTime <= endDate && e.OrderStatus == input.OrderStatus)
-                            .Where(e => e.IsDelivered == input.isDelived)
+                            .WhereIf(!string.IsNullOrEmpty(input.Structure), e => e.StructureId.Contains(input.Structure))
                             .PageBy(input).Select(e => new RetailGetAllDto
                             {
                                 RetailCode = e.Id,
@@ -282,7 +284,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     {
                         retail = await _retailRepository.GetAll()
                            .WhereIf(input.OrderStatus != 0, e => e.OrderStatus == input.OrderStatus)
-                           .Where(e => e.IsDelivered == input.isDelived)
+                           .WhereIf(!string.IsNullOrEmpty(input.Structure), e => e.StructureId.Contains(input.Structure))
                            .PageBy(input).Select(e => new RetailGetAllDto
                            {
                                RetailCode = e.Id,

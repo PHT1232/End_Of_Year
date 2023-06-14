@@ -12,6 +12,7 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         public string NameOfReceiver { get; set; }
         public string Address { get; set; }
         public string StorageName { get; set; }
+        public string StructureName { get; set; }
         public int OrderStatus { get; set; }
         public int OrderType { get; set; }
         public float TotalPrice { get; set; }
