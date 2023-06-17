@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using DocumentFormat.OpenXml.VariantTypes;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement
 {
@@ -360,7 +361,73 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         {
             try
             {
+                var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == input.ExportImportCode);
+                if (exportImport == null)
+                {
+                    throw new UserFriendlyException("Không thể tìm thấy đơn này");
+                }
+                exportImport.OrderCreator = input.OrderCreator;
+                exportImport.DeliveryEmployee = input.EmployeeDelivery;
+                exportImport.StructureId = input.StructureId;
+                exportImport.OrderType = input.OrderType;
+                exportImport.Discount = input.Discount;
 
+                await _exportImportRepository.UpdateAsync(exportImport);
+
+                
+                var customer = _exportImportCustomerRepository.FirstOrDefault(e => e.ExportImportCode == input.ExportImportCode);
+                var customerInput = _exportImportCustomerRepository.FirstOrDefault(e => e.CustomerCode == input.Customer.CustomerCode && e.ExportImportCode == input.ExportImportCode);
+                if (customerInput == null)
+                {
+                    if (customer != null)
+                    {
+                        await _exportImportCustomerRepository.DeleteAsync(customer);
+
+                        customer = new ExportImportCustomer();
+                        customer.ExportImportCode = input.ExportImportCode;
+                        customer.CustomerCode = input.Customer.CustomerCode;
+                        customer.ReciveAddress = input.Customer.CustomerAdress;
+                        customer.Discount = input.Discount;
+                        customer.PhoneToCall = input.Customer.CustomerPhone;
+
+                        await _exportImportCustomerRepository.InsertAsync(customer);
+                    } else
+                    {
+                        customer.ExportImportCode = input.ExportImportCode;
+                        customer.CustomerCode = input.Customer.CustomerCode;
+                        customer.ReciveAddress = input.Customer.CustomerAdress;
+                        customer.Discount = input.Discount;
+                        customer.PhoneToCall = input.Customer.CustomerPhone;
+
+                        await _exportImportCustomerRepository.UpdateAsync(customer);
+                    }
+                }
+
+
+                foreach (var product in input.Products)
+                {
+                    var productDb = _exportImportProductRepository.FirstOrDefault(e => e.ProductId == product.ProductId && e.ExportImportCode == input.ExportImportCode);
+                    if (productDb == null)
+                    {
+                        var exportImportProduct = new ExportImportProduct
+                        {
+                            ExportImportCode = input.ExportImportCode,
+                            StorageId = product.StorageId,
+                            StorageInputId = product.StorageInputId,
+                            ProductId = product.ProductId,
+                            Quantity = product.Quantity,
+                            Price = product.Price,
+                            FinalPrice = product.FinalPrice,
+                            Location = product.Location,
+                        };
+                        _exportImportProductRepository.Insert(exportImportProduct);
+                    } else
+                    {
+                        productDb.Quantity = product.Quantity;
+                        productDb.FinalPrice = product.FinalPrice;
+                        _exportImportProductRepository.Update(productDb);
+                    }
+                }
             }
             catch (Exception ex)
             {
