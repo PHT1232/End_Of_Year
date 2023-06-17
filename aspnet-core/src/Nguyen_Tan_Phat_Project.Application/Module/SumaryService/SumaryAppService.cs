@@ -198,7 +198,7 @@ namespace Nguyen_Tan_Phat_Project.Module.SumaryService
                     if (productInExport != null)
                     {
                         quantity += productInExport.Quantity;
-                        productTop.ProductSales = productInExport.FinalPrice;
+                        productTop.ProductSales += productInExport.FinalPrice;
                     }
                 }
 

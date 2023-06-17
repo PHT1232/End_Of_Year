@@ -707,13 +707,15 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     customerDto.CustomerPhone = customer.CustomerPhone;
                     customerDto.CustomerAdress = customer.CustomerAddress;
                     customerDto.CustomerName = customer.CustomerName;
+                    customerDto.Discount = customer.Discount;
                 }
 
                 ExportImportOutput output = new ExportImportOutput
                 {
                     ExportImportCode = exportImport.Id,
-                    OrderCreator = _employeeRepository.GetAll().FirstOrDefault(e => e.Id == exportImport.OrderCreator).EmployeeName,
-                    EmployeeDelivery = _employeeRepository.GetAll().FirstOrDefault(e => e.Id == exportImport.DeliveryEmployee).EmployeeName,
+                    OrderCreator = exportImport.OrderCreator,
+                    EmployeeDelivery = exportImport.DeliveryEmployee,
+                    StructureId = exportImport.StructureId,
                     OrderStatus = exportImport.OrderStatus,
                     OrderType = exportImport.OrderType,
                     ReceiveAddress = exportImportCustomer.ReciveAddress,

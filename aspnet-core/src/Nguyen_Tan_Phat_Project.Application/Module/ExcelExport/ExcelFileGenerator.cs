@@ -225,7 +225,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ExcelExport
             if (exportImport.OrderStatus != 2)
             {
                 QRCodeGen qr = new QRCodeGen();
-                var byteImage = qr.GenerateQRCode("https://unten.tech:44311/api/services/app/ExportImport/UpdateOrderQR?exportImportCode=" + exportImport.Id.ToString() + "&orderStatus=2");
+                var byteImage = qr.GenerateQRCode("https://unten.tech/api/services/app/ExportImport/UpdateOrderQR?exportImportCode=" + exportImport.Id.ToString() + "&orderStatus=2");
                 var mStream = new MemoryStream(byteImage);
 
                 var picture = worksheet.AddPicture(mStream);
