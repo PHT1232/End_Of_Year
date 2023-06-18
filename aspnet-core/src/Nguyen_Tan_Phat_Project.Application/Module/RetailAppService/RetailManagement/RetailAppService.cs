@@ -155,7 +155,8 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
 
                 exportImport = result;
 
-                int totalCount = await _productStorageRepository.CountAsync();
+                int totalCount = await _productStorageRepository.GetAll()
+                    .Where(e => e.StorageId == input.StorageId).CountAsync();
 
                 return new PagedResultDto<RetailProductDto>
                 {
