@@ -151,8 +151,11 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                 foreach (var productRetail in retailProduct)
                 {
                     var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productRetail.StorageId && e.ProductId == productRetail.ProductId);
-                    product.ProductQuantity -= productRetail.Quantity;
-                    _productStorageRepository.Update(product);
+                    if (product != null)
+                    {
+                        product.ProductQuantity -= productRetail.Quantity;
+                        _productStorageRepository.Update(product);
+                    }
                 }
             } else if (response.Success == false) 
             { 

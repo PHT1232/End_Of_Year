@@ -131,6 +131,7 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
 
                 var productStorage = await _productStorageRepository.GetAll()
                     .WhereIf(!string.IsNullOrEmpty(input.Keyword), e => e.ProductId.Contains(input.Keyword))
+                    .Where(e => e.StorageId == input.StorageId)
                     .PageBy(input).ToListAsync();
 
                 List<RetailProductDto> result = new List<RetailProductDto>();
@@ -335,8 +336,11 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                         foreach (var productExport in retailProduct)
                         {
                             var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == retail.StructureId && e.ProductId == productExport.ProductId);
-                            product.ProductQuantity -= productExport.Quantity;
-                            _productStorageRepository.Update(product);
+                            if (product != null)
+                            {
+                                product.ProductQuantity -= productExport.Quantity;
+                                _productStorageRepository.Update(product);
+                            }
                         }
                     }
                     else
@@ -345,8 +349,11 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                         foreach (var productExport in retailProduct)
                         {
                             var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
-                            product.ProductQuantity -= productExport.Quantity;
-                            _productStorageRepository.Update(product);
+                            if (product != null)
+                            {
+                                product.ProductQuantity -= productExport.Quantity;
+                                _productStorageRepository.Update(product);
+                            }
                         }
                     }
                 }
@@ -382,8 +389,11 @@ namespace Nguyen_Tan_Phat_Project.Module.RetailAppService.RetailManagement
                     foreach (var productExport in retailProduct)
                     {
                         var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == retail.StructureId && e.ProductId == productExport.ProductId);
-                        product.ProductQuantity -= productExport.Quantity;
-                        _productStorageRepository.Update(product);
+                        if (product != null)
+                        {
+                            product.ProductQuantity -= productExport.Quantity;
+                            _productStorageRepository.Update(product);
+                        }
                     }
                 }
 
