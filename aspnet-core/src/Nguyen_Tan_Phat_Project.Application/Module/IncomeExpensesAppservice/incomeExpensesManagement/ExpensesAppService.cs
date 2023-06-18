@@ -1,16 +1,23 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
+using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Abp.UI;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Nguyen_Tan_Phat_Project.Authorization;
 using Nguyen_Tan_Phat_Project.Entities;
 using Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpensesManagement.Dtos;
+using Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpensesManagement.Libary;
 using Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagement.Dto;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +38,8 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
         public ExpensesAppService(IRepository<Expenses, string> expensesRepository
             , IRepository<ProductExpenses> productExpensesReposistory
             , IRepository<Storage, string> storageRepository
-            , IRepository<ProductStorage> productStorageRepository
             , IRepository<Employee, string> employeeRepository
+            , IRepository<ProductStorage> productStorageRepository
             , IRepository<Product, string> productRepository
             )
         {
@@ -43,6 +50,7 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
             _productStorageRepository = productStorageRepository;
             _productRepository = productRepository;
         }
+
 
         [AbpAuthorize(PermissionNames.Page_System_Revenue_Add)]
         public async Task AddNewAsync(ExpensesInputDto input)
@@ -314,5 +322,7 @@ namespace Nguyen_Tan_Phat_Project.Module.IncomeExpensesAppservice.incomeExpenses
                 throw new UserFriendlyException(ex.Message);
             }
         }
+
+        
     }
 }

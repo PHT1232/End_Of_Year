@@ -12,6 +12,9 @@ namespace Nguyen_Tan_Phat_Project.Entities
     public class Storage : FullAuditedEntity<string>
     {
         public string StorageName { get; set; }
+        [ForeignKey("Structure")]
+        public string StructureId { get; set; }                                                              
+        public Structure Structure { get; set; }
         public string Address { get; set; }
         public string Description { get; set; }
     }

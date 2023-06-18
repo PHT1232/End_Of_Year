@@ -9,7 +9,9 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
     public class ExportImportOutput
     {
         public string ExportImportCode { get; set; }
-        public long OrderCreator { get; set; }
+        public string OrderCreator { get; set; }
+        public string EmployeeDelivery { get; set; }
+        public string StructureId { get; set; }
         public int OrderStatus { get; set; }
         public int OrderType { get; set; }
         public string ReceiveAddress { get; set; }
@@ -19,5 +21,6 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         public string StorageInputId { get; set; }
         public string NameOfExport { get; set; }
         public float TotalPrice { get; set; }
+        public float Discount { get; set; }
     }
 }

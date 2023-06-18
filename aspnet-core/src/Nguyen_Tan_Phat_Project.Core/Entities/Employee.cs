@@ -20,6 +20,7 @@ namespace Nguyen_Tan_Phat_Project.Entities
         public Structure WorkUnit { get; set; }
         public string TaxIdentification { get; set; }
         public int EmployeeSalary { get; set; }
+        public int EmployeeAllowance { get; set; }
         public float SalaryFactor { get; set; }
         public string TypeOfContract { get; set; }
         [ForeignKey("BankAccount")]

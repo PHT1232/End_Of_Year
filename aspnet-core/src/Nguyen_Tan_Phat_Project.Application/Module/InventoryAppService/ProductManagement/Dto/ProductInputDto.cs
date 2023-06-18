@@ -16,6 +16,7 @@ namespace Nguyen_Tan_Phat_Project.Module.InventoryManagement.ProductManagement.D
         public float Price { get; set; }
         public string CategoryId { get; set; }
         public int? SubCategoryId { get; set; }
+        public string ProductImage { get; set; }
         public string Unit { get; set; }
         public List<StorageProductDetail> storages { get; set; }
     }

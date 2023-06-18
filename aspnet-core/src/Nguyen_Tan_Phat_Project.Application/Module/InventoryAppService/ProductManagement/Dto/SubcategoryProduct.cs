@@ -12,7 +12,7 @@ namespace Nguyen_Tan_Phat_Project.Module.InventoryManagement.ProductManagement.D
     }
     public class SubcategoryProduct
     {
-        public int SubcategoryId { get; set; }
-        public string SubcategoryName { get; set; }
+        public int Code { get; set; }
+        public string Name { get; set; }
     }
 }

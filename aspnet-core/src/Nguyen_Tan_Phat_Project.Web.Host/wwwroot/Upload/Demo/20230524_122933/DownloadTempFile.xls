@@ -1,0 +1,295 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Báo giá sản phẩm Công ty máy tính Hà Nội</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="keywords" content="<br />
+<b>Notice</b>:  Undefined variable: header in <b>/var/www/html/hanoicomputer.vn/public_html/cache/template/buildpc.1b3280bdcbf308db992dc2e6514abbca.php</b> on line <b>8</b><br />
+"/>
+<meta name="description" content="<br />
+<b>Notice</b>:  Undefined variable: header in <b>/var/www/html/hanoicomputer.vn/public_html/cache/template/buildpc.1b3280bdcbf308db992dc2e6514abbca.php</b> on line <b>9</b><br />
+"/>
+<META name="revisit-after" content="2 days"/>
+<META NAME="ROBOTS" CONTENT= "INDEX, FOLLOW"/>
+<META NAME="author" CONTENT= "CÔNG TY CỔ PHẦN ĐẦU TƯ CÔNG NGHỆ HACOM"/>
+<META NAME="distribution" content= "global"/>
+<META NAME="Copyright" content="www.hacom.vn"/>
+<style>
+.list_table td{padding:5px; vertical-align:middle} 
+</style>
+</head>
+<body>
+<div style="width: 700px;margin: 0 auto;">
+<table width="700" style="font-size: 15px">
+  <tr><td colspan="8"> </td></tr>
+  <tr>
+        <td colspan="1" valign="bottom">
+        </td>
+        <td colspan="3" valign="bottom">
+            <img style="margin-top: 15px;" src="https://hanoicomputercdn.com/media/lib/01-09-2022/logo-bg.png" alt="" width:150px;/>
+        </td>
+        <td colspan="4" align="right" style="line-height: 19px;">
+            <b style="color: #d2171b;font-size: 20px;">CÔNG TY CỔ PHẦN ĐẦU TƯ CÔNG NGHỆ HACOM</b><br />
+            <b style="color: #d2171b;">Trụ sở:</b> 131 Lê Thanh Nghị, Q. Hai Bà Trưng, TP. Hà Nội<br>
+            <b style="color: #d2171b;">Tel:</b> 19001903 <span style="color: #fff">_____</span><b style="color: #d2171b">Email:</b> info@hacom.vn<br />
+            <b style="color: #d2171b;">Website:</b> www.hacom.vn
+        </td>
+    </tr>
+  <tr><td colspan="8"> </td></tr>
+  <tr><td colspan="8" style="border-top: 3px solid #d2171b;"> </td></tr>
+    <tr>
+        <td colspan="8" style="color: #d2171b; font-size:23px; font-weight:bold; text-align:center; padding:15px 0;">BẢNG BÁO GIÁ VẬT TƯ, THIẾT BỊ
+</td>
+    </tr>
+</table>  
+  
+  <table width="700" style="font-size: 15px">
+  	<tr><td colspan="8"> </td></tr>
+    <tr>
+      <td colspan="4" align="left"><b>Ngày báo giá: <span id="price_time">22-05-2023, 8:59 pm</span></b></td>
+      <td colspan="4" align="right"><b>Đơn vị tính: <span style="color: #d2171b;">VNĐ</span></b></td>
+    </tr>
+  	<tr><td colspan="8"> </td></tr>
+  </table>  
+
+    <div style="padding: 10px;"></div>
+
+<table width="700" class="list_table" border="1" bordercolor="#ddd" style="font-size: 15px">
+    <tr style="color: #ffffff; background-color:#e00;">
+      <td valign="middle"><b>STT</b></td>
+      <td valign="middle"><b>Mã sản phẩm</b></td>
+      <td colspan="2" valign="middle"><b style="font-weight: 700">Tên sản phẩm</b></td>
+      <td valign="middle"><b>Bảo hành</b></td>
+      <td valign="middle"><b>Số lượng</b></td>
+      <td valign="middle"><b>Đơn giá</b></td>
+      <td valign="middle"><b>Thành tiền</b></td>
+    </tr>
+    
+    
+    
+    
+    <tr>
+      <td valign="middle">1</td>
+      <td valign="middle">MBAS648</td>
+      <td colspan="2" valign="middle">Mainboard ASUS ROG STRIX B560-G GAMING WIFI</td>
+      <td valign="middle">36 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">2.899.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--2899000-->
+        
+        2.899.000 VNĐ
+      </td>
+    </tr>
+  <!--1-->
+    
+    
+    
+    <tr>
+      <td valign="middle">2</td>
+      <td valign="middle">CPUI422</td>
+      <td colspan="2" valign="middle">CPU Intel Core i5-11400 (2.6GHz turbo up to 4.4Ghz, 6 nhân 12 luồng, 12MB Cache, 65W) - Socket Intel LGA 1200</td>
+      <td valign="middle">36 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">3.999.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--6898000-->
+        
+        3.999.000 VNĐ
+      </td>
+    </tr>
+  <!--2-->
+    
+    
+    
+    <tr>
+      <td valign="middle">3</td>
+      <td valign="middle">RACO341</td>
+      <td colspan="2" valign="middle">Ram Desktop Corsair Vengeance RS RGB (CMG16GX4M2E3200C16) 16GB (2x8GB) DDR4 3200MHz</td>
+      <td valign="middle">36 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">1.549.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--8447000-->
+        
+        1.549.000 VNĐ
+      </td>
+    </tr>
+  <!--3-->
+    
+    
+    
+    <tr>
+      <td valign="middle">4</td>
+      <td valign="middle">HDSE079</td>
+      <td colspan="2" valign="middle">Ổ cứng HDD Seagate Barracuda 1TB 3.5 inch 7200RPM, SATA, 64MB Cache (ST1000DM010)</td>
+      <td valign="middle">24 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">999.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--9446000-->
+        
+        999.000 VNĐ
+      </td>
+    </tr>
+  <!--4-->
+    
+    
+    
+    <tr>
+      <td valign="middle">5</td>
+      <td valign="middle">VGAS597</td>
+      <td colspan="2" valign="middle">Card màn hình Asus TUF GTX 1650-O4GD6 GAMING</td>
+      <td valign="middle">36 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">4.099.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--13545000-->
+        
+        4.099.000 VNĐ
+      </td>
+    </tr>
+  <!--5-->
+    
+    
+    
+    <tr>
+      <td valign="middle">6</td>
+      <td valign="middle">CSVR063</td>
+      <td colspan="2" valign="middle">Vỏ Case VITRA SAPHIRA NX11 E-ATX 3FRGB (Mid Tower/Màu Đen/Kèm sẵn 3 Fan RGB)</td>
+      <td valign="middle">12 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">759.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--14304000-->
+        
+        759.000 VNĐ
+      </td>
+    </tr>
+  <!--6-->
+    
+    
+    
+    <tr>
+      <td valign="middle">7</td>
+      <td valign="middle">PWCO078</td>
+      <td colspan="2" valign="middle">Nguồn Corsair Series CV 650 650W (80 Plus Brone/Màu Đen) </td>
+      <td valign="middle">36 Tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">1.599.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--15903000-->
+        
+        1.599.000 VNĐ
+      </td>
+    </tr>
+  <!--7-->
+    
+    
+    
+    <tr>
+      <td valign="middle">8</td>
+      <td valign="middle">FANC908</td>
+      <td colspan="2" valign="middle">Tản Nhiệt CPU ID-COOLING SE-224-XT ARGB V3</td>
+      <td valign="middle">24 tháng</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">859.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--16762000-->
+        
+        859.000 VNĐ
+      </td>
+    </tr>
+  <!--8-->
+    
+    
+    
+    <tr>
+      <td valign="middle">9</td>
+      <td valign="middle">HDSA180</td>
+      <td colspan="2" valign="middle">Ổ cứng SSD Samsung 980 250GB PCIe NVMe 3.0x4 (Đọc 2900MB/s - Ghi 1300MB/s) - (MZ-V8V250BW)</td>
+      <td valign="middle">60 Tháng (hoặc không quá 150TB Witten)</td>
+      <td align="left" valign="middle">1</td>
+      <td valign="middle">1.099.000 VNĐ</td>
+      <td align="right" valign="middle" style="font-weight: 700">
+         
+        <!--17861000-->
+        
+        1.099.000 VNĐ
+      </td>
+    </tr>
+  <!--9-->
+    
+    
+    
+  
+  
+    <tr style="background: #ffe699">
+      <td colspan="8">
+        Khuyến mại kèm theo: 
+          
+        Tặng tiền mặt <b style="color: #d2171b;">450.000 VNĐ</b>
+      </td>
+    </tr>
+  
+    
+    <tr style="background: #ffe699">
+      <td colspan="5" valign="middle"></td>
+      <td colspan="2" valign="middle">Phí vận chuyển</td>
+      <td align="right" valign="middle"><b>0 VNĐ</b></td>
+    </tr>
+    <tr style="background: #ffe699">
+      <td colspan="5" valign="middle"></td>
+      <td colspan="2" valign="middle">Chi phí khác</td>
+      <td align="right" valign="middle"><b>0 VNĐ</b></td>
+    </tr>
+    <tr style="background: #ffe699">
+      <td colspan="5" valign="middle"></td>
+      <td colspan="2" valign="middle">Tổng tiền đơn hàng</td>
+      <td align="right" valign="middle"><b>17.861.000 VNĐ</b></td>
+    </tr>
+  
+    
+    <tr style="background: #ffe699">
+      <td colspan="5"></td>
+      <td colspan="2" style="color: #d2171b;">Được chiết khấu giảm tiền mặt</td>
+      <td align="right" style="color: #d2171b;"><b>450.000 VNĐ</b></td>
+    </tr>
+  
+  <tr style="background: #ffe699">
+      <td colspan="5"></td>
+      <td colspan="2">Tổng tiền thanh toán sau KM giảm tiền mặt</td>
+   	  
+      <td align="right"><b>17.411.000 VNĐ</b></td>
+    </tr>
+  </table>
+  
+  <table style="font-size: 15px"><tr><td colspan="8">&nbsp;</td></tr></table>
+  
+  <table width="700" style="font-size: 15px">
+    <tr><td colspan="8" align="right"><b style="color: #d2171b;">Quý khách lưu ý:</b> Giá bán, khuyến mại của sản phẩm và tình trạng còn hàng có thể bị thay đổi bất cứ lúc nào mà không kịp báo trước.</td></tr>
+    <tr><td colspan="8" style="border-bottom: 3px solid #d2171b;"></td></tr>
+    <tr><td colspan="8"></td></tr>
+    <tr><td colspan="4">
+       Để biết thêm chi tiết, vui lòng liên hệ<br />
+	   Hotline: 1900 1903 (8h00-21h30 hàng ngày)
+      </td>
+      <td colspan="4" align="right" style="color: #d2171b;font-size: 20px; font-weight: 700;">HACOM CHÂN THÀNH CẢM ƠN QUÝ KHÁCH</td>
+    </tr>
+  </table>
+
+</div>
+
+</body>
+</html>
+
+

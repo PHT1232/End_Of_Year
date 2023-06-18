@@ -12,7 +12,7 @@ namespace Nguyen_Tan_Phat_Project.Module.ProductManagement.Dto
     }
     public class CategoryProduct
     {
-        public string CategoryId { get; set; }
-        public string CategoryName { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 }

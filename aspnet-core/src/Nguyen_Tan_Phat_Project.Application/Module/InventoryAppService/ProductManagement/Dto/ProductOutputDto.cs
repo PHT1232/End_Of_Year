@@ -14,6 +14,7 @@ namespace Nguyen_Tan_Phat_Project.Module.InventoryManagement.ProductManagement.D
         public string ProductName { get; set; }
         public string ProductDescription { get; set; }
         public string ProductDetail { get; set; }
+        public string ProductImage { get; set; }
         public float Price { get; set; }
         public string CategoryId { get; set; }
         public int? SubCategoryId { get; set; }

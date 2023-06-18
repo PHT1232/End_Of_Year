@@ -19,15 +19,21 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
 {
     public class CustomerAppService : Nguyen_Tan_Phat_ProjectAppServiceBase
     {
-        private IRepository<Customer, string> _customerRepository;
-        private IRepository<BankAccount> _bankRepository;
+        private readonly IRepository<Customer, string> _customerRepository;
+        private readonly IRepository<BankAccount> _bankRepository;
+        private readonly IRepository<Structure, string> _structureRepository;
+        private readonly IRepository<RetailCustomer> _retailCustomerRepository;
 
         public CustomerAppService(IRepository<Customer, string> customerRepository
             , IRepository<BankAccount> bankRepository
+            , IRepository<Structure, string> structureRepository
+            , IRepository<RetailCustomer> retailCustomerRepository
             )
         {
             _customerRepository = customerRepository;
             _bankRepository = bankRepository;
+            _structureRepository = structureRepository;
+            _retailCustomerRepository = retailCustomerRepository;
         }
 
         [AbpAuthorize(PermissionNames.Page_System_Customer_Add)]
@@ -54,7 +60,9 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerPhone = input.CustomerPhone,
                         CustomerAddress = input.CustomerAddress,
                         CustomerWebsite = input.CustomerWebsite,
+                        StructureCode = input.StructureCode,
                         CustomerDescription = input.CustomerDescription,
+                        Discount = input.Discount
                     };
                 } else
                 {
@@ -66,9 +74,11 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerEmail = input.CustomerEmail,
                         CustomerPhone = input.CustomerPhone,
                         CustomerAddress = input.CustomerAddress,
+                        StructureCode = input.StructureCode,
                         CustomerWebsite = input.CustomerWebsite,
                         CustomerDescription = input.CustomerDescription,
                         BankAccount = input.BankAccount,
+                        Discount = input.Discount
                     };
                 }
 
@@ -102,7 +112,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                     throw new UserFriendlyException("Đã có khách hàng với tên này");
 
                 var customerDto = await _customerRepository.FirstOrDefaultAsync(e => e.Id == input.CustomerCode);
-                if (customerDto != null)
+                if (customerDto == null)
                     throw new UserFriendlyException("Không thể tìm thấy khách hàng này");
 
                 customerDto.CustomerName = input.CustomerName;
@@ -111,20 +121,19 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 customerDto.CustomerPhone = input.CustomerPhone;
                 customerDto.CustomerAddress = input.CustomerAddress;
                 customerDto.CustomerWebsite = input.CustomerWebsite;
+                customerDto.StructureCode = input.StructureCode;
                 customerDto.CustomerDescription = input.CustomerDescription;
+                customerDto.Discount = input.Discount;
 
                 var customerBankAccount = await _bankRepository.FirstOrDefaultAsync(e => e.BankId == input.BankAccount.BankId);
-                if (customerBankAccount != null)
-                {
-                    await _bankRepository.UpdateAsync(input.BankAccount);
-                }
-                else
+                if (customerBankAccount == null || customerBankAccount.BankId != input.BankAccount.BankId)
                 {
                     await _bankRepository.InsertAsync(input.BankAccount);
                     customerDto.BankId = input.BankAccount.BankId;
+                    await _customerRepository.UpdateAsync(customerDto);
                 }
 
-                await _customerRepository.UpdateAsync(customerDto);
+                //await _customerRepository.UpdateAsync(customerDto);
             } catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
@@ -145,14 +154,36 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         CustomerWebsite = e.CustomerWebsite,
                         CustomerPhone = e.CustomerPhone,
                         CustomerBankId = e.BankAccount.BankId,
+                        StructureName = _structureRepository.GetAll().FirstOrDefault(x => x.Id == e.StructureCode).UnitName,
                         CustomerBankName = e.BankAccount.BankName,
+                        Discount = e.Discount,
                     }).PageBy(input).ToListAsync();
+
+                
+                List<CustomerGetAllDto> result = new List<CustomerGetAllDto>();
+                foreach (var item in query)
+                {
+                    var retailCustomer = _retailCustomerRepository.FirstOrDefault(e => e.CustomerCode == item.CustomerCode);
+                    if (!input.isRetail)
+                    {
+                        if (retailCustomer == null)
+                        {
+                            result.Add(item);
+                        }
+                    } else
+                    {
+                        if (retailCustomer != null)
+                        {
+                            result.Add(item);
+                        }
+                    }
+                }
 
                 int totalCount = _customerRepository.Count();
 
                 return new PagedResultDto<CustomerGetAllDto> 
                 {
-                    Items = query, 
+                    Items = result, 
                     TotalCount = totalCount 
                 };
             } catch (Exception ex)
@@ -179,7 +210,9 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                 CustomerPhone = query.CustomerPhone,
                 CustomerDescription = query.CustomerDescription,
                 CustomerEmail = query.CustomerEmail,
-                BankAccount = query.BankAccount,
+                StructureCode = query.StructureCode,
+                BankAccount = _bankRepository.GetAll().FirstOrDefault(e => e.BankId == query.BankId),
+                Discount = query.Discount,
             };
 
             return customerOutput;
