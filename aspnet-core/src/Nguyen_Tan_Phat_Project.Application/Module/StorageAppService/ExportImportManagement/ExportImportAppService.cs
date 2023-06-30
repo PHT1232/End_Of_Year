@@ -235,21 +235,22 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
         {
             try
             {
+
                 var exportImport = await _exportImportRepository.FirstOrDefaultAsync(e => e.Id == input.ExportImportCode);
                 if (exportImport.OrderType == 1 && input.OrderStatus == 2)
                 {
                     var exportImportProduct = await _exportImportProductRepository.GetAll()
-                        .Where(e => e.ExportImportCode == exportImport.Id)
+                        .Where(e => e.ExportImportCode == input.ExportImportCode)
                         .ToListAsync();
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
 
-                    foreach (var productExport in exportImportProduct)
-                    {
-                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
-                        product.ProductQuantity -= productExport.Quantity;
-                        _productStorageRepository.Update(product);
-                    }
+                    //foreach (var productExport in exportImportProduct)
+                    //{
+                    //    var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
+                    //    product.ProductQuantity -= productExport.Quantity;
+                    //    _productStorageRepository.Update(product);
+                    //}
                 }
 
                 else if (exportImport.OrderType == 2 && input.OrderStatus == 2)
@@ -286,39 +287,19 @@ namespace Nguyen_Tan_Phat_Project.Module.StorageAppService.ExportImportManagemen
                     }
                 }
 
-                else if (exportImport.OrderType == 3 && input.OrderStatus == 2)
+                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 && input.OrderStatus == 3)
                 {
                     var exportImportProduct = await _exportImportProductRepository.GetAll()
                         .Where(e => e.ExportImportCode == input.ExportImportCode)
                         .ToListAsync();
-                    exportImport.OrderStatus = input.OrderStatus;
-                    await _exportImportRepository.UpdateAsync(exportImport);
-
 
                     foreach (var productExport in exportImportProduct)
                     {
-                        var productInput = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageInputId && e.ProductId == productExport.ProductId);
-                        if (productInput == null)
-                        {
-                            productInput = new ProductStorage
-                            {
-                                StorageId = productExport.StorageInputId,
-                                ProductId = productExport.ProductId,
-                                ProductLocation = productExport.Location,
-                                ProductQuantity = productExport.Quantity,
-                            };
-                            _productStorageRepository.Insert(productInput);
-                        }
-                        else
-                        {
-                            productInput.ProductQuantity += productExport.Quantity;
-                            _productStorageRepository.Update(productInput);
-                        }
+                        var product = _productStorageRepository.FirstOrDefault(e => e.StorageId == productExport.StorageId && e.ProductId == productExport.ProductId);
+                        product.ProductQuantity += productExport.Quantity;
+                        _productStorageRepository.Update(product);
                     }
-                }
 
-                else if (exportImport.OrderType == 1 || exportImport.OrderType == 2 || exportImport.OrderType == 3 && input.OrderStatus == 3)
-                {
                     exportImport.OrderStatus = input.OrderStatus;
                     await _exportImportRepository.UpdateAsync(exportImport);
                 }

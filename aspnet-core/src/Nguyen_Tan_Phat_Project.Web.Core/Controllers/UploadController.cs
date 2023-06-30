@@ -159,10 +159,10 @@ namespace Nguyen_Tan_Phat_Project.Controllers
                 }
             } else if (response.Success == false) 
             { 
-                return Redirect("http://localhost:4200/app/retail?failed=true");
+                return Redirect("http://unten.tech/quantri/");
             }
 
-            return Redirect("http://localhost:4200/app/retail?failed=false");
+            return Redirect("http://unten.tech/quantri/");
         }
 
         //public IActionResult PaymentCallback()

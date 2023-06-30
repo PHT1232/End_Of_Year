@@ -157,7 +157,7 @@ namespace Nguyen_Tan_Phat_Project.Module.CustomerAppService.CustomerManagement
                         StructureName = _structureRepository.GetAll().FirstOrDefault(x => x.Id == e.StructureCode).UnitName,
                         CustomerBankName = e.BankAccount.BankName,
                         Discount = e.Discount,
-                    }).PageBy(input).ToListAsync();
+                    }).ToListAsync();
 
                 
                 List<CustomerGetAllDto> result = new List<CustomerGetAllDto>();

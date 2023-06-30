@@ -24,8 +24,8 @@ namespace Nguyen_Tan_Phat_Project.Module
         private readonly string Version = "2.1.0";
         private readonly string Locale = "vn";
         private readonly string TimeZoneId = "SE Asia Standard Time";
-        //private readonly string ReturnUrl = "https://unten.tech:44311/api/Upload/PaymentCallback";
-        private readonly string ReturnUrl = "https://localhost:44311/api/Upload/PaymentCallback";
+        private readonly string ReturnUrl = "https://unten.tech/api/Upload/PaymentCallback";
+        //private readonly string ReturnUrl = "https://localhost:44311/api/Upload/PaymentCallback";
         private HttpContext httpContext => _httpContextAccessor.HttpContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<ExportImportProduct> _exportImportProductRepository;
